@@ -80,6 +80,7 @@ interface HistoryEntry {
   latency_ms: number;
   hints_used: number;
   misconception_id?: string;
+  retries?: number;
 }
 
 /*************************
@@ -469,15 +470,18 @@ const CONTENT = {
         "Physically accessible device enclosure",
         "Regular patching policy",
       ],
-      bins: [STRINGS.en.bin_vulnerability, STRINGS.en.bin_mitigation],
+      bins: [
+        { id: "vulnerability", label: STRINGS.en.bin_vulnerability },
+        { id: "mitigation", label: STRINGS.en.bin_mitigation },
+      ],
       answer_key: {
         correct: {
-          Vulnerability: [
+          vulnerability: [
             "Default password on outdoor camera",
             "No remote update mechanism",
             "Physically accessible device enclosure",
           ],
-          Mitigation: [
+          mitigation: [
             "Network segmentation (separate IoT VLAN)",
             "Strong, unique credentials",
             "Regular patching policy",
@@ -487,7 +491,7 @@ const CONTENT = {
       misconceptions: [
         {
           id: "segmentation_confused",
-          detector: (resp: any) => Array.isArray(resp?.bins?.Vulnerability) && resp.bins.Vulnerability.includes("Network segmentation (separate IoT VLAN)"),
+          detector: (resp: any) => Array.isArray(resp?.bins?.vulnerability) && resp.bins.vulnerability.includes("Network segmentation (separate IoT VLAN)"),
           feedback: {
             why: "Segmentation limits blast radius if a device is compromised.",
             contrast: "It's a defensive control, not a risk by itself.",
@@ -562,9 +566,10 @@ function arraysEqual<T>(a: T[] | undefined, b: T[] | undefined): boolean {
 }
 
 /*************************
- * Telemetry store       *
+ * Telemetry & Session Storage *
  *************************/
 const TELEMETRY_KEY = "iot_minigames_telemetry_v1";
+const SESSION_KEY = "iot_minigames_session_v1";
 
 function sanitizeForJSON(obj: any): any {
   if (obj === null || obj === undefined) return obj;
@@ -628,6 +633,112 @@ function downloadTelemetryCSV() {
 }
 
 /*************************
+ * Session persistence   *
+ *************************/
+function saveSession(state: any) {
+  try {
+    const sanitized = sanitizeForJSON(state);
+    // Add schema version to track format changes
+    const versioned = {
+      ...sanitized,
+      schemaVersion: 2, // Current version with lowercase bin IDs
+    };
+    localStorage.setItem(SESSION_KEY, JSON.stringify(versioned));
+  } catch (err) {
+    console.warn("[session] Failed to save:", err);
+  }
+}
+
+/**
+ * Normalize bin keys from old uppercase format to new lowercase IDs
+ * Also ensures retries field defaults to 0 instead of undefined
+ */
+function normalizeBinKeys(obj: any): any {
+  if (!obj || typeof obj !== 'object') return obj;
+  
+  if (Array.isArray(obj)) {
+    return obj.map(normalizeBinKeys);
+  }
+  
+  const result: any = {};
+  for (const key in obj) {
+    let newKey = key;
+    let value = obj[key];
+    
+    // Normalize known uppercase bin keys to lowercase IDs
+    if (key === 'Vulnerability') {
+      newKey = 'vulnerability';
+    } else if (key === 'Mitigation') {
+      newKey = 'mitigation';
+    }
+    
+    // Ensure retries field defaults to 0 instead of undefined
+    if (key === 'retries' && (value === undefined || value === null)) {
+      value = 0;
+    }
+    
+    // Recursively normalize nested objects
+    if (typeof value === 'object' && value !== null) {
+      value = normalizeBinKeys(value);
+    }
+    
+    result[newKey] = value;
+  }
+  
+  return result;
+}
+
+/**
+ * Migrate session data from old schema (uppercase bin keys) to new schema (lowercase bin IDs)
+ * This handles sessions saved before the bin ID refactor.
+ */
+function migrateSessionData(data: any): any {
+  if (!data) return data;
+  
+  // Add schema version for future migrations
+  const version = data.schemaVersion || 1;
+  
+  // Schema version 1: uppercase bin keys (old)
+  // Schema version 2: lowercase bin IDs (new)
+  if (version >= 2) {
+    return data; // Already migrated
+  }
+  
+  console.log("[session] Migrating from schema v1 to v2: normalizing bin keys");
+  
+  // Deep clone and normalize bin keys throughout the session data
+  const normalized = normalizeBinKeys(data);
+  
+  // Mark as migrated
+  return {
+    ...normalized,
+    schemaVersion: 2,
+  };
+}
+
+function loadSession(): any | null {
+  try {
+    const saved = localStorage.getItem(SESSION_KEY);
+    if (!saved) return null;
+    const parsed = JSON.parse(saved);
+    // Apply migration to handle old uppercase bin keys
+    const migrated = migrateSessionData(parsed);
+    return migrated;
+  } catch (err) {
+    console.warn("[session] Failed to load:", err);
+    return null;
+  }
+}
+
+function clearSession() {
+  try {
+    localStorage.removeItem(SESSION_KEY);
+  } catch (err) {
+    console.warn("[session] Failed to clear:", err);
+  }
+}
+
+/*************************
  * Engine (evaluate)     *
  *************************/
 function evaluate(item: Item, response: any): { correct: boolean; misconception_id?: string } {
@@ -664,14 +775,14 @@ function evaluate(item: Item, response: any): { correct: boolean; misconception_
   if (item.response_type === "triage") {
     const exp = item.answer_key.correct || {};
     const bins = response?.bins || {};
-    const isCorr = (binName: string) => {
-      const setA = new Set<string>((bins[binName] || []).slice().sort());
-      const setB = new Set<string>((exp[binName] || []).slice().sort());
+    const isCorr = (binId: string) => {
+      const setA = new Set<string>((bins[binId] || []).slice().sort());
+      const setB = new Set<string>((exp[binId] || []).slice().sort());
       if (setA.size !== setB.size) return false;
       for (const v of Array.from(setA)) if (!setB.has(v)) return false;
       return true;
     };
-    const correct = isCorr("Vulnerability") && isCorr("Mitigation");
+    const correct = isCorr("vulnerability") && isCorr("mitigation");
     const mis = !correct && item.misconceptions?.find((m) => m.detector?.(response));
     return { correct, misconception_id: mis?.id };
   }
@@ -680,9 +791,126 @@ function evaluate(item: Item, response: any): { correct: boolean; misconception_
 }
 
 /*************************
+ * Component: CompletionScreen *
+ *************************/
+function CompletionScreen({
+  mastery,
+  history,
+  onRestart,
+  onDownloadTelemetry,
+}: {
+  mastery: any;
+  history: HistoryEntry[];
+  onRestart: () => void;
+  onDownloadTelemetry: () => void;
+}) {
+  const t = STRINGS.en;
+  const totalTime = history.reduce((sum, h) => sum + h.latency_ms, 0);
+  const totalTimeSeconds = Math.round(totalTime / 1000);
+  const totalItems = history.length;
+  const correctFirst = history.filter(h => h.correct).length;
+  const accuracy = Math.round((correctFirst / totalItems) * 100);
+  
+  return (
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <Card className="w-full max-w-2xl shadow-2xl">
+        <CardContent className="p-8 md:p-12 space-y-8">
+          {/* Trophy Icon */}
+          <div className="flex justify-center">
+            <div className="rounded-full bg-primary/10 p-6">
+              <Trophy className="h-16 w-16 md:h-20 md:w-20 text-primary" />
+            </div>
+          </div>
+          
+          {/* Title */}
+          <div className="text-center space-y-2">
+            <h1 className="text-3xl md:text-4xl font-bold">{t.mastery_unlocked}</h1>
+            <p className="text-lg text-muted-foreground">
+              You've achieved all mastery criteria. Excellent work!
+            </p>
+          </div>
+          
+          {/* Stats Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="text-center p-4 rounded-xl bg-muted/30">
+              <div className="text-3xl font-bold text-primary">{mastery.streak}</div>
+              <div className="text-sm text-muted-foreground mt-1">Current Streak</div>
+            </div>
+            <div className="text-center p-4 rounded-xl bg-muted/30">
+              <div className="text-3xl font-bold text-primary">{mastery.avgTimeS}s</div>
+              <div className="text-sm text-muted-foreground mt-1">Avg Response</div>
+            </div>
+            <div className="text-center p-4 rounded-xl bg-muted/30">
+              <div className="text-3xl font-bold text-primary">{accuracy}%</div>
+              <div className="text-sm text-muted-foreground mt-1">First-Try Accuracy</div>
+            </div>
+            <div className="text-center p-4 rounded-xl bg-muted/30">
+              <div className="text-3xl font-bold text-primary">{totalItems}</div>
+              <div className="text-sm text-muted-foreground mt-1">Items Completed</div>
+            </div>
+          </div>
+          
+          {/* Additional Stats */}
+          <div className="space-y-3 p-4 rounded-xl border bg-card">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">Total Time</span>
+              <span className="text-sm text-muted-foreground">{Math.floor(totalTimeSeconds / 60)}m {totalTimeSeconds % 60}s</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">Hints Used</span>
+              <span className="text-sm text-muted-foreground">{mastery.hints}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">Mastery Criteria Met</span>
+              <Badge className="bg-green-600 hover:bg-green-600">
+                <Check className="h-3 w-3 mr-1" />
+                All Criteria
+              </Badge>
+            </div>
+          </div>
+          
+          {/* Actions */}
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Button
+              size="lg"
+              className="flex-1"
+              onClick={onRestart}
+              data-testid="button-restart-session"
+            >
+              <RefreshCw className="h-5 w-5 mr-2" />
+              Start New Session
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              className="flex-1"
+              onClick={onDownloadTelemetry}
+              data-testid="button-download-completion"
+            >
+              <Download className="h-5 w-5 mr-2" />
+              {t.download_csv}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+/*************************
  * Component: Header     *
  *************************/
-function Header({ mastery, onTelemetryToggle }: { mastery: any; onTelemetryToggle: () => void }) {
+function Header({ 
+  mastery, 
+  currentIndex, 
+  totalItems,
+  onTelemetryToggle 
+}: { 
+  mastery: any; 
+  currentIndex: number;
+  totalItems: number;
+  onTelemetryToggle: () => void;
+}) {
   const t = STRINGS.en;
   
   return (
@@ -691,7 +919,12 @@ function Header({ mastery, onTelemetryToggle }: { mastery: any; onTelemetryToggl
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <div className="flex-1 min-w-[200px]">
             <h1 className="text-2xl md:text-3xl font-bold tracking-tight">{t.app_title}</h1>
-            <p className="text-sm text-muted-foreground">{t.app_sub}</p>
+            <div className="flex items-center gap-3 mt-1">
+              <p className="text-sm text-muted-foreground">{t.app_sub}</p>
+              <Badge variant="outline" className="text-xs" data-testid="progress-indicator">
+                {currentIndex + 1} of {totalItems}
+              </Badge>
+            </div>
           </div>
           
           <div className="flex items-center gap-6" aria-label={t.mastery_progress}>
@@ -898,25 +1131,30 @@ function Triage({
   hintUsed: boolean;
 }) {
   const t = STRINGS.en;
+  // Extract bin definitions with stable IDs
+  const binDefs = item.bins || [];
+  const vulnBin = binDefs.find((b: any) => b.id === "vulnerability");
+  const mitigBin = binDefs.find((b: any) => b.id === "mitigation");
+  
   const [unplaced, setUnplaced] = useState<string[]>(item.cards || []);
   const [bins, setBins] = useState<Record<string, string[]>>({
-    [t.bin_vulnerability]: [],
-    [t.bin_mitigation]: [],
+    vulnerability: [],
+    mitigation: [],
   });
 
-  const place = (card: string, bin: string) => {
+  const place = (card: string, binId: string) => {
     setUnplaced((u) => u.filter((c) => c !== card));
-    setBins((b) => ({ ...b, [bin]: [...b[bin], card] }));
+    setBins((b) => ({ ...b, [binId]: [...b[binId], card] }));
   };
 
-  const remove = (card: string, bin: string) => {
-    setBins((b) => ({ ...b, [bin]: b[bin].filter((c) => c !== card) }));
+  const remove = (card: string, binId: string) => {
+    setBins((b) => ({ ...b, [binId]: b[binId].filter((c) => c !== card) }));
     setUnplaced((u) => [...u, card]);
   };
 
   const reset = () => {
     setUnplaced(item.cards || []);
-    setBins({ [t.bin_vulnerability]: [], [t.bin_mitigation]: [] });
+    setBins({ vulnerability: [], mitigation: [] });
   };
 
   return (
@@ -932,7 +1170,7 @@ function Triage({
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => place(c, t.bin_vulnerability)}
+                  onClick={() => place(c, "vulnerability")}
                   className="flex-1 text-left justify-start h-auto py-2 hover-elevate"
                   data-testid={`card-${c}`}
                 >
@@ -944,9 +1182,9 @@ function Triage({
         </div>
         
         <div>
-          <h4 className="mb-3 text-sm font-semibold text-destructive">{t.bin_vulnerability}</h4>
+          <h4 className="mb-3 text-sm font-semibold text-destructive">{vulnBin?.label || t.bin_vulnerability}</h4>
           <div className="space-y-2">
-            {bins[t.bin_vulnerability].map((c) => (
+            {bins.vulnerability.map((c) => (
               <div
                 key={c}
                 className="flex items-center justify-between rounded-xl border border-destructive/30 bg-destructive/5 p-3 text-sm"
@@ -957,7 +1195,7 @@ function Triage({
                   variant="ghost"
                   size="sm"
                   className="h-6 w-6 p-0"
-                  onClick={() => place(c, t.bin_mitigation)}
+                  onClick={() => place(c, "mitigation")}
                   aria-label={`Move ${c} to Mitigation`}
                   data-testid={`move-${c}`}
                 >
@@ -969,9 +1207,9 @@ function Triage({
         </div>
         
         <div>
-          <h4 className="mb-3 text-sm font-semibold text-green-600 dark:text-green-500">{t.bin_mitigation}</h4>
+          <h4 className="mb-3 text-sm font-semibold text-green-600 dark:text-green-500">{mitigBin?.label || t.bin_mitigation}</h4>
           <div className="space-y-2">
-            {bins[t.bin_mitigation].map((c) => (
+            {bins.mitigation.map((c) => (
               <div
                 key={c}
                 className="flex items-center justify-between rounded-xl border border-green-600/30 bg-green-600/5 p-3 text-sm"
@@ -982,7 +1220,7 @@ function Triage({
                   variant="ghost"
                   size="sm"
                   className="h-6 w-6 p-0"
-                  onClick={() => remove(c, t.bin_mitigation)}
+                  onClick={() => remove(c, "mitigation")}
                   aria-label={`Remove ${c}`}
                   data-testid={`remove-${c}`}
                 >
@@ -1231,11 +1469,13 @@ function MatchPairs({
 function Feedback({
   item,
   feedbackState,
+  retries,
   onRetry,
   onNext,
 }: {
   item: Item;
   feedbackState: FeedbackState;
+  retries: number;
   onRetry: () => void;
   onNext: () => void;
 }) {
@@ -1244,8 +1484,8 @@ function Feedback({
 
   return (
     <div className="space-y-6">
-      {/* Status badge */}
-      <div className="flex items-center gap-3">
+      {/* Status badge with aria-live for screen readers */}
+      <div className="flex items-center gap-3 flex-wrap" aria-live="polite" aria-atomic="true">
         {feedbackState.correct ? (
           <Badge className="bg-green-600 hover:bg-green-600 text-white px-4 py-2">
             <Check className="h-4 w-4 mr-2" />
@@ -1261,18 +1501,23 @@ function Feedback({
         <div className="flex gap-3 text-xs text-muted-foreground">
           <span>{msToS(feedbackState.latency_ms)}s</span>
           {feedbackState.hints_used > 0 && <span>{feedbackState.hints_used} hints</span>}
+          {retries > 0 && !feedbackState.correct && (
+            <span className="font-medium">{retries} {retries === 1 ? 'retry' : 'retries'}</span>
+          )}
         </div>
       </div>
 
       {/* Feedback content */}
       {feedbackState.correct ? (
         <div className="space-y-4">
-          <div className="rounded-xl border bg-card p-6">
-            <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
-              <Badge variant="secondary">{t.rule_label}</Badge>
-            </h4>
-            <p className="text-sm leading-relaxed">{item.answer_key.rules[0]}</p>
-          </div>
+          {item.answer_key.rules && item.answer_key.rules.length > 0 && (
+            <div className="rounded-xl border bg-card p-6">
+              <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
+                <Badge variant="secondary">{t.rule_label}</Badge>
+              </h4>
+              <p className="text-sm leading-relaxed">{item.answer_key.rules[0]}</p>
+            </div>
+          )}
           
           {item.exemplar_response && (
             <div className="rounded-xl border bg-muted/30 p-6">
@@ -1336,6 +1581,7 @@ export default function IoTLearningLab() {
   
   // Session state
   const [started, setStarted] = useState(false);
+  const [sessionCompleted, setSessionCompleted] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showFeedback, setShowFeedback] = useState(false);
   const [feedbackState, setFeedbackState] = useState<FeedbackState | null>(null);
@@ -1344,6 +1590,7 @@ export default function IoTLearningLab() {
   const [hintIdx, setHintIdx] = useState(-1);
   const [startMs, setStartMs] = useState(now());
   const [currentItemMastered, setCurrentItemMastered] = useState(false);
+  const [currentItemRetries, setCurrentItemRetries] = useState(0);
   
   // History & mastery
   const [history, setHistory] = useState<HistoryEntry[]>([]);
@@ -1355,6 +1602,34 @@ export default function IoTLearningLab() {
   
   // Current item
   const item = CONTENT.items[currentIndex];
+  
+  // Load session on mount
+  useEffect(() => {
+    const saved = loadSession();
+    if (saved && saved.started && !saved.sessionCompleted) {
+      // Restore session
+      setStarted(saved.started);
+      setCurrentIndex(saved.currentIndex || 0);
+      setHistory(saved.history || []);
+      setSeenCounts(saved.seenCounts || CONTENT.items.map(() => 0));
+      setIncorrectItems(new Set(saved.incorrectItems || []));
+      console.log("[session] Restored previous session");
+    }
+  }, []);
+  
+  // Save session whenever key state changes
+  useEffect(() => {
+    if (started && !sessionCompleted) {
+      saveSession({
+        started,
+        currentIndex,
+        history,
+        seenCounts,
+        incorrectItems: Array.from(incorrectItems),
+        sessionCompleted: false,
+      });
+    }
+  }, [started, currentIndex, history, seenCounts, incorrectItems, sessionCompleted]);
   
   // Compute mastery stats
   const mastery = useMemo(() => {
@@ -1394,29 +1669,87 @@ export default function IoTLearningLab() {
       return nextIdx >= 0 ? nextIdx : 0;
     }
     
-    // Adaptive phase: prioritize incorrect items
+    // Get recent item IDs from history (last 3) to avoid immediate repetition
+    const recentItemIds = history.slice(-3).map((h) => h.item_id);
+    
+    // Adaptive phase: prioritize incorrect items, avoiding recent ones
     if (incorrectItems.size > 0) {
-      const incorrectArr = Array.from(incorrectItems);
-      // Pick least-seen incorrect item
-      incorrectArr.sort((a, b) => seenCounts[a] - seenCounts[b]);
-      return incorrectArr[0];
+      let incorrectArr = Array.from(incorrectItems);
+      
+      // Filter out recently shown items
+      const candidatesFiltered = incorrectArr.filter(
+        (idx) => !recentItemIds.includes(CONTENT.items[idx].id)
+      );
+      
+      // If all incorrect items were shown recently, allow any incorrect item
+      const candidates = candidatesFiltered.length > 0 ? candidatesFiltered : incorrectArr;
+      
+      // Pick least-seen incorrect item from candidates
+      candidates.sort((a, b) => seenCounts[a] - seenCounts[b]);
+      return candidates[0];
     }
     
-    // All items correct at least once: find least-seen
+    // All items correct at least once: find least-seen, avoiding recent ones
     const minCount = Math.min(...seenCounts);
-    const candidates = seenCounts
+    let candidates = seenCounts
       .map((c, i) => ({ i, c }))
-      .filter((x) => x.c === minCount)
+      .filter((x) => x.c === minCount && !recentItemIds.includes(CONTENT.items[x.i].id))
       .map((x) => x.i);
+    
+    // If all least-seen items were shown recently, allow any least-seen item
+    if (candidates.length === 0) {
+      candidates = seenCounts
+        .map((c, i) => ({ i, c }))
+        .filter((x) => x.c === minCount)
+        .map((x) => x.i);
+    }
     
     return candidates[Math.floor(Math.random() * candidates.length)];
   };
+  
+  // Check if mastery is met and trigger completion
+  useEffect(() => {
+    if (mastery.masteryMet && !sessionCompleted && history.length > 0) {
+      // Give a small delay before showing completion screen
+      const timer = setTimeout(() => {
+        setSessionCompleted(true);
+        recordEvent({
+          type: "session_complete",
+          final_streak: mastery.streak,
+          final_avg_time: mastery.avgTimeS,
+          final_hints: mastery.hints,
+          total_items: history.length,
+        });
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [mastery.masteryMet, sessionCompleted, mastery.streak, mastery.avgTimeS, mastery.hints, history.length]);
   
   // Handlers
   const handleStart = () => {
     setStarted(true);
     setStartMs(now());
     recordEvent({ type: "session_start" });
+  };
+  
+  const handleRestart = () => {
+    // Reset all state to start fresh
+    setSessionCompleted(false);
+    setStarted(false);
+    setCurrentIndex(0);
+    setShowFeedback(false);
+    setFeedbackState(null);
+    setHintIdx(-1);
+    setStartMs(now());
+    setCurrentItemMastered(false);
+    setCurrentItemRetries(0);
+    setHistory([]);
+    setSeenCounts(CONTENT.items.map(() => 0));
+    setIncorrectItems(new Set());
+    setTeleOpen(false);
+    
+    clearSession(); // Clear saved session
+    recordEvent({ type: "session_restart" });
   };
   
   const handleHint = () => {
@@ -1460,8 +1793,14 @@ export default function IoTLearningLab() {
       latency_ms,
       hints_used,
       misconception_id: result.misconception_id,
+      retries: currentItemRetries,
     };
     setHistory((h) => [...h, entry]);
+    
+    // Increment retry counter if incorrect
+    if (!result.correct) {
+      setCurrentItemRetries((r) => r + 1);
+    }
     
     // Update seen counts
     setSeenCounts((counts) => {
@@ -1514,8 +1853,9 @@ export default function IoTLearningLab() {
     setFeedbackState(null);
     setHintIdx(-1);
     setStartMs(now());
-    // Reset mastery flag for new item
+    // Reset mastery and retry counters for new item
     setCurrentItemMastered(false);
+    setCurrentItemRetries(0);
   };
   
   // Render game mechanic
@@ -1574,10 +1914,27 @@ export default function IoTLearningLab() {
     );
   }
   
+  // Completion screen
+  if (sessionCompleted) {
+    return (
+      <CompletionScreen
+        mastery={mastery}
+        history={history}
+        onRestart={handleRestart}
+        onDownloadTelemetry={downloadTelemetryCSV}
+      />
+    );
+  }
+  
   // Practice screen
   return (
     <div className="min-h-screen bg-background">
-      <Header mastery={mastery} onTelemetryToggle={() => setTeleOpen(!teleOpen)} />
+      <Header 
+        mastery={mastery} 
+        currentIndex={currentIndex}
+        totalItems={CONTENT.items.length}
+        onTelemetryToggle={() => setTeleOpen(!teleOpen)} 
+      />
       
       <main className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Mastery banner */}
@@ -1626,6 +1983,7 @@ export default function IoTLearningLab() {
               <Feedback
                 item={item}
                 feedbackState={feedbackState}
+                retries={currentItemRetries}
                 onRetry={handleRetry}
                 onNext={handleNext}
               />

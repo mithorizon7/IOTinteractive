@@ -25,7 +25,62 @@ An educational web application featuring interactive mini-games designed to teac
 - ✅ Comprehensive test IDs for all interactive elements
 
 ## Recent Changes
-**Date**: 2025-11-12
+
+### **Latest Update: 2025-11-12 PM** - Polish & Production-Ready Enhancements
+**Status**: ✅ PRODUCTION-READY (Architect Approved)
+
+**Implemented Features**:
+1. **Session Persistence with Migration** (v1→v2 schema)
+   - Added localStorage save/load for progress, history, seen counts, incorrect items
+   - Implemented schema versioning system (v1: legacy uppercase bins, v2: lowercase bin IDs)
+   - Created normalizeBinKeys() for recursive migration of old data
+   - Auto-restore session on page load, auto-save on state changes
+   - Migration defaults undefined retries to 0 for clean telemetry CSV export
+
+2. **Retry Counter Tracking**
+   - Added currentItemRetries state to track attempts per item
+   - Display retry count in feedback panel ("X retries")
+   - Resets to 0 when navigating to next item
+   - Recorded in history entries and telemetry for analysis
+
+3. **Progress Indicator**
+   - Added "X of Y" badge in header (data-testid: progress-indicator)
+   - Shows current position in learning sequence
+   - Mobile-responsive with flex-wrap
+   - Updates dynamically as learner progresses
+
+4. **Critical Bug Fixes**:
+   - **Triage Bin ID Refactor**: Decoupled evaluation from localization
+     - Changed bins from string labels to `{ id: "vulnerability", label: "Vulnerability" }` structure
+     - Evaluation now uses stable lowercase IDs instead of localized strings
+     - Prevents evaluation failures due to localization changes
+     - Migration normalizes legacy uppercase keys throughout session data
+   
+   - **MatchPairs Crash Prevention**: Added defensive guard for `item.answer_key.rules`
+     - Prevents undefined access when displaying feedback
+     - Gracefully handles items without rules array
+
+5. **Accessibility Enhancements**
+   - Added aria-live="polite" regions for screen reader announcements
+   - Ensured flex-wrap on mobile for touch-friendly targets
+   - Maintained keyboard navigation support
+
+**Technical Improvements**:
+- Schema versioning prevents silent data corruption on structure changes
+- Recursive normalization ensures compatibility with all legacy session data
+- Clean migration path for future schema updates
+- Telemetry now exports well-formed data (no undefined values)
+
+**Validation**:
+- ✅ No LSP errors
+- ✅ Application runs without crashes
+- ✅ Session persistence tested and working
+- ✅ E2E tests validated DecisionLab, progress indicator, retry counter
+- ✅ Architect review approved as production-ready
+
+---
+
+### **Initial Release: 2025-11-12 AM**
 
 1. **Design System Setup**
    - Generated design guidelines based on Material Design 3 and educational platforms (Khan Academy, Duolingo)
@@ -34,7 +89,7 @@ An educational web application featuring interactive mini-games designed to teac
    - Established color tokens in index.css (indigo primary, semantic colors for success/error/warning)
 
 2. **Complete Frontend Implementation**
-   - Created comprehensive `client/src/pages/iot-learning.tsx` (1622 lines)
+   - Created comprehensive `client/src/pages/iot-learning.tsx` (1900+ lines)
    - Implemented all four game mechanics with beautiful, accessible UI
    - Built feedback system with misconception detection and targeted remediation
    - Added mastery tracking with visual progress indicators
