@@ -1,0 +1,329 @@
+Right now you’ve got a beautifully fleshed-out **content layer** and a lot of the **rendering primitives**, but you don’t yet have the **game engine** that actually runs the learning loop end-to-end. Also, the file is literally cut off mid-component.
+
+Here’s a developer-oriented breakdown of what’s missing or incomplete, grouped by responsibility.
+
+---
+
+## 1. Obvious syntactic / structural incompleteness
+
+1. **Truncated JSX in `MatchPairs`**
+
+   * The file ends at:
+
+     ```tsx
+     <button
+       className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700 focus:outline-none focus:ring"
+       onClick={() => onSubmit({ pairs })}
+     >
+       <Check size={16} /> {STRINGS[locale as keyof typeof STRINGS].submit}
+     </but
+     ```
+   * Missing:
+
+     * The rest of the closing `</button>` tag.
+     * The closing `</div>` for the outer `<div className="space-y-4">`.
+     * The closing `}` and `)` to end the `MatchPairs` function.
+   * In its current form, the file cannot compile.
+
+2. **No exported root component**
+
+   * There is **no `export default function App()`** or equivalent at the bottom of the file.
+   * As a result, nothing is rendered; the bundler has no entry React component.
+
+**Summary:** You must finish `MatchPairs` and add an `App` component (or other root) that’s exported.
+
+---
+
+## 2. Missing game engine / state orchestration
+
+You’ve built:
+
+* Static content (`CONTENT` with all items, misconceptions, hints, etc.).
+* Renderers for each mechanic: `DecisionLab`, `Triage`, `Sequencer`, `MatchPairs`.
+* Utility functions: `evaluate`, `shuffle`, `arraysEqual`, telemetry helpers.
+* Layout pieces: `Header`, `OutcomeList`, `TelemetryPanel`.
+
+What’s missing is the **orchestrator** that:
+
+1. **Picks which item to show.**
+2. **Starts a timer when an item appears.**
+3. **Collects the learner’s response.**
+4. **Runs `evaluate(item, response)` to get correctness/misconception.**
+5. **Shows feedback based on that evaluation.**
+6. **Advances to the next item (with a rotation/adaptive policy).**
+
+Concretely, you need a root component (call it `App`) that manages:
+
+* `started: boolean` – whether the learner has pressed “Start”.
+* `teleOpen: boolean` – whether the telemetry modal is visible.
+* `index: number` – current index into `CONTENT.items`.
+* `hintIdx: number` – which step of `item.hint_ladder` is currently revealed (or `-1` for none).
+* `startMs: number` – timestamp when the current item started, for latency.
+* `showFeedback: boolean` – whether we’re on the feedback screen vs the interaction UI.
+* `feedbackState: { correct; latencyMs; usedHints; misconceptionId; ... }` – snapshot of last attempt.
+
+And the functions that tie everything together:
+
+* `handleSubmit(response)`:
+
+  * Guard against empty attempts (e.g., no choice selected).
+  * Compute `latencyMs = now() - startMs`.
+  * Call `evaluate(item, response)`.
+  * Update mastery/telemetry state.
+  * Flip `showFeedback` to `true` with `feedbackState`.
+* `handleHint()`:
+
+  * Advance `hintIdx` and record a `hint_shown` event.
+* `goNext()`:
+
+  * Compute next `index` (see section 4 on rotation).
+  * Reset timer + `hintIdx`, hide feedback.
+* `retry()`:
+
+  * Keep same `index`.
+  * Reset timer + `hintIdx`, hide feedback.
+
+Right now, **none of those orchestration pieces exist**, so the app is just a bag of components with no lifecycle.
+
+---
+
+## 3. Missing feedback screen that uses misconceptions & exemplars
+
+You have:
+
+* Rich `misconceptions` definitions for each item.
+* `exemplar_response` and `answer_key.rules`.
+* A `Feedback` component sketched in previous versions, but in this file it’s **not present**.
+
+To align with the blueprint (“Immediate, targeted feedback: what happened → why → what to do next”), you need:
+
+* A dedicated `Feedback` component that:
+
+  * Takes `item` and `feedbackState`.
+  * If `correct`:
+
+    * Shows a “Correct” pill.
+    * Surfaces `item.answer_key.rules[0]` as the rule.
+    * Optionally shows `exemplar_response`.
+  * If `incorrect`:
+
+    * If `misconceptionId` is found:
+
+      * Show `Why` / `Contrast` / `Next` from the matched misconception.
+    * Else:
+
+      * Show a generic hint (`item.hint_ladder[0]` or a fallback).
+    * Always prompt for a retry (button wired to `retry()`).
+  * Displays telemetry snippet: `time`, `hints`, `misconceptionId`.
+  * Provides a “Next” button for correct answers that calls `goNext()`.
+
+Right now, learners never see this structured feedback; they can’t know *why* an answer is right or wrong.
+
+---
+
+## 4. Missing item rotation / adaptivity logic
+
+The blueprint calls for:
+
+* **Mastery-gated progression** and
+* **Adaptive difficulty** (harder if correct+fast; easier if wrong/slow) and
+* Avoiding “looping on same item”.
+
+You’ve implemented:
+
+* Difficulty tags: `difficulty: "easy" | "medium" | "hard"`.
+* Mastery criteria in `CONTENT.metadata.mastery`.
+* Some telemetry infrastructure.
+
+But there is **no code currently choosing a “next item”**. The following are missing:
+
+1. A `chooseNextIndex(currentIndex, lastCorrect, lastLatency)` function in `App` that:
+
+   * Looks at difficulties (e.g., `easy → medium → hard` on good performance).
+   * Avoids the most recent N items (`recent` buffer).
+   * Prefers items with fewer `seenCounts`.
+2. State to support that:
+
+   * `seenCounts: number[]` – how many times each item index has been shown.
+   * `recent: number[]` – indices of last N items to avoid immediate repetition.
+
+Without this, you either have no progression or a naive “currentIndex + 1” with no adaptivity and risk of loops.
+
+---
+
+## 5. Mastery tracking & gating not wired up
+
+`CONTENT.metadata.mastery` defines:
+
+```ts
+mastery: { streak: 3, max_avg_time_ms: 30000, max_hints: 1 }
+```
+
+But:
+
+* There is no state tracking the **aggregate mastery statistics**:
+
+  * `streak` – current streak of correct answers.
+  * `avgTimeMs` – average response time across attempts.
+  * `hintCount` – total hints used in the session.
+* The `Header` expects a `mastery` object, but nothing is currently providing it.
+* There is no “mastery unlocked” UX (banner, state change) when the criteria are met.
+
+What you need to add:
+
+* In `App`:
+
+  * `history: Array<{ id; correct; latencyMs; usedHints; }>`.
+  * Derived `mastery` via `useMemo`:
+
+    * Compute `avgTimeMs` from `history`.
+    * Compare streak / avgTimeMs / hintCount to `CONTENT.metadata.mastery`.
+* When mastery is achieved:
+
+  * Show a small notice (e.g., below the card) that the learner has hit the mastery gate.
+  * Optionally change the item rotation (e.g., more hard items, or a “session complete” state).
+
+Right now, mastery is specified but does nothing.
+
+---
+
+## 6. Hint ladder display not fully implemented
+
+Each item has a `hint_ladder`, and each renderer exposes an `onHint` callback, but:
+
+* There is no **shared UI** in the root that actually renders the chosen hint line from `item.hint_ladder[hintIdx]`.
+* In some components (`Triage`, `Sequencer`, `MatchPairs`) the button text toggles between `show_hint` / `use_hint`, but that’s cosmetic; the underlying hint content is not shown anywhere.
+
+What’s missing:
+
+* Shared hint panel in the root content area (within `App`, below the active game component), something like:
+
+  ```tsx
+  {hintIdx >= 0 && (
+    <div className="mt-4 rounded-xl border bg-amber-50 p-3 text-sm text-amber-900">
+      <strong className="mr-1">Hint:</strong> {item.hint_ladder[hintIdx]}
+    </div>
+  )}
+  ```
+
+* The existing `onHint` functions in each renderer should call back to `App.handleHint`, which increments `hintIdx` and logs telemetry. You have the renderers’ callback signatures but not the coordinating logic yet.
+
+---
+
+## 7. Wiring `evaluate` + telemetry into the UI
+
+You’ve already done the hard part of writing `evaluate(item, response)` and telemetry helpers. What’s missing is their **use**:
+
+* `DecisionLab`, `Triage`, `Sequencer`, `MatchPairs` call `onSubmit`, but:
+
+  * There is no `handleSubmit` in a root component to:
+
+    * Call `evaluate`.
+    * Record `attempt` events via `recordEvent`.
+    * Update mastery / history.
+    * Route the result into `Feedback`.
+* `recordEvent` and `getTelemetry` exist and `TelemetryPanel` is ready, but:
+
+  * No button in a root layout toggles the telemetry panel.
+  * No `attempt`, `hint_shown` events are actually being emitted (because `handleSubmit` and `handleHint` don’t exist yet).
+
+So the dev should:
+
+1. Implement `handleSubmit`/`handleHint` in `App`.
+2. Call `recordEvent({ type: "attempt", ... })` and `recordEvent({ type: "hint_shown", ... })`.
+3. Pass `open`/`onClose` props into `TelemetryPanel` and wire a “Telemetry” button in the header or under the card.
+
+---
+
+## 8. Top-level UX flow not finalized
+
+You have all UX pieces, but you need to stitch them:
+
+1. **Pre-start screen:**
+
+   * Render `Header`.
+   * Render `OutcomeList`.
+   * Show a big “Start” button (wired to `setStarted(true)`).
+   * Optionally a smaller “View telemetry” button (for devs).
+
+2. **Practice screen:**
+
+   * Render `Header` (with dynamic mastery stats).
+   * Render a single `article` card per item:
+
+     * Top pill: objective id, mechanic, difficulty.
+     * Main body: either the specific game component or feedback screen.
+   * At the bottom:
+
+     * Mastery banner if gate reached.
+     * Telemetry button.
+     * Hint panel.
+
+Right now, you don’t have the conditional “if not started, show intro; else show practice card” logic at all.
+
+---
+
+## 9. Tests & instrumentation gaps
+
+You did add a minimal `runDevTests` for `arraysEqual` and `evaluate` on SEQ-1. Good.
+
+To bring this closer to “production-ready” for your use case, your dev should also consider:
+
+* **Unit tests (or more dev asserts) for:**
+
+  * `evaluate` on each response type (`decision+rationale`, `match`, `triage`) with both correct and misconception-triggering responses.
+  * `chooseNextIndex` once it’s added, to verify:
+
+    * It doesn’t pick the current index.
+    * It respects recent buffer.
+    * It prefers unseen/least-seen items.
+
+* **Smoke tests for root UX:**
+
+  * Starting a session should:
+
+    * Set `started` true.
+    * Show the first item.
+  * Submitting a correct answer should:
+
+    * Increase streak.
+    * Show feedback with the correct rule and exemplar.
+  * Submitting a wrong answer with a known misconception should:
+
+    * Show the misconception’s `why/contrast/next_try`.
+
+---
+
+## 10. Optional but aligned improvements
+
+These are not strictly “missing for compilation” but follow directly from the goals you set:
+
+1. **Localization expansion**
+
+   * `STRINGS` is set up, but only `en` exists.
+   * For full localization readiness:
+
+     * Externalize all learner-visible strings (some are still in JSX, e.g., `Terms`, `Roles`, `Your pairs`, `Practice`, “Unplaced”).
+     * Add at least one second locale stub (e.g., `es`) to validate the mechanism.
+
+2. **Stronger accessibility**
+
+   * You have some ARIA labels; next pass could:
+
+     * Add `aria-describedby` to associate hint panel with active item.
+     * Ensure focus management on feedback transitions (e.g., move focus to feedback heading).
+     * Verify everything works keyboard-only.
+
+---
+
+## Quick clarification question for you
+
+To make sure your developer implements the right **behavioral** logic in the engine:
+
+> For this IoT mini-game, how do you want item progression to work in practice?
+>
+> * **Sequential playlist** (go through all items once in order, then optional review), or
+> * **Adaptive rotation** (harder/easier based on performance, with items resurfacing), or
+> * **Unseen-until-correct** (don’t move an item into the “review only” pool until the learner gets it right at least once)?
+
+Your answer here will drive how `chooseNextIndex` and the mastery gate should be implemented.

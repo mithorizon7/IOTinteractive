@@ -1,0 +1,258 @@
+Here’s the context brief you can hand to your developer so they understand **what** we’re building, **for whom**, **how it should feel**, and **why it’s designed this way**.
+
+---
+
+## 1. Big picture: what this thing is
+
+We’re building a **reusable interactive learning engine**, not just a one-off quiz.
+
+* The current file, `IoTLearningLab`, is the **first concrete instance**: it teaches the article *“What is IoT?”* via small, single-player mini-games.
+* Long term, we want this pattern to be **re-usable**:
+
+  * Take any explainer article.
+  * Extract decision rules and misconceptions.
+  * Drop them into a content pack (JSON-ish schema).
+  * The engine renders accessible mini-games with **mastery gating, adaptivity, and telemetry** out of the box.
+
+Think of it as a **mini-game shell + content packs**, where this IoT pack is the test case.
+
+---
+
+## 2. Who the learners are
+
+* **Audience:** non-technical professionals (e.g. managers, leaders, analysts) with **zero coding background**.
+* Prior knowledge assumptions:
+
+  * They might have heard buzzwords (IoT, AI, 5G, digital twins, etc.) but **can’t explain them clearly**.
+  * They don’t know underlying networking or CS concepts.
+* Their constraints:
+
+  * Limited attention, doing this in short bursts (5–15 mins).
+  * Mild anxiety about “tech stuff”; they need **gentle, clear language**, no jargon.
+
+So: everything must be **conceptual, concrete, and low-friction**. No config, no modes, just “click Start and do stuff.”
+
+---
+
+## 3. What we want them to walk away with (for IoT case)
+
+For this IoT article, core **observable outcomes** are:
+
+1. **Correctly classify “is it IoT?” cases**
+
+   * They can distinguish between generic gadgets, cloud-connected things, and true IoT (sensing → data flows → action).
+
+2. **Choose appropriate companion concepts and connections**
+
+   * Given a scenario, they can pick Wi-Fi vs cellular vs private network, and recognize when “digital twin” is the right concept vs RFID vs “just a database”.
+
+3. **Spot and fix IoT-specific security mistakes**
+
+   * Recognize patterns like default passwords, unpatched firmware, flat networks, physical tampering, and suggest appropriate mitigations.
+
+4. **Mentally model the IoT pipeline**
+
+   * They can put “Sense → Share → Process → Act” in the right order and use that language when they talk about IoT use cases.
+
+5. **Break naive rules with counter-examples**
+
+   * Example: challenge “anything connected to the Internet is IoT” by pointing to non-IoT online devices (e.g. a game console with no sensing).
+
+We are **not** trying to teach protocol details, sensor hardware specs, or coding. It’s conceptual, “executive-level” IoT literacy.
+
+---
+
+## 4. How learning is supposed to happen (design doctrine)
+
+This tool should *not* feel like a multiple-choice quiz stapled onto a PDF.
+
+Core design principles we want you to support in the engine:
+
+1. **Application first, reading second**
+
+   * Learners **act immediately**: make decisions, classify cases, order steps, debug scenarios.
+   * Any text is only what’s needed to understand the case. The article is the “background,” not the main UI.
+
+2. **Immediate, targeted feedback**
+
+   * Every attempt yields:
+
+     * Correct / not-correct.
+     * Misconception-specific explanation (using the `misconceptions[].feedback` fields).
+   * Feedback should answer:
+
+     * “What happened?”
+     * “Why is that right/wrong in this rule system?”
+     * “What should I watch for next time?”
+
+3. **Mastery-gated progression**
+
+   * Progress between modules is **not just ‘Next’**; we want a **simple mastery gate**:
+
+     * Example spec: 3 correct in a row, average time ≤ 30s, and ≤ 1 hint on those attempts.
+   * Only after mastery does the next module unlock.
+
+4. **Adaptivity & spacing (simple but real)**
+
+   * If they miss something, that **exact concept** resurfaces after a short gap in the session.
+   * High-confidence wrong answers get **priority for resurfacing**.
+   * We show a **progress summary** instead of a big text “study plan” (you can ignore the “spaced review” strings for now; we don’t want the visible panel).
+
+5. **One idea per screen (cognitive load)**
+
+   * Each screen focuses on a **single decision or micro-skill**.
+   * No long text blocks. If we need to reference the article, we do it in a short “rule reminder” inside feedback.
+
+6. **Worked example + self-explanation (lightweight)**
+
+   * Some items carry `exemplar_response`.
+   * After a correct attempt (or after they finally get a tricky one), we can show the exemplar and optionally compare their one-sentence rationale to this exemplar in a very lightweight way.
+
+7. **Confidence tracking**
+
+   * We ask “How sure are you?” per item.
+   * This is not just for fun: we want it logged and available for adaptivity (high-confidence wrong = important).
+
+---
+
+## 5. How the mini-game archetypes should behave
+
+The engine already has 5 archetypes wired in:
+
+1. **DecisionLab**
+
+   * Binary or small multi-choice decision (e.g., “IoT vs Not IoT”, “Which companion concept fits?”).
+   * Optional free-text rationale.
+   * Uses misconception mapping for **choice-level feedback**.
+
+2. **Sort/Triage**
+
+   * Cards (cases) sorted into bins (e.g., Wi-Fi / Cellular / Private / Not IoT).
+   * We care about both:
+
+     * Correct bin per card.
+     * Specific patterns of mis-binning.
+
+3. **Debugger**
+
+   * Find faults in a scenario and choose appropriate fixes.
+   * This is about **diagnosing flaws in someone else’s “solution,”** not creating a solution from scratch.
+
+4. **Sequencer**
+
+   * Reordering steps (e.g., Sense → Share → Process → Act) using simple up/down controls.
+
+5. **CounterExample**
+
+   * “Find the example that breaks this naive rule.”
+   * Teaches boundaries and helps them unlearn oversimplified slogans.
+
+Your job is to make sure each mechanic is:
+
+* **Keyboard accessible** (Tab/Shift+Tab, Enter/Space).
+* **Screen-reader clean** (good `aria-*` attributes, clear labels).
+* Easy to reskin with different `stimulus` and `options` via the content pack.
+
+---
+
+## 6. Why we’re so fussy about telemetry
+
+We want to be able to answer questions like:
+
+* “Which misconceptions are most common?”
+* “How long do people spend on each concept before they master it?”
+* “Which items are too easy/hard?”
+
+That’s why the code already tracks:
+
+* **Per attempt:** correctness, latency, hints used, misconception ID, confidence.
+* We also want:
+
+  * A timestamp per attempt.
+  * Event types like `attempt_submitted`, `hint_shown`, `module_mastered`.
+
+The “Download CSV” button is a simple way to pull this out for analysis right now. Later we may wire this to a backend.
+
+---
+
+## 7. Accessibility & localization (non-negotiable)
+
+We want this to be **WCAG/UDL + localization-ready** from day one:
+
+* **Accessibility:**
+
+  * All interactions must work via keyboard only.
+  * Visible focus rings and clear states.
+  * Semantic sections (`<main>`, `<nav>`, ARIA roles where needed).
+  * No text baked into images (we don’t really use images yet, but the rule stands).
+
+* **Localization-ready:**
+
+  * All learner-visible strings go through the `STRINGS` object (ICU-style if/when needed).
+  * Do **not** hard-code English text in components.
+  * Simple path later: plug in `STRINGS.es`, `STRINGS.pt`, etc., and swap `locale`.
+
+This matters because:
+
+* We’ll deploy this to multilingual audiences.
+* We don’t want to do heavy refactors when we start translating.
+
+---
+
+## 8. Architecture principles going forward
+
+1. **Engine vs Content**
+
+   * **Engine:** components, master gating logic, adaptivity, telemetry.
+   * **Content:** `CONTENT_PACK()` – later this can move to JSON or a CMS.
+   * You should be able to **add a new article** by defining:
+
+     * Objectives.
+     * Rule table.
+     * Misconceptions.
+     * A set of items per mechanic.
+
+2. **Single-file now, modular later**
+
+   * For this first iteration, it’s fine that everything is in one file for easy review.
+   * Longer term: likely split into:
+
+     * `/engine` (components + logic)
+     * `/packs/iot` (IoT pack)
+     * plus shared types/interfaces.
+
+3. **Zero-config embedding**
+
+   * Consumer code should just be:
+
+     ```jsx
+     import IoTLearningLab from "./IoTLearningLab";
+
+     export default function Page() {
+       return <IoTLearningLab />;
+     }
+     ```
+
+   * No props required for the base case; later we may parameterize (e.g., initial locale, theme overrides, callbacks for telemetry).
+
+---
+
+## 9. Summary for you as the dev
+
+You are building:
+
+* A **React mini-game engine** that:
+
+  * Drives learning from **application and feedback**, not reading.
+  * Encodes article content as **rules + misconceptions + scenarios**.
+  * Tracks **mastery**, **confidence**, and **misconception patterns**.
+  * Is **accessible**, **localization-ready**, and **instrumented**.
+
+The current IoT file is:
+
+* Our first **content pack + engine** prototype.
+* Rough but close: mechanics are there, content is there, the UX and wiring just need to be tightened so it runs reliably and actually uses the rich feedback we encoded.
+
+If you keep this “why” in mind—**teach rules and judgment, not trivia; log behavior; keep it accessible; make it content-driven**—it should be clear how to finish and evolve the implementation.
+
+**Confidence:** High that this captures the pedagogical intent, target audience, and architectural direction; high that it gives you enough context to make good implementation decisions beyond just patching individual bugs.
