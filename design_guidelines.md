@@ -2,226 +2,215 @@
 
 ## Design Approach
 
-**Selected Approach**: Design System (Material Design 3) with Educational Platform References
+**Selected Approach**: Material Design 3 with Educational Platform References (Khan Academy, Duolingo)
 
-**Justification**: This is a utility-focused learning tool requiring clarity, consistency, and accessibility. Drawing from Material Design's established patterns for information-dense applications, with inspiration from educational platforms like Khan Academy and Duolingo for approachable, stress-free learning interfaces.
+**Justification**: Utility-focused learning tool requiring clarity, consistency, and accessibility. Material Design 3's adaptive color system supports both light/dark modes while maintaining educational approachability.
 
 **Key Principles**:
 - Clarity over decoration: Every element serves learning
 - Approachable professionalism: Friendly but credible
 - Progressive disclosure: One concept per screen
-- Accessibility-first: WCAG AA minimum
+- Adaptive theming: Seamless light/dark mode transitions
+
+---
+
+## Color System
+
+**Light Mode**:
+- Primary: Indigo-600 (#4F46E5) - buttons, links, active states
+- Primary Container: Indigo-50 (#EEF2FF) - selected items, backgrounds
+- Surface: White (#FFFFFF) - cards, main backgrounds
+- Surface Variant: Gray-50 (#F9FAFB) - subtle differentiation
+- Outline: Gray-300 (#D1D5DB) - borders, dividers
+- On-Surface: Gray-900 (#111827) - primary text
+- On-Surface Variant: Gray-600 (#4B5563) - secondary text
+
+**Dark Mode**:
+- Primary: Indigo-400 (#818CF8) - adjusted for dark backgrounds
+- Primary Container: Indigo-950 (#1E1B4B) - selected items
+- Surface: Gray-900 (#111827) - cards, main backgrounds
+- Surface Variant: Gray-800 (#1F2937) - subtle differentiation
+- Outline: Gray-700 (#374151) - borders, dividers
+- On-Surface: Gray-50 (#F9FAFB) - primary text
+- On-Surface Variant: Gray-400 (#9CA3AF) - secondary text
+
+**Semantic Colors** (consistent across modes with appropriate contrast):
+- Success: Green-500 (#22C55E) light / Green-400 (#4ADE80) dark
+- Error: Red-500 (#EF4444) light / Red-400 (#F87171) dark
+- Warning: Amber-500 (#F59E0B) light / Amber-400 (#FBBF24) dark
+- Info: Blue-500 (#3B82F6) light / Blue-400 (#60A5FA) dark
+
+**Elevation Shadows** (light mode only, dark mode uses subtle borders):
+- Card: shadow-lg with slight indigo tint
+- Modal: shadow-2xl
+- Hover states: shadow-xl
 
 ---
 
 ## Typography
 
-**Font Stack**:
-- **Primary**: Inter (via Google Fonts) - body text, UI labels, questions
-- **Display**: Inter SemiBold/Bold - headings, outcomes, feedback states
+**Font**: Inter exclusively (Google Fonts, weights: 400, 500, 600, 700)
 
-**Hierarchy**:
+**Scale**:
 - H1 (App title): text-3xl font-bold (30px)
 - H2 (Section headers): text-xl font-semibold (20px)
-- H3 (Card titles, outcomes): text-lg font-medium (18px)
-- Body (Questions, content): text-base (16px)
-- Small (Hints, metadata): text-sm (14px)
-- Micro (Telemetry, timestamps): text-xs (12px)
-
-**Line Height**: Generous spacing for readability - leading-relaxed (1.625) for body text
+- H3 (Card titles): text-lg font-semibold (18px)
+- Body: text-base leading-relaxed (16px, 1.625 line-height)
+- Small: text-sm (14px)
+- Micro: text-xs (12px)
 
 ---
 
 ## Layout System
 
-**Spacing Primitives**: Use Tailwind units of **4, 6, 8, 12, 16, 20** for consistency
-- Component padding: p-6 or p-8
-- Section gaps: space-y-8 or gap-6
-- Card margins: mb-8
-- Button padding: px-6 py-3
+**Spacing Primitives**: Tailwind units of **4, 6, 8, 12, 16** for consistency
 
-**Container Strategy**:
-- Max width: max-w-4xl (centered) for main learning area
-- Wider container (max-w-6xl) for pre-start screen with outcomes list
-- Full-width header with inner max-w-6xl
+**Containers**:
+- Main learning area: max-w-4xl centered
+- Pre-start screen: max-w-6xl
+- Header inner: max-w-6xl with px-4
 
-**Vertical Rhythm**: Consistent py-8 or py-12 for sections
+**Vertical Rhythm**: py-8 for sections, py-12 for major separations
 
 ---
 
 ## Component Library
 
-### Core Layout Components
-
-**Header**:
-- Full-width sticky bar with subtle border-bottom
+### Header
+- Sticky full-width with border-b
 - Left: App title + subtitle (stacked on mobile)
-- Right: Mastery progress indicators (streak badge, avg time, hints used)
-- Height: py-4, inner container max-w-6xl
+- Right: Progress indicators (streak badge, avg time, hints counter)
+- Inner container: max-w-6xl px-4 py-4
 
-**Main Content Card**:
-- Elevated card with rounded-2xl, shadow-lg
-- White background (will be styled with colors later)
-- Padding: p-8 on desktop, p-6 on mobile
-- Top section: Pill badges showing objective ID, mechanic type, difficulty
-- Main body: Game component or feedback screen
-- Bottom: Hint panel (when active) or action buttons
+### Main Content Card
+- Rounded-2xl with elevation (shadow in light, border in dark)
+- Padding: p-8 (desktop) / p-6 (mobile)
+- Top badges: Objective ID, mechanic type, difficulty (pill badges)
+- Game component area with clear boundaries
+- Bottom: Hint panel (collapsible) or action buttons
 
-**Outcomes List** (pre-start screen):
-- Grid layout: grid-cols-1 md:grid-cols-2 gap-4
-- Each outcome: card with border, p-4, flex items with checkmark icon
-- Icon size: w-5 h-5
+### Pre-Start Screen
+- Centered max-w-6xl container
+- Hero-style title section: text-center mb-12
+- Outcomes grid: 2-column (desktop) / 1-column (mobile) with gap-4
+- Each outcome card: border rounded-lg p-4 with checkmark icon (w-5 h-5)
+- Large primary CTA button: "Begin Learning Journey" (px-12 py-4, centered)
+- Secondary: "View Telemetry" link below (text-sm)
 
 ### Interactive Components
 
 **Buttons**:
-- Primary (Submit, Next): Solid, rounded-xl, px-6 py-3, medium font-weight, with icon
-- Secondary (Hint, Reset): Outlined, same sizing
-- Danger (Give up): Subtle variant
-- All buttons: Flex items-center gap-2 for icon+text pairing
+- Primary: Solid indigo background, white text, rounded-xl px-6 py-3, icon + text
+- Secondary: Outlined with primary color, same sizing
+- Danger: Red variant for destructive actions
+- All: Focus ring (ring-2 ring-offset-2), flex items-center gap-2
 
 **Decision Buttons** (DecisionLab):
-- Large touch targets: min-h-[60px]
-- Rounded-xl borders
-- Selected state: Border emphasis + subtle background shift
-- Flex layout for multi-line text support
+- Large targets: min-h-[60px], rounded-xl
+- Selected state: Primary border + primary container background
+- Unselected: Outline border
+- Multi-line text support with padding p-4
 
-**Drag/Sort Cards** (Triage):
-- Card-based with rounded-lg
-- Padding: p-4
-- Hover state: Subtle lift (shadow increase)
-- Active drag: opacity-60
-- Drop zones: Border-dashed, min-height indicators
+**Drag Cards** (Triage):
+- Rounded-lg p-4 with border
+- Hover: Subtle shadow increase
+- Dragging: opacity-60 + cursor-grabbing
+- Drop zones: border-dashed-2 with primary color, min-h-[80px]
+
+**Match Pairs**:
+- Two-column grid (desktop) / stacked (mobile)
+- Each card: rounded-lg border p-4
+- Selected: Primary border emphasis
+- Matched: Success color border + checkmark
 
 **Sequence Controls** (Sequencer):
-- Vertical list with numbered items
-- Each item: Flex layout with up/down arrow buttons (icon-only, w-8 h-8)
-- Clear visual order with numbers
+- Vertical list with numbered circles
+- Up/down icon buttons: w-8 h-8 rounded-lg
+- Clear visual hierarchy with connecting lines
 
-**Match Pairs** (MatchPairs):
-- Two-column grid on desktop, stacked on mobile
-- Left column (terms/roles): Clickable cards with rounded-lg, border
-- Right column (definitions): Same styling
-- Active selection: Visual border emphasis
-- Completed pairs: Checkmark indicator
+### Feedback Components
 
-### Feedback States
-
-**Feedback Panel** (replaces game on completion):
-- Top: Status badge (Correct/Incorrect) with icon - rounded-full, px-4 py-2
-- Misconception feedback structure:
-  - "Why": Bold label + explanation (text-base)
-  - "Contrast": Indented block with subtle background, p-3, rounded
-  - "Next try": Actionable tip
-- Exemplar response: Bordered section, p-4, rounded-lg, labeled "Model answer"
-- Telemetry snippet: Grid of micro-stats at bottom (time, hints, misconception ID)
-- Action buttons: Retry or Next with appropriate prominence
+**Feedback Panel**:
+- Replaces game on completion
+- Status badge at top: rounded-full px-4 py-2 with semantic color
+- Misconception structure: Bold "Why" + explanation + "Contrast" (indented block with surface-variant background p-3 rounded) + "Next Try" tip
+- Exemplar response: bordered section p-4 rounded-lg labeled clearly
+- Telemetry grid: micro-stats at bottom (text-xs)
+- Action buttons: "Try Again" or "Next Challenge"
 
 **Hint Panel**:
 - Below game component when active
-- Rounded-xl with subtle background differentiation
-- Icon (HelpCircle) + "Hint:" label + hint text
-- Padding: p-4
-- Border on left side for visual distinction
+- Surface-variant background, rounded-xl p-4
+- HelpCircle icon + "Hint:" label + hint text
+- Subtle left border in primary color
 
 **Mastery Banner**:
-- Full-width within card, above bottom actions
-- Flex items-center gap-3
-- Icon (ListChecks or trophy) + congratulatory text
-- Rounded-lg, p-4
-- Appears when mastery gate reached
+- Full-width celebration when mastery reached
+- Success color background, rounded-lg p-4
+- Trophy/badge icon + congratulatory message
+- Appears above action buttons
 
-### Utility Components
+### Progress Indicators
+- Streak: Flame icon + number in badge
+- Avg Time: Clock icon + seconds
+- Hints Used: HelpCircle icon + count
+- All: flex gap-2 items-center text-sm in pill badges
 
-**Progress Indicators**:
-- Streak: Badge with flame/check icon + number
-- Avg time: Clock icon + seconds display
-- Hints used: HelpCircle icon + count
-- All: Flex gap-2 items-center, text-sm
-
-**Telemetry Modal**:
-- Full-screen overlay with semi-transparent backdrop
-- Content panel: max-w-4xl, max-h-[80vh], overflow-y-auto
-- Table layout for events: striped rows, sticky header
-- Download CSV button at top
-
-**Pills/Badges**:
-- Small: px-3 py-1, text-xs, rounded-full
-- Medium: px-4 py-2, text-sm, rounded-full
-- Use for: difficulty levels, objective IDs, status indicators
+### Telemetry Modal
+- Full-screen overlay with backdrop blur
+- Panel: max-w-4xl max-h-[80vh] overflow-y-auto
+- Table with sticky header, striped rows
+- Download CSV button (top-right)
 
 ---
 
 ## Animations
 
-**Minimal, purposeful only**:
-- Card entry: Subtle fade-in (200ms) when new item loads
-- Button feedback: Scale down slightly on click (100ms)
-- Feedback panel transition: Slide-up or fade (300ms)
-- **No**: Continuous animations, decorative motion, parallax
+**Minimal and purposeful**:
+- Feedback panel: Slide-up 300ms ease-out
+- Button press: Scale-down 100ms
+- Card entry: Fade-in 200ms
+- Theme toggle: 200ms transition on background/text colors
+- **No continuous animations or decorative motion**
 
 ---
 
-## Accessibility Implementation
+## Accessibility
 
 **Keyboard Navigation**:
-- All interactive elements: Visible focus rings (ring-2 ring-offset-2)
-- Tab order: Logical top-to-bottom, left-to-right
-- Enter/Space: Activate buttons and selections
-- Arrow keys: Navigate sequences, move focus in grids
+- Visible focus rings: ring-2 ring-offset-2 in primary color
+- Logical tab order, Enter/Space activation
+- Arrow keys for sequences and grids
 
-**ARIA Labels**:
-- Decision buttons: aria-label with full question context
+**ARIA Implementation**:
+- Buttons: aria-label with full context
 - Drag items: aria-grabbed states
-- Status badges: aria-live regions for screen reader announcements
-- Hint panel: aria-describedby linking to active item
+- Status badges: aria-live="polite" for announcements
+- Hint panel: aria-describedby
 
-**Semantic HTML**:
-- `<main>` for learning area
-- `<article>` for each question card
-- `<nav>` for header navigation
-- Proper heading hierarchy (h1 → h2 → h3)
+**Color Contrast**: WCAG AA minimum (4.5:1 for text, 3:1 for UI components) maintained across both themes
 
 ---
 
 ## Responsive Behavior
 
 **Breakpoints**:
-- Mobile (default): Single column, stacked layouts
-- Tablet (md: 768px): Two columns where beneficial (outcomes, match pairs)
-- Desktop (lg: 1024px): Full layout, side-by-side elements
+- Mobile (base): Stacked layouts, full-width buttons
+- Tablet (md: 768px): 2-column grids where applicable
+- Desktop (lg: 1024px): Full multi-column layouts
 
 **Mobile Adaptations**:
-- Header: Stacked title/subtitle, mastery indicators wrap
-- Cards: Full viewport width with px-4 padding
-- Match Pairs: Vertical stack instead of grid
-- Buttons: Full-width on small screens (w-full sm:w-auto)
+- Header: Stacked title, wrapped progress indicators
+- Cards: px-4 full viewport width
+- Match Pairs: Vertical stack
+- Buttons: w-full on mobile, w-auto on desktop
 
 ---
 
 ## Images
 
-**Hero Section**: Not applicable - this is a utility app, not a marketing page. Start directly with the pre-start learning screen.
+**No hero section** - this is a utility learning app. Start directly with pre-start screen.
 
-**Iconography**: Use Lucide React icons throughout (already referenced in code: Check, X, HelpCircle, ChevronRight, etc.)
+**Iconography**: Lucide React icons exclusively for consistency (Check, X, HelpCircle, ChevronRight, Flame, Clock, Trophy, ListChecks, etc.)
 
-**No decorative images needed** - keep focus on learning content. If illustrations are desired later, use simple line-art SVGs for concept visualization within question stimuli.
-
----
-
-## Pre-Start Screen Layout
-
-- Centered container (max-w-6xl, px-4)
-- Top: Large app title + subtitle (text-center, mb-12)
-- Outcomes section: Heading + 2-column grid of outcome cards (mb-12)
-- Primary CTA: Large "Start" button (centered, px-12 py-4)
-- Secondary: Small "View Telemetry" link below (text-sm, muted)
-
-## Practice Screen Layout
-
-- Sticky header (as described above)
-- Main content card (centered, max-w-4xl, mb-8)
-- Telemetry toggle: Fixed bottom-right corner or within header
-- Mastery banner: Above card when triggered
-
-This design creates a focused, accessible, professional learning environment that minimizes cognitive load and maximizes clarity for non-technical learners.
+**Optional concept illustrations**: Simple line-art SVGs within question stimuli if needed for visual learning (e.g., network diagrams, device schematics) - use sparingly and purposefully.
