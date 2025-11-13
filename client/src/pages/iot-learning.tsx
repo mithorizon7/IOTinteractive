@@ -24,6 +24,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Languages } from "lucide-react";
 
 /**
  * IoT Interactive Learning Engine
@@ -803,6 +805,45 @@ function CompletionScreen({
 }
 
 /*************************
+ * Component: LanguageSwitcher *
+ *************************/
+function LanguageSwitcher() {
+  const { i18n } = useTranslation();
+  
+  // Only show language switcher if multiple languages are configured
+  const availableLanguages = i18n.options.supportedLngs?.filter(lng => lng !== 'cimode') || [];
+  if (availableLanguages.length <= 1) {
+    return null; // Hide switcher when only one language is available
+  }
+  
+  const languageNames: Record<string, string> = {
+    en: "English",
+    fi: "Suomi",
+    ru: "Русский"
+  };
+  
+  const handleLanguageChange = (newLang: string) => {
+    i18n.changeLanguage(newLang);
+  };
+  
+  return (
+    <Select value={i18n.language} onValueChange={handleLanguageChange}>
+      <SelectTrigger className="w-[140px]" data-testid="language-switcher">
+        <Languages className="h-4 w-4 mr-2" />
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        {availableLanguages.map(lng => (
+          <SelectItem key={lng} value={lng} data-testid={`language-option-${lng}`}>
+            {languageNames[lng] || lng}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+}
+
+/*************************
  * Component: Header     *
  *************************/
 function Header({ 
@@ -832,7 +873,7 @@ function Header({
             </div>
           </div>
           
-          <div className="flex items-center gap-6" aria-label={t('mastery_progress')}>
+          <div className="flex items-center gap-3" aria-label={t('mastery_progress')}>
             <div className="flex items-center gap-2 text-sm" data-testid="mastery-streak">
               <Flame className="h-4 w-4 text-primary" />
               <div>
@@ -857,6 +898,7 @@ function Header({
                 <div className="font-semibold">{mastery.hints}</div>
               </div>
             </div>
+            <LanguageSwitcher />
             <Button
               variant="outline"
               size="sm"
@@ -2068,6 +2110,10 @@ export default function IoTLearningLab() {
     return (
       <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-12 max-w-6xl">
+          <div className="flex justify-end mb-4">
+            <LanguageSwitcher />
+          </div>
+          
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold mb-4">{t('app_title')}</h1>
             <p className="text-lg text-muted-foreground">{t('app_sub')}</p>

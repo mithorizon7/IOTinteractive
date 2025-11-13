@@ -24,7 +24,30 @@ The frontend is a comprehensive React 18 application built with TypeScript, util
 - **Accessibility**: Full keyboard navigation, ARIA labels, WCAG AA compliant color contrast, semantic HTML, and `aria-live="polite"` regions for screen reader announcements are implemented.
 
 ### System Design Choices
-The application is a pure frontend solution with no backend persistence, storing telemetry events and session progress in `localStorage`. Content is hardcoded within the frontend, allowing for a self-contained, deployable unit without server-side dependencies beyond serving static files.
+The application is a pure frontend solution with no backend persistence, storing telemetry events and session progress in `localStorage`. Content is externalized in JSON translation files for easy internationalization, allowing for a self-contained, deployable unit without server-side dependencies beyond serving static files.
+
+### Internationalization Architecture
+The application uses react-i18next for multi-language support:
+
+**Translation Structure**:
+- **UI Strings**: `client/src/locales/{lang}/ui.json` - All interface text (buttons, labels, headings)
+- **Educational Content**: `client/src/locales/{lang}/content.json` - Learning items (questions, hints, misconceptions, feedback)
+- **Supported Languages**: Currently English only; Finnish and Russian infrastructure ready but awaiting translation
+
+**Content Loading**:
+- `getTranslatedContent()` function dynamically builds all 11 learning items from translation files
+- Detector functions and scoring logic remain in code (non-translatable)
+- Language changes reload content via i18n event subscription
+- Language preference persisted in localStorage
+
+**Translation Workflow for Educators**:
+1. Copy `client/src/locales/en/ui.json` and `content.json` to new language folder (e.g., `fi/` or `ru/`)
+2. Translate JSON values while preserving keys and structure
+3. Uncomment language imports in `client/src/i18n/config.ts`
+4. Add language code to `supportedLngs` array
+5. Language switcher appears automatically when multiple languages configured
+
+**No Code Knowledge Required**: Translators only edit JSON files - all game logic, detectors, and scoring remain unchanged in TypeScript code.
 
 ## External Dependencies
 - **React**: Frontend library
@@ -37,8 +60,44 @@ The application is a pure frontend solution with no backend persistence, storing
 - **Vite**: Build tool
 - **Express**: Node.js framework for serving the static frontend
 - **Google Fonts**: Inter font
+- **react-i18next & i18next**: Internationalization framework with language detection and persistence
 
 ## Recent Changes
+
+### **2025-11-13** - Internationalization Infrastructure
+
+**I18n Framework Implementation**:
+- Installed and configured react-i18next with language detection and persistence
+- Created namespace-based architecture: `ui` for interface strings, `content` for educational materials
+- Externalized all strings from code into JSON translation files for easy editing
+
+**Translation-Ready Architecture**:
+- `getTranslatedContent()` function builds all 11 learning items dynamically from locales
+- All 10 components refactored to use `useTranslation()` hook
+- Language change subscription reloads content without page refresh
+- Main component manages translated content via state
+
+**Translator-Friendly Workflow**:
+- Zero coding required - translators only edit JSON files
+- Finnish and Russian stub files ready for population
+- Clear separation: human text in JSON, logic/detectors in code
+- Language switcher appears automatically when multiple languages configured
+- Currently English-only in production until translations complete
+
+**File Structure**:
+```
+client/src/
+├── i18n/config.ts              # i18n setup
+├── locales/
+│   ├── en/
+│   │   ├── ui.json             # All UI strings
+│   │   └── content.json        # All educational content
+│   ├── fi/                     # Finnish (stub, awaiting translation)
+│   └── ru/                     # Russian (stub, awaiting translation)
+└── pages/iot-learning.tsx      # Uses useTranslation hook
+```
+
+**Architect Status**: ✅ Architect-reviewed implementation, production-ready for English
 
 ### **2025-11-13** - Educational Enhancements to Triage Game
 
