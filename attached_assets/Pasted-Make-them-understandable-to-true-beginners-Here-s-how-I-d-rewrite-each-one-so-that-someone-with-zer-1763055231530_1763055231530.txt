@@ -1,0 +1,108 @@
+Make them understandable to true beginners
+
+Here’s how I’d rewrite each one so that someone with zero IT background can still understand and make a good call, but you still sneak in useful real-world concepts.
+
+Vulnerabilities (use these wordings on the cards)
+
+Default password on outdoor camera
+🔁 Suggested card text:
+
+“Using the factory-set default password on an outdoor security camera.”
+Why this is better:
+
+“Factory-set” hints “this came from the manufacturer and everyone has the same one.”
+
+“Security camera” is a concrete thing they can picture.
+
+No remote update mechanism
+🔁 Suggested card text:
+
+“IoT device that cannot be updated over the network (you must visit it in person to install updates).”
+Why this is better:
+
+“Updated over the network” is understandable in plain language.
+
+Parenthetical gives just enough context: “you must visit it in person” = painful + risky.
+
+Physically accessible device enclosure
+🔁 Suggested card text:
+
+“IoT device installed where anyone can easily reach it and open its case.”
+Why this is better:
+
+Replaces “device enclosure” with “case,” which is much more everyday.
+
+“Anyone can easily reach it” clearly signals “this is easy to tamper with.”
+
+Mitigations (use these wordings on the cards)
+
+Network segmentation (separate IoT VLAN)
+🔁 Suggested card text:
+
+“Putting IoT devices on their own separate network so they cannot directly reach more sensitive systems.”
+And if you want a tiny helper line in the UI:
+“(Like putting them in their own ‘lane’ so problems are contained.)”
+Why this is better:
+
+Drops “VLAN” entirely from learner-facing text—it’s unnecessary jargon.
+
+Still teaches the core idea: separate network = damage containment.
+
+Strong, unique credentials
+🔁 Suggested card text:
+
+“Using strong, unique passwords for each IoT device and login.”
+Why this is better:
+
+Swaps “credentials” for “passwords” and “login,” which every adult understands.
+
+“For each IoT device” subtly teaches that devices have their own logins.
+
+Regular patching policy
+🔁 Suggested card text:
+
+“Regularly installing software updates on all IoT devices.”
+(If you want to add one more phrase:)
+“…to fix security problems and bugs.”
+Why this is better:
+
+Uses “software updates,” which ties back to the article’s “difficult to update / outdated software” language.
+
+You still smuggle in the underlying concept of security patches without the jargon.
+
+3. Are these the best six, given the readings?
+
+For a 5–10 minute minigame with learners who have:
+
+only seen the four articles, and
+
+zero prior IT/IoT background,
+
+this set is strong overall:
+
+The three vulnerabilities align tightly with the article’s examples:
+
+Hard to update → “no remote update mechanism.”
+
+Physical tampering → “physically accessible device.”
+
+Easy access / poor security → “default password.”
+
+The three mitigations are core security hygiene:
+
+Separate network = contain damage.
+
+Strong unique passwords = basic access control.
+
+Regular updates = address the outdated-software risk.
+
+The only borderline one is the original wording of “Network segmentation (separate IoT VLAN)”. With the simplified phrasing above, it becomes appropriate and accessible.
+
+If you wanted to slightly bias closer to the text, the only swap I’d even consider is:
+
+Instead of network segmentation, a mitigation like
+
+“Limiting which systems IoT devices are allowed to connect to.”
+which is conceptually similar but even less technical.
+
+I don’t think that’s necessary, though, if you adopt the plain-language rewrite.
