@@ -37,3 +37,33 @@ The application is a pure frontend solution with no backend persistence, storing
 - **Vite**: Build tool
 - **Express**: Node.js framework for serving the static frontend
 - **Google Fonts**: Inter font
+
+## Recent Changes
+
+### **2025-11-13** - Educational Enhancements to Triage Game
+
+**Added Educational Introduction**:
+- Created comprehensive intro section explaining vulnerabilities vs mitigations
+- Non-technical language: "weak spot" vs "step that helps reduce risks"
+- Connection to prior learning: IoT as "networks of connected devices and sensors"
+- Visual reinforcement with color-coded icons (AlertTriangle/Shield)
+- Reflective prompt: "Does this make the system weaker, or safer?"
+
+**Added Bin Micro-Definitions**:
+- Vulnerability bin: "Makes the system weaker"
+- Mitigation bin: "Makes the system safer"
+- Subtle text-muted-foreground styling, positioned below bin headers
+
+**Design Integration**:
+- Indigo primary-colored intro box (border-primary/20, bg-primary/5)
+- Consistent icon reuse (AlertTriangle for vulnerabilities, Shield for mitigations)
+- Color coding matches bin styling (red for vulnerability, green for mitigation)
+- Clear visual hierarchy separates intro from interactive game area
+
+**Pedagogical Benefits**:
+- Scaffolds learning by explicitly defining core concepts upfront
+- Reduces cognitive load during game interaction
+- Reinforces visual-conceptual associations (red=danger, green=safety)
+- Prompts metacognitive reflection before decision-making
+
+**Architect Status**: ✅ Approved as production-ready
