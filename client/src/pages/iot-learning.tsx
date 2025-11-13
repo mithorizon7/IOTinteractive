@@ -12,6 +12,12 @@ import {
   Clock,
   Flame,
   Download,
+  GripVertical,
+  AlertTriangle,
+  Shield,
+  Package,
+  ArrowRight,
+  ArrowLeft,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -1141,15 +1147,27 @@ function Triage({
     vulnerability: [],
     mitigation: [],
   });
+  const [draggedCard, setDraggedCard] = useState<string | null>(null);
+  const [draggedFrom, setDraggedFrom] = useState<string | null>(null);
+  const [dropTarget, setDropTarget] = useState<string | null>(null);
 
-  const place = (card: string, binId: string) => {
-    setUnplaced((u) => u.filter((c) => c !== card));
-    setBins((b) => ({ ...b, [binId]: [...b[binId], card] }));
-  };
+  // Move card from source to destination
+  const moveCard = (card: string, fromLocation: string, toLocation: string) => {
+    if (fromLocation === toLocation) return;
 
-  const remove = (card: string, binId: string) => {
-    setBins((b) => ({ ...b, [binId]: b[binId].filter((c) => c !== card) }));
-    setUnplaced((u) => [...u, card]);
+    // Remove from source
+    if (fromLocation === "unplaced") {
+      setUnplaced((u) => u.filter((c) => c !== card));
+    } else {
+      setBins((b) => ({ ...b, [fromLocation]: b[fromLocation].filter((c) => c !== card) }));
+    }
+
+    // Add to destination
+    if (toLocation === "unplaced") {
+      setUnplaced((u) => [...u, card]);
+    } else {
+      setBins((b) => ({ ...b, [toLocation]: [...b[toLocation], card] }));
+    }
   };
 
   const reset = () => {
@@ -1157,83 +1175,293 @@ function Triage({
     setBins({ vulnerability: [], mitigation: [] });
   };
 
+  // Drag handlers
+  const handleDragStart = (card: string, from: string) => {
+    setDraggedCard(card);
+    setDraggedFrom(from);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedCard(null);
+    setDraggedFrom(null);
+    setDropTarget(null);
+  };
+
+  const handleDragOver = (e: React.DragEvent, target: string) => {
+    e.preventDefault();
+    setDropTarget(target);
+  };
+
+  const handleDragLeave = () => {
+    setDropTarget(null);
+  };
+
+  const handleDrop = (e: React.DragEvent, target: string) => {
+    e.preventDefault();
+    if (draggedCard && draggedFrom) {
+      moveCard(draggedCard, draggedFrom, target);
+    }
+    handleDragEnd();
+  };
+
+  const totalCards = item.cards?.length || 0;
+  const placedCount = bins.vulnerability.length + bins.mitigation.length;
+  const isComplete = placedCount === totalCards;
+  
+  // Announce zone changes for screen readers
+  const [announcement, setAnnouncement] = useState("");
+  
+  useEffect(() => {
+    // Always announce, including when cards return to unplaced (placedCount === 0)
+    setAnnouncement(
+      `${placedCount} of ${totalCards} cards placed. ${bins.vulnerability.length} vulnerabilities, ${bins.mitigation.length} mitigations.`
+    );
+  }, [bins.vulnerability.length, bins.mitigation.length, placedCount, totalCards]);
+
   return (
     <div className="space-y-6">
-      <p className="text-base leading-relaxed">{item.stimulus.text}</p>
+      <div className="flex items-center justify-between flex-wrap gap-4">
+        <p className="text-base leading-relaxed">{item.stimulus.text}</p>
+        <Badge variant="outline" className="text-xs">
+          {placedCount} / {totalCards} placed
+        </Badge>
+      </div>
 
+      {/* Mobile: Vertical Stack, Desktop: 3 Columns */}
       <div className="grid gap-4 md:grid-cols-3" aria-label="triage area">
-        <div>
-          <h4 className="mb-3 text-sm font-semibold">{t.unplaced}</h4>
+        
+        {/* Unplaced Cards */}
+        <div 
+          className={`rounded-xl border-2 border-dashed p-4 transition-all min-h-[200px] ${
+            dropTarget === "unplaced" 
+              ? "border-primary bg-primary/5 shadow-lg" 
+              : "border-muted-foreground/30 bg-muted/20"
+          }`}
+          onDragOver={(e) => handleDragOver(e, "unplaced")}
+          onDragLeave={handleDragLeave}
+          onDrop={(e) => handleDrop(e, "unplaced")}
+          data-testid="zone-unplaced"
+        >
+          <div className="flex items-center justify-between mb-3">
+            <h4 className="text-sm font-semibold">{t.unplaced}</h4>
+            <Badge variant="secondary" className="text-xs">{unplaced.length}</Badge>
+          </div>
+          
           <div className="space-y-2">
-            {unplaced.map((c) => (
-              <div key={c} className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => place(c, "vulnerability")}
-                  className="flex-1 text-left justify-start h-auto py-2 hover-elevate"
+            {unplaced.length === 0 ? (
+              <div className="text-center py-8 text-sm text-muted-foreground">
+                <Package className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                All cards sorted!
+              </div>
+            ) : (
+              unplaced.map((c) => (
+                <div
+                  key={c}
+                  draggable
+                  onDragStart={() => handleDragStart(c, "unplaced")}
+                  onDragEnd={handleDragEnd}
+                  className={`group rounded-xl border-2 bg-card p-3 cursor-move transition-all hover:shadow-md ${
+                    draggedCard === c ? "opacity-50 scale-95" : "hover:border-primary"
+                  }`}
                   data-testid={`card-${c}`}
+                  aria-label={`Card: ${c}`}
                 >
-                  {c}
-                </Button>
-              </div>
-            ))}
+                  <div className="flex items-start gap-2 mb-2">
+                    <GripVertical className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
+                    <span className="text-sm flex-1">{c}</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => moveCard(c, "unplaced", "vulnerability")}
+                      className="flex-1 text-xs h-8 bg-destructive/5 border-destructive/30 hover:bg-destructive/10"
+                      data-testid={`place-vulnerability-${c}`}
+                    >
+                      <AlertTriangle className="h-3 w-3 mr-1" />
+                      Vulnerability
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => moveCard(c, "unplaced", "mitigation")}
+                      className="flex-1 text-xs h-8 bg-green-600/5 border-green-600/30 hover:bg-green-600/10"
+                      data-testid={`place-mitigation-${c}`}
+                    >
+                      <Shield className="h-3 w-3 mr-1" />
+                      Mitigation
+                    </Button>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
-        
-        <div>
-          <h4 className="mb-3 text-sm font-semibold text-destructive">{vulnBin?.label || t.bin_vulnerability}</h4>
+
+        {/* Vulnerability Bin */}
+        <div
+          className={`rounded-xl border-2 p-4 transition-all min-h-[200px] ${
+            dropTarget === "vulnerability"
+              ? "border-destructive bg-destructive/10 shadow-lg"
+              : "border-destructive/30 bg-destructive/5"
+          }`}
+          onDragOver={(e) => handleDragOver(e, "vulnerability")}
+          onDragLeave={handleDragLeave}
+          onDrop={(e) => handleDrop(e, "vulnerability")}
+          data-testid="zone-vulnerability"
+        >
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4 text-destructive" />
+              <h4 className="text-sm font-semibold text-destructive">
+                {vulnBin?.label || t.bin_vulnerability}
+              </h4>
+            </div>
+            <Badge variant="destructive" className="text-xs">{bins.vulnerability.length}</Badge>
+          </div>
+
           <div className="space-y-2">
-            {bins.vulnerability.map((c) => (
-              <div
-                key={c}
-                className="flex items-center justify-between rounded-xl border border-destructive/30 bg-destructive/5 p-3 text-sm"
-                data-testid={`vulnerability-${c}`}
-              >
-                <span className="flex-1">{c}</span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 w-6 p-0"
-                  onClick={() => place(c, "mitigation")}
-                  aria-label={`Move ${c} to Mitigation`}
-                  data-testid={`move-${c}`}
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
+            {bins.vulnerability.length === 0 ? (
+              <div className="text-center py-8 text-sm text-muted-foreground">
+                <AlertTriangle className="h-8 w-8 mx-auto mb-2 opacity-30" />
+                Drop vulnerabilities here
               </div>
-            ))}
+            ) : (
+              bins.vulnerability.map((c) => (
+                <div
+                  key={c}
+                  draggable
+                  onDragStart={() => handleDragStart(c, "vulnerability")}
+                  onDragEnd={handleDragEnd}
+                  className={`group rounded-xl border bg-card p-3 cursor-move transition-all hover:shadow-md ${
+                    draggedCard === c ? "opacity-50 scale-95" : "hover:border-destructive"
+                  }`}
+                  data-testid={`vulnerability-${c}`}
+                  aria-label={`Vulnerability: ${c}`}
+                >
+                  <div className="flex items-start gap-2 mb-2">
+                    <GripVertical className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
+                    <span className="text-sm flex-1">{c}</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => moveCard(c, "vulnerability", "mitigation")}
+                      className="flex-1 text-xs h-8"
+                      data-testid={`move-to-mitigation-${c}`}
+                    >
+                      <ArrowRight className="h-3 w-3 mr-1" />
+                      To Mitigation
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => moveCard(c, "vulnerability", "unplaced")}
+                      className="h-8 w-8 p-0"
+                      aria-label="Remove card"
+                      data-testid={`remove-${c}`}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
-        
-        <div>
-          <h4 className="mb-3 text-sm font-semibold text-green-600 dark:text-green-500">{mitigBin?.label || t.bin_mitigation}</h4>
+
+        {/* Mitigation Bin */}
+        <div
+          className={`rounded-xl border-2 p-4 transition-all min-h-[200px] ${
+            dropTarget === "mitigation"
+              ? "border-green-600 bg-green-600/10 shadow-lg"
+              : "border-green-600/30 bg-green-600/5"
+          }`}
+          onDragOver={(e) => handleDragOver(e, "mitigation")}
+          onDragLeave={handleDragLeave}
+          onDrop={(e) => handleDrop(e, "mitigation")}
+          data-testid="zone-mitigation"
+        >
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Shield className="h-4 w-4 text-green-600 dark:text-green-500" />
+              <h4 className="text-sm font-semibold text-green-600 dark:text-green-500">
+                {mitigBin?.label || t.bin_mitigation}
+              </h4>
+            </div>
+            <Badge className="text-xs bg-green-600 hover:bg-green-600">{bins.mitigation.length}</Badge>
+          </div>
+
           <div className="space-y-2">
-            {bins.mitigation.map((c) => (
-              <div
-                key={c}
-                className="flex items-center justify-between rounded-xl border border-green-600/30 bg-green-600/5 p-3 text-sm"
-                data-testid={`mitigation-${c}`}
-              >
-                <span className="flex-1">{c}</span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 w-6 p-0"
-                  onClick={() => remove(c, "mitigation")}
-                  aria-label={`Remove ${c}`}
-                  data-testid={`remove-${c}`}
-                >
-                  <Undo2 className="h-4 w-4" />
-                </Button>
+            {bins.mitigation.length === 0 ? (
+              <div className="text-center py-8 text-sm text-muted-foreground">
+                <Shield className="h-8 w-8 mx-auto mb-2 opacity-30" />
+                Drop mitigations here
               </div>
-            ))}
+            ) : (
+              bins.mitigation.map((c) => (
+                <div
+                  key={c}
+                  draggable
+                  onDragStart={() => handleDragStart(c, "mitigation")}
+                  onDragEnd={handleDragEnd}
+                  className={`group rounded-xl border bg-card p-3 cursor-move transition-all hover:shadow-md ${
+                    draggedCard === c ? "opacity-50 scale-95" : "hover:border-green-600"
+                  }`}
+                  data-testid={`mitigation-${c}`}
+                  aria-label={`Mitigation: ${c}`}
+                >
+                  <div className="flex items-start gap-2 mb-2">
+                    <GripVertical className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
+                    <span className="text-sm flex-1">{c}</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => moveCard(c, "mitigation", "vulnerability")}
+                      className="flex-1 text-xs h-8"
+                      data-testid={`move-to-vulnerability-${c}`}
+                    >
+                      <ArrowLeft className="h-3 w-3 mr-1" />
+                      To Vulnerability
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => moveCard(c, "mitigation", "unplaced")}
+                      className="h-8 w-8 p-0"
+                      aria-label="Remove card"
+                      data-testid={`remove-from-mitigation-${c}`}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>
 
-      <div className="flex items-center gap-3 flex-wrap">
-        <Button onClick={() => onSubmit({ bins })} data-testid="button-submit">
+      {/* Instructions */}
+      <div className="flex items-start gap-2 p-3 rounded-xl bg-muted/30 text-sm text-muted-foreground">
+        <HelpCircle className="h-4 w-4 shrink-0 mt-0.5" />
+        <p>
+          <strong>Drag cards</strong> to bins or use the <strong>buttons</strong> to classify each item.
+          {!isComplete && ` ${totalCards - placedCount} card${totalCards - placedCount !== 1 ? 's' : ''} remaining.`}
+        </p>
+      </div>
+
+      {/* Action Buttons */}
+      <div className="flex items-center gap-3 flex-wrap" role="group" aria-label="actions">
+        <Button 
+          onClick={() => onSubmit({ bins })} 
+          disabled={!isComplete}
+          data-testid="button-submit"
+          className="min-w-[120px]"
+        >
           <Check className="h-4 w-4 mr-2" />
           {t.submit}
         </Button>
@@ -1245,6 +1473,11 @@ function Triage({
           <RefreshCw className="h-4 w-4 mr-2" />
           {t.reset}
         </Button>
+      </div>
+
+      {/* Screen reader live region */}
+      <div className="sr-only" aria-live="polite" aria-atomic="true">
+        {announcement}
       </div>
     </div>
   );
