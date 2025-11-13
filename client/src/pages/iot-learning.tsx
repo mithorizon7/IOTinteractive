@@ -729,7 +729,7 @@ function CompletionScreen({
           
           {/* Title */}
           <div className="text-center space-y-2">
-            <h1 className="text-3xl md:text-4xl font-bold">{t.mastery_unlocked}</h1>
+            <h1 className="text-3xl md:text-4xl font-bold">{t('mastery_unlocked')}</h1>
             <p className="text-lg text-muted-foreground">
               You've achieved all mastery criteria. Excellent work!
             </p>
@@ -793,7 +793,7 @@ function CompletionScreen({
               data-testid="button-download-completion"
             >
               <Download className="h-5 w-5 mr-2" />
-              {t.download_csv}
+              {t('download_csv')}
             </Button>
           </div>
         </CardContent>
@@ -823,37 +823,37 @@ function Header({
       <div className="container mx-auto max-w-6xl px-4 py-4">
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <div className="flex-1 min-w-[200px]">
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">{t.app_title}</h1>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">{t('app_title')}</h1>
             <div className="flex items-center gap-3 mt-1">
-              <p className="text-sm text-muted-foreground">{t.app_sub}</p>
+              <p className="text-sm text-muted-foreground">{t('app_sub')}</p>
               <Badge variant="outline" className="text-xs" data-testid="progress-indicator">
                 {currentIndex + 1} of {totalItems}
               </Badge>
             </div>
           </div>
           
-          <div className="flex items-center gap-6" aria-label={t.mastery_progress}>
+          <div className="flex items-center gap-6" aria-label={t('mastery_progress')}>
             <div className="flex items-center gap-2 text-sm" data-testid="mastery-streak">
               <Flame className="h-4 w-4 text-primary" />
               <div>
-                <div className="text-xs text-muted-foreground">{t.streak}</div>
+                <div className="text-xs text-muted-foreground">{t('streak')}</div>
                 <div className="font-semibold">{mastery.streak}</div>
               </div>
             </div>
             <div className="flex items-center gap-2 text-sm" data-testid="mastery-avg-time">
               <Clock className="h-4 w-4 text-primary" />
               <div>
-                <div className="text-xs text-muted-foreground">{t.avg_time}</div>
+                <div className="text-xs text-muted-foreground">{t('avg_time')}</div>
                 <div className="font-semibold">
                   {mastery.avgTimeS}
-                  <span className="text-xs ml-0.5">{t.seconds}</span>
+                  <span className="text-xs ml-0.5">{t('seconds')}</span>
                 </div>
               </div>
             </div>
             <div className="flex items-center gap-2 text-sm" data-testid="mastery-hints">
               <HelpCircle className="h-4 w-4 text-primary" />
               <div>
-                <div className="text-xs text-muted-foreground">{t.hints_used}</div>
+                <div className="text-xs text-muted-foreground">{t('hints_used')}</div>
                 <div className="font-semibold">{mastery.hints}</div>
               </div>
             </div>
@@ -880,7 +880,7 @@ function OutcomeList() {
   
   return (
     <section className="space-y-6">
-      <h2 className="text-xl font-semibold">{t.outcomes_header}</h2>
+      <h2 className="text-xl font-semibold">{t('outcomes_header')}</h2>
       <div className="grid md:grid-cols-2 gap-4">
         {CONTENT.metadata.outcomes.map((outcome) => (
           <Card key={outcome.id} className="p-4" data-testid={`outcome-${outcome.id}`}>
@@ -918,7 +918,7 @@ function TelemetryPanel({ open, onClose }: { open: boolean; onClose: () => void 
                 data-testid="button-download-csv"
               >
                 <Download className="h-4 w-4 mr-2" />
-                {t.download_csv}
+                {t('download_csv')}
               </Button>
               <Button
                 variant="ghost"
@@ -992,7 +992,7 @@ function DecisionLab({
 
       <div>
         <label className="mb-2 block text-sm font-medium" htmlFor={`rat-${item.id}`}>
-          {t.rationale_prompt}
+          {t('rationale_prompt')}
         </label>
         <textarea
           id={`rat-${item.id}`}
@@ -1013,11 +1013,11 @@ function DecisionLab({
           data-testid="button-submit"
         >
           <Check className="h-4 w-4 mr-2" />
-          {t.submit}
+          {t('submit')}
         </Button>
         <Button variant="outline" onClick={onHint} data-testid="button-hint">
           <HelpCircle className="h-4 w-4 mr-2" />
-          {hintUsed ? t.use_hint : t.show_hint}
+          {hintUsed ? t('use_hint') : t('show_hint')}
         </Button>
       </div>
     </div>
@@ -1171,7 +1171,7 @@ function Triage({
           data-testid="zone-unplaced"
         >
           <div className="flex items-center justify-between mb-3">
-            <h4 className="text-sm font-semibold">{t.unplaced}</h4>
+            <h4 className="text-sm font-semibold">{t('unplaced')}</h4>
             <Badge variant="secondary" className="text-xs">{unplaced.length}</Badge>
           </div>
           
@@ -1243,7 +1243,7 @@ function Triage({
               <div className="flex items-center gap-2">
                 <AlertTriangle className="h-4 w-4 text-destructive" />
                 <h4 className="text-sm font-semibold text-destructive">
-                  {vulnBin?.label || t.bin_vulnerability}
+                  {vulnBin?.label || t('bin_vulnerability')}
                 </h4>
               </div>
               <Badge variant="destructive" className="text-xs">{bins.vulnerability.length}</Badge>
@@ -1319,7 +1319,7 @@ function Triage({
               <div className="flex items-center gap-2">
                 <Shield className="h-4 w-4 text-green-600 dark:text-green-500" />
                 <h4 className="text-sm font-semibold text-green-600 dark:text-green-500">
-                  {mitigBin?.label || t.bin_mitigation}
+                  {mitigBin?.label || t('bin_mitigation')}
                 </h4>
               </div>
               <Badge className="text-xs bg-green-600 hover:bg-green-600">{bins.mitigation.length}</Badge>
@@ -1397,15 +1397,15 @@ function Triage({
           className="min-w-[120px]"
         >
           <Check className="h-4 w-4 mr-2" />
-          {t.submit}
+          {t('submit')}
         </Button>
         <Button variant="outline" onClick={onHint} data-testid="button-hint">
           <HelpCircle className="h-4 w-4 mr-2" />
-          {hintUsed ? t.use_hint : t.show_hint}
+          {hintUsed ? t('use_hint') : t('show_hint')}
         </Button>
         <Button variant="outline" onClick={reset} data-testid="button-reset">
           <RefreshCw className="h-4 w-4 mr-2" />
-          {t.reset}
+          {t('reset')}
         </Button>
       </div>
 
@@ -1487,11 +1487,11 @@ function Sequencer({
       <div className="flex gap-3 flex-wrap">
         <Button onClick={() => onSubmit({ order })} data-testid="button-submit">
           <Check className="h-4 w-4 mr-2" />
-          {t.submit}
+          {t('submit')}
         </Button>
         <Button variant="outline" onClick={onHint} data-testid="button-hint">
           <HelpCircle className="h-4 w-4 mr-2" />
-          {hintUsed ? t.use_hint : t.show_hint}
+          {hintUsed ? t('use_hint') : t('show_hint')}
         </Button>
       </div>
     </div>
@@ -1530,7 +1530,7 @@ function MatchPairs({
 
       <div className="grid gap-6 md:grid-cols-2">
         <div aria-label="left list">
-          <h4 className="mb-3 text-sm font-semibold">{t.terms}</h4>
+          <h4 className="mb-3 text-sm font-semibold">{t('terms')}</h4>
           <div className="space-y-2">
             {unpairedLeft.map((l) => (
               <button
@@ -1551,7 +1551,7 @@ function MatchPairs({
         </div>
         
         <div aria-label="right list">
-          <h4 className="mb-3 text-sm font-semibold">{t.roles}</h4>
+          <h4 className="mb-3 text-sm font-semibold">{t('roles')}</h4>
           <div className="space-y-2">
             {unpairedRight.map((r) => (
               <button
@@ -1587,14 +1587,14 @@ function MatchPairs({
             data-testid="button-add-pair"
           >
             <Check className="h-4 w-4 mr-2" />
-            {t.pair_selected}
+            {t('pair_selected')}
           </Button>
         </div>
       )}
 
       {Object.keys(pairs).length > 0 && (
         <div>
-          <h4 className="mb-3 text-sm font-semibold">{t.your_pairs}</h4>
+          <h4 className="mb-3 text-sm font-semibold">{t('your_pairs')}</h4>
           <div className="grid gap-2 md:grid-cols-2">
             {Object.entries(pairs).map(([l, r]) => (
               <div
@@ -1619,11 +1619,11 @@ function MatchPairs({
           data-testid="button-submit"
         >
           <Check className="h-4 w-4 mr-2" />
-          {t.submit}
+          {t('submit')}
         </Button>
         <Button variant="outline" onClick={onHint} data-testid="button-hint">
           <HelpCircle className="h-4 w-4 mr-2" />
-          {hintUsed ? t.use_hint : t.show_hint}
+          {hintUsed ? t('use_hint') : t('show_hint')}
         </Button>
       </div>
     </div>
@@ -1656,12 +1656,12 @@ function Feedback({
         {feedbackState.correct ? (
           <Badge className="bg-green-600 hover:bg-green-600 text-white px-4 py-2">
             <Check className="h-4 w-4 mr-2" />
-            {t.correct}
+            {t('correct')}
           </Badge>
         ) : (
           <Badge variant="destructive" className="px-4 py-2">
             <X className="h-4 w-4 mr-2" />
-            {t.incorrect}
+            {t('incorrect')}
           </Badge>
         )}
         
@@ -1680,7 +1680,7 @@ function Feedback({
           {item.answer_key.rules && item.answer_key.rules.length > 0 && (
             <div className="rounded-xl border bg-card p-6">
               <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
-                <Badge variant="secondary">{t.rule_label}</Badge>
+                <Badge variant="secondary">{t('rule_label')}</Badge>
               </h4>
               <p className="text-sm leading-relaxed">{item.answer_key.rules[0]}</p>
             </div>
@@ -1689,7 +1689,7 @@ function Feedback({
           {item.exemplar_response && (
             <div className="rounded-xl border bg-muted/30 p-6">
               <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
-                <Badge variant="outline">{t.model_answer}</Badge>
+                <Badge variant="outline">{t('model_answer')}</Badge>
               </h4>
               <p className="text-sm leading-relaxed italic">{item.exemplar_response}</p>
             </div>
@@ -1700,15 +1700,15 @@ function Feedback({
           {misconception ? (
             <div className="space-y-4">
               <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-6">
-                <h4 className="text-sm font-semibold mb-3 text-destructive">{t.why_label}</h4>
+                <h4 className="text-sm font-semibold mb-3 text-destructive">{t('why_label')}</h4>
                 <p className="text-sm leading-relaxed mb-4">{misconception.feedback.why}</p>
                 
-                <h4 className="text-sm font-semibold mb-3 text-primary">{t.contrast_label}</h4>
+                <h4 className="text-sm font-semibold mb-3 text-primary">{t('contrast_label')}</h4>
                 <p className="text-sm leading-relaxed mb-4 bg-background rounded-lg p-3">
                   {misconception.feedback.contrast}
                 </p>
                 
-                <h4 className="text-sm font-semibold mb-3">{t.next_try_label}</h4>
+                <h4 className="text-sm font-semibold mb-3">{t('next_try_label')}</h4>
                 <p className="text-sm leading-relaxed font-medium">{misconception.feedback.next_try}</p>
               </div>
             </div>
@@ -1727,12 +1727,12 @@ function Feedback({
         {feedbackState.correct ? (
           <Button onClick={onNext} size="lg" data-testid="button-next">
             <ChevronRight className="h-4 w-4 mr-2" />
-            {t.next_item}
+            {t('next_item')}
           </Button>
         ) : (
           <Button onClick={onRetry} size="lg" data-testid="button-retry">
             <RefreshCw className="h-4 w-4 mr-2" />
-            {t.try_again}
+            {t('try_again')}
           </Button>
         )}
       </div>
@@ -2054,8 +2054,8 @@ export default function IoTLearningLab() {
       <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-12 max-w-6xl">
           <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold mb-4">{t.app_title}</h1>
-            <p className="text-lg text-muted-foreground">{t.app_sub}</p>
+            <h1 className="text-4xl font-bold mb-4">{t('app_title')}</h1>
+            <p className="text-lg text-muted-foreground">{t('app_sub')}</p>
           </div>
           
           <OutcomeList />
@@ -2063,7 +2063,7 @@ export default function IoTLearningLab() {
           <div className="flex flex-col items-center gap-4 pt-12">
             <Button size="lg" className="px-12" onClick={handleStart} data-testid="button-start">
               <Check className="h-5 w-5 mr-2" />
-              {t.start}
+              {t('start')}
             </Button>
             <Button
               variant="ghost"
@@ -2071,7 +2071,7 @@ export default function IoTLearningLab() {
               onClick={() => setTeleOpen(true)}
               data-testid="button-view-telemetry-prestart"
             >
-              {t.view_log}
+              {t('view_log')}
             </Button>
           </div>
         </div>
@@ -2110,7 +2110,7 @@ export default function IoTLearningLab() {
             <div className="flex items-center gap-4">
               <Trophy className="h-8 w-8 text-primary" />
               <div>
-                <h3 className="text-lg font-semibold">{t.mastery_unlocked}</h3>
+                <h3 className="text-lg font-semibold">{t('mastery_unlocked')}</h3>
                 <p className="text-sm text-muted-foreground">
                   You've achieved the mastery criteria! Great work.
                 </p>
