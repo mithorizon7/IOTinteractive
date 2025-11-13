@@ -665,7 +665,7 @@ function evaluate(item: Item, response: any): { correct: boolean; misconception_
   if (item.response_type === "order") {
     const correct = arraysEqual(response?.order, item.answer_key.correctOrder);
     const mis = !correct && item.misconceptions?.find((m) => m.detector?.(response));
-    return { correct, misconception_id: mis?.id };
+    return { correct, misconception_id: mis && typeof mis === 'object' ? mis.id : undefined };
   }
 
   if (item.response_type === "match") {
@@ -674,7 +674,7 @@ function evaluate(item: Item, response: any): { correct: boolean; misconception_
     const keys = Object.keys(expected || {});
     const correct = keys.every((k) => expected[k] === pairs[k]) && keys.length === Object.keys(pairs).length;
     const mis = !correct && item.misconceptions?.find((m) => m.detector?.(response));
-    return { correct, misconception_id: mis?.id };
+    return { correct, misconception_id: mis && typeof mis === 'object' ? mis.id : undefined };
   }
 
   if (item.response_type === "triage") {
@@ -689,7 +689,7 @@ function evaluate(item: Item, response: any): { correct: boolean; misconception_
     };
     const correct = isCorr("vulnerability") && isCorr("mitigation");
     const mis = !correct && item.misconceptions?.find((m) => m.detector?.(response));
-    return { correct, misconception_id: mis?.id };
+    return { correct, misconception_id: mis && typeof mis === 'object' ? mis.id : undefined };
   }
 
   return { correct: false };
@@ -875,14 +875,14 @@ function Header({
 /*************************
  * Component: OutcomeList*
  *************************/
-function OutcomeList() {
+function OutcomeList({ outcomes }: { outcomes: Array<{ id: string; text: string }> }) {
   const { t } = useTranslation('ui');
   
   return (
     <section className="space-y-6">
       <h2 className="text-xl font-semibold">{t('outcomes_header')}</h2>
       <div className="grid md:grid-cols-2 gap-4">
-        {CONTENT.metadata.outcomes.map((outcome) => (
+        {outcomes.map((outcome) => (
           <Card key={outcome.id} className="p-4" data-testid={`outcome-${outcome.id}`}>
             <div className="flex items-start gap-3">
               <Badge variant="secondary" className="mt-0.5 shrink-0">{outcome.id}</Badge>
@@ -1243,7 +1243,7 @@ function Triage({
               <div className="flex items-center gap-2">
                 <AlertTriangle className="h-4 w-4 text-destructive" />
                 <h4 className="text-sm font-semibold text-destructive">
-                  {vulnBin?.label || t('bin_vulnerability')}
+                  {t('bin_vulnerability')}
                 </h4>
               </div>
               <Badge variant="destructive" className="text-xs">{bins.vulnerability.length}</Badge>
@@ -1319,7 +1319,7 @@ function Triage({
               <div className="flex items-center gap-2">
                 <Shield className="h-4 w-4 text-green-600 dark:text-green-500" />
                 <h4 className="text-sm font-semibold text-green-600 dark:text-green-500">
-                  {mitigBin?.label || t('bin_mitigation')}
+                  {t('bin_mitigation')}
                 </h4>
               </div>
               <Badge className="text-xs bg-green-600 hover:bg-green-600">{bins.mitigation.length}</Badge>
@@ -1744,7 +1744,10 @@ function Feedback({
  * Main Orchestrator     *
  *************************/
 export default function IoTLearningLab() {
-  const { t } = useTranslation('ui');
+  const { t, i18n } = useTranslation('ui');
+  
+  // Content that refreshes on language change
+  const [content, setContent] = useState(() => getTranslatedContent());
   
   // Session state
   const [started, setStarted] = useState(false);
@@ -1761,14 +1764,26 @@ export default function IoTLearningLab() {
   
   // History & mastery
   const [history, setHistory] = useState<HistoryEntry[]>([]);
-  const [seenCounts, setSeenCounts] = useState<number[]>(CONTENT.items.map(() => 0));
+  const [seenCounts, setSeenCounts] = useState<number[]>(content.items.map(() => 0));
   const [incorrectItems, setIncorrectItems] = useState<Set<number>>(new Set());
   
   // UI state
   const [teleOpen, setTeleOpen] = useState(false);
   
   // Current item
-  const item = CONTENT.items[currentIndex];
+  const item = content.items[currentIndex];
+  
+  // Reload content when language changes
+  useEffect(() => {
+    const handleLanguageChange = () => {
+      setContent(getTranslatedContent());
+    };
+    
+    i18n.on('languageChanged', handleLanguageChange);
+    return () => {
+      i18n.off('languageChanged', handleLanguageChange);
+    };
+  }, [i18n]);
   
   // Load session on mount
   useEffect(() => {
@@ -1778,11 +1793,11 @@ export default function IoTLearningLab() {
       setStarted(saved.started);
       setCurrentIndex(saved.currentIndex || 0);
       setHistory(saved.history || []);
-      setSeenCounts(saved.seenCounts || CONTENT.items.map(() => 0));
+      setSeenCounts(saved.seenCounts || content.items.map(() => 0));
       setIncorrectItems(new Set(saved.incorrectItems || []));
       console.log("[session] Restored previous session");
     }
-  }, []);
+  }, [content.items]);
   
   // Save session whenever key state changes
   useEffect(() => {
@@ -1820,7 +1835,7 @@ export default function IoTLearningLab() {
     const hints = history.reduce((sum, h) => sum + h.hints_used, 0);
     
     // Check mastery criteria
-    const { streak: reqStreak, max_avg_time_ms, max_hints } = CONTENT.metadata.mastery;
+    const { streak: reqStreak, max_avg_time_ms, max_hints } = content.metadata.mastery;
     const masteryMet = streak >= reqStreak && avgTimeMs <= max_avg_time_ms && hints <= max_hints;
     
     return { streak, avgTimeS, hints, masteryMet };
@@ -1845,7 +1860,7 @@ export default function IoTLearningLab() {
       
       // Filter out recently shown items
       const candidatesFiltered = incorrectArr.filter(
-        (idx) => !recentItemIds.includes(CONTENT.items[idx].id)
+        (idx) => !recentItemIds.includes(content.items[idx].id)
       );
       
       // If all incorrect items were shown recently, allow any incorrect item
@@ -1860,7 +1875,7 @@ export default function IoTLearningLab() {
     const minCount = Math.min(...seenCounts);
     let candidates = seenCounts
       .map((c, i) => ({ i, c }))
-      .filter((x) => x.c === minCount && !recentItemIds.includes(CONTENT.items[x.i].id))
+      .filter((x) => x.c === minCount && !recentItemIds.includes(content.items[x.i].id))
       .map((x) => x.i);
     
     // If all least-seen items were shown recently, allow any least-seen item
@@ -1911,7 +1926,7 @@ export default function IoTLearningLab() {
     setCurrentItemMastered(false);
     setCurrentItemRetries(0);
     setHistory([]);
-    setSeenCounts(CONTENT.items.map(() => 0));
+    setSeenCounts(content.items.map(() => 0));
     setIncorrectItems(new Set());
     setTeleOpen(false);
     
@@ -2058,7 +2073,7 @@ export default function IoTLearningLab() {
             <p className="text-lg text-muted-foreground">{t('app_sub')}</p>
           </div>
           
-          <OutcomeList />
+          <OutcomeList outcomes={content.metadata.outcomes} />
           
           <div className="flex flex-col items-center gap-4 pt-12">
             <Button size="lg" className="px-12" onClick={handleStart} data-testid="button-start">
@@ -2099,7 +2114,7 @@ export default function IoTLearningLab() {
       <Header 
         mastery={mastery} 
         currentIndex={currentIndex}
-        totalItems={CONTENT.items.length}
+        totalItems={content.items.length}
         onTelemetryToggle={() => setTeleOpen(!teleOpen)} 
       />
       
