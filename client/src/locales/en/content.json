@@ -1,0 +1,242 @@
+{
+  "outcomes": {
+    "OBJ-1": "Decide whether a scenario is IoT and explain why/why not.",
+    "OBJ-2": "Choose appropriate connectivity (internet vs private networks; Wi-Fi, cellular, RFID).",
+    "OBJ-3": "Match overlapping tech to its role (5G, big data/AI, digital twins, cybersecurity).",
+    "OBJ-4": "Spot common IoT security pitfalls and choose effective mitigations.",
+    "OBJ-5": "Sequence the IoT data loop: Sense → Share → Process → Act."
+  },
+  "items": {
+    "IOT-1": {
+      "stimulus": "Bluetooth headphones stream music from a phone. Is this IoT by the definition used here?",
+      "options": ["Yes", "No"],
+      "answer_correct": "No",
+      "answer_rules": ["IoT applications sense an environment, then share, process, and act on that info."],
+      "misconceptions": {
+        "any_connected_is_iot": {
+          "why": "Being wireless alone isn't enough.",
+          "contrast": "IoT involves sensing something about the world and acting on it.",
+          "next_try": "Check whether environment sensing or actuation is present."
+        }
+      },
+      "hints": [
+        "Does this device sense the environment or act on it automatically?",
+        "Our definition needs: sense → share → process → act.",
+        "Headphones play audio but don't sense/act on the environment."
+      ],
+      "exemplar": "No. Headphones don't sense the environment or act on sensed data."
+    },
+    "IOT-2": {
+      "stimulus": "A warehouse uses RFID tags on pallets. Gates read the tags and update the inventory system. Is this IoT?",
+      "options": ["Yes", "No"],
+      "answer_correct": "Yes",
+      "answer_rules": ["The system senses (RFID), shares data, processes it, then triggers actions like stock updates."],
+      "misconceptions": {
+        "rfid_not_iot": {
+          "why": "RFID can be part of IoT when it senses and shares object state.",
+          "contrast": "RFID readers sense tags and update systems in real time.",
+          "next_try": "Re-evaluate with the 'sense → share → process → act' loop."
+        }
+      },
+      "hints": [
+        "What is being sensed here?",
+        "RFID readers collect tag IDs at the gate.",
+        "The data updates inventory—this is the act step."
+      ],
+      "exemplar": "Yes. RFID readers sense tag data and trigger inventory actions."
+    },
+    "IOT-3": {
+      "stimulus": "A smart thermostat uses motion sensors and a schedule to heat your house automatically. IoT?",
+      "options": ["Yes", "No"],
+      "answer_correct": "Yes",
+      "answer_rules": ["Sensors detect occupancy; data is processed; heating is adjusted (act)."],
+      "misconceptions": {
+        "needs_internet": {
+          "why": "The 'internet' isn't required—only a device network that senses and acts.",
+          "contrast": "IoT can run on local/private networks.",
+          "next_try": "Focus on the loop, not the public internet."
+        }
+      },
+      "hints": [
+        "Does it sense the environment?",
+        "What is the action taken based on sensed data?",
+        "Heating adjusts based on motion/time: classic IoT."
+      ],
+      "exemplar": "Yes—senses motion and time, then acts by changing heat."
+    },
+    "IOT-4": {
+      "stimulus": "A laptop browses the web. Is that IoT?",
+      "options": ["Yes", "No"],
+      "answer_correct": "No",
+      "answer_rules": ["General-purpose computers are not IoT by themselves."],
+      "misconceptions": {
+        "internet_equals_iot": {
+          "why": "Internet use alone ≠ IoT.",
+          "contrast": "We need sensing/actuation of the physical world.",
+          "next_try": "Look for sense→share→process→act."
+        }
+      },
+      "hints": [
+        "Is anything physical being sensed?",
+        "Browsing alone doesn't sense the environment.",
+        "So this is not IoT."
+      ],
+      "exemplar": "No—no environment sensing or actuation."
+    },
+    "NET-1": {
+      "stimulus": "A factory's sensors report to a local server on the shop floor only. Pick the best connectivity.",
+      "options": [
+        "Private/local network (no internet)",
+        "Public internet via Wi-Fi",
+        "Cellular (4G/5G) + internet",
+        "RFID-only readers (no active radio on sensors)"
+      ],
+      "answer_correct": "Private/local network (no internet)",
+      "answer_rules": ["IoT doesn't require the public internet."],
+      "misconceptions": {
+        "must_use_internet": {
+          "why": "The public internet isn't required for IoT to work.",
+          "contrast": "Local networks can fully support IoT apps.",
+          "next_try": "Choose a non-internet option when scope is on-prem only."
+        }
+      },
+      "hints": [
+        "Where does the data need to go?",
+        "Only to a local server.",
+        "Then a private/local network fits best."
+      ],
+      "exemplar": "Private/local network—keeps data on site; internet not required."
+    },
+    "NET-2": {
+      "stimulus": "A delivery firm tracks boxes at gates with short-range readers. Best connectivity?",
+      "options": [
+        "RFID-only readers (no active radio on sensors)",
+        "Public internet via Wi-Fi",
+        "Cellular (4G/5G) + internet",
+        "Private/local network (no internet)"
+      ],
+      "answer_correct": "RFID-only readers (no active radio on sensors)",
+      "answer_rules": ["RFID gates scan passive tags."],
+      "misconceptions": {
+        "rfid_misunderstood": {
+          "why": "The scenario uses passive RFID tags.",
+          "contrast": "Readers sense tags; items don't need Wi-Fi/cellular radios.",
+          "next_try": "Pick the RFID option."
+        }
+      },
+      "hints": [
+        "What tech scans tags at gates?",
+        "Think RFID.",
+        "Choose RFID readers."
+      ],
+      "exemplar": "RFID readers—gates scan passive tags; no Wi-Fi on boxes."
+    },
+    "NET-3": {
+      "stimulus": "A car uploads maintenance data to the manufacturer from anywhere. Best connectivity?",
+      "options": [
+        "Private/local network (no internet)",
+        "Public internet via Wi-Fi",
+        "Cellular (4G/5G) + internet",
+        "RFID-only readers (no active radio on sensors)"
+      ],
+      "answer_correct": "Cellular (4G/5G) + internet",
+      "answer_rules": ["Wide-area connectivity is needed on the road."],
+      "misconceptions": {
+        "wifi_everywhere": {
+          "why": "Wi-Fi lacks coverage away from hotspots.",
+          "contrast": "Cellular is designed for mobility & coverage.",
+          "next_try": "Pick cellular + internet."
+        }
+      },
+      "hints": [
+        "Does it need coverage while moving?",
+        "Wi-Fi is limited to hotspots.",
+        "Use cellular + internet."
+      ],
+      "exemplar": "Cellular + internet for coverage anywhere."
+    },
+    "MATCH-1": {
+      "stimulus": "Match each technology to the role it plays in IoT.",
+      "pairs_left": ["5G", "Big data / AI", "Digital twin", "Cybersecurity"],
+      "pairs_right": [
+        "High-capacity wireless for many devices",
+        "Analyze large sensor streams to find patterns",
+        "Live virtual copy of a physical system",
+        "Reduce risks (patching, segmentation, physical safeguards)"
+      ],
+      "answer_correct": {
+        "5G": "High-capacity wireless for many devices",
+        "Big data / AI": "Analyze large sensor streams to find patterns",
+        "Digital twin": "Live virtual copy of a physical system",
+        "Cybersecurity": "Reduce risks (patching, segmentation, physical safeguards)"
+      },
+      "misconceptions": {
+        "twin_as_3d_only": {
+          "why": "A digital twin isn't just 3D or network tech; it's a live data-fed model.",
+          "contrast": "Sensors feed the twin to mirror the real object.",
+          "next_try": "Match digital twin to 'live virtual copy'."
+        }
+      },
+      "hints": [
+        "Which tech talks; which tech thinks; which tech mirrors; which tech protects?",
+        "5G talks; AI thinks; twin mirrors; security protects.",
+        "Map accordingly."
+      ],
+      "exemplar": "5G→capacity; AI→analyze; twin→live copy; security→reduce risk."
+    },
+    "TRIAGE-1": {
+      "stimulus": "Sort each card into Vulnerability or Mitigation.",
+      "cards": [
+        "Using the factory-set default password on an outdoor security camera.",
+        "IoT device that cannot be updated over the network (you must visit it in person to install updates).",
+        "Putting IoT devices on their own separate network so they cannot directly reach more sensitive systems.",
+        "Using strong, unique passwords for each IoT device and login.",
+        "IoT device installed where anyone can easily reach it and open its case.",
+        "Regularly installing software updates on all IoT devices."
+      ],
+      "answer_correct": {
+        "vulnerability": [
+          "Using the factory-set default password on an outdoor security camera.",
+          "IoT device that cannot be updated over the network (you must visit it in person to install updates).",
+          "IoT device installed where anyone can easily reach it and open its case."
+        ],
+        "mitigation": [
+          "Putting IoT devices on their own separate network so they cannot directly reach more sensitive systems.",
+          "Using strong, unique passwords for each IoT device and login.",
+          "Regularly installing software updates on all IoT devices."
+        ]
+      },
+      "misconceptions": {
+        "segmentation_confused": {
+          "why": "Separating IoT devices on their own network limits damage if a device is compromised.",
+          "contrast": "It's a defensive control that contains problems, not a risk by itself.",
+          "next_try": "Place this network separation strategy under Mitigation."
+        }
+      },
+      "hints": [
+        "Ask: does this make the system weaker (vulnerability) or safer (mitigation)?",
+        "Strong passwords and regular updates make systems safer.",
+        "Default passwords, no remote updates, and easy physical access make systems weaker."
+      ],
+      "exemplar": "Vulnerabilities: factory-set passwords, devices that can't be updated remotely, devices anyone can reach and open. Mitigations: separate network for IoT devices, strong unique passwords, regular software updates."
+    },
+    "SEQ-1": {
+      "stimulus": "Order the IoT loop from first to last.",
+      "steps": ["Act", "Share", "Process/Analyze", "Sense"],
+      "answer_correct_order": ["Sense", "Share", "Process/Analyze", "Act"],
+      "misconceptions": {
+        "act_first": {
+          "why": "Action comes after data is sensed and analyzed.",
+          "contrast": "Correct order is Sense → Share → Process → Act.",
+          "next_try": "Place Sense at the start."
+        }
+      },
+      "hints": [
+        "What must happen before action?",
+        "We need data and analysis first.",
+        "Sense then share then process then act."
+      ],
+      "exemplar": "Sense → Share → Process/Analyze → Act."
+    }
+  }
+}
