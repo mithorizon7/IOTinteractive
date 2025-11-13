@@ -1,4 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import i18n from "@/i18n/config";
 import {
   Check,
   X,
@@ -90,72 +92,25 @@ interface HistoryEntry {
 }
 
 /*************************
- * Localization strings  *
+ * Content pack builder  *
  *************************/
-const STRINGS = {
-  en: {
-    app_title: "IoT Mini-Games (Beginner)",
-    app_sub: "Apply what you just read, no jargon, quick feedback.",
-    start: "Start",
-    continue: "Continue",
-    next_item: "Next",
-    try_again: "Try again",
-    show_hint: "Show Hint",
-    use_hint: "Using hints",
-    give_up: "Reveal answer",
-    submit: "Submit",
-    correct: "Correct!",
-    incorrect: "Not quite",
-    rationale_prompt: "Why? (one sentence)",
-    mastery_progress: "Mastery Progress",
-    streak: "Streak",
-    avg_time: "Avg time",
-    seconds: "s",
-    hints_used: "Hints",
-    view_log: "View Telemetry",
-    hide_log: "Hide telemetry",
-    outcomes_header: "Learning outcomes",
-    outcome1: "Decide whether a scenario is IoT and explain why/why not.",
-    outcome2: "Choose appropriate connectivity (internet vs private networks; Wi-Fi, cellular, RFID).",
-    outcome3: "Match overlapping tech to its role (5G, big data/AI, digital twins, cybersecurity).",
-    outcome4: "Spot common IoT security pitfalls and choose effective mitigations.",
-    outcome5: "Sequence the IoT data loop: Sense → Share → Process → Act.",
-    mastery_unlocked: "Mastery gate met!",
-    retry_required: "Let's correct this and retry once.",
-    bin_vulnerability: "Vulnerability",
-    bin_mitigation: "Mitigation",
-    reset: "Reset",
-    model_answer: "Model answer",
-    why_label: "Why",
-    contrast_label: "Contrast",
-    next_try_label: "Next time",
-    rule_label: "Rule",
-    practice: "Practice",
-    unplaced: "Unplaced",
-    terms: "Terms",
-    roles: "Roles",
-    your_pairs: "Your pairs",
-    pair_selected: "Pair selected",
-    download_csv: "Download CSV",
-  },
-};
-
-/*************************
- * Content pack          *
- *************************/
-const CONTENT = {
-  metadata: {
-    version: "1.2",
-    locale: "en",
-    outcomes: [
-      { id: "OBJ-1", text: STRINGS.en.outcome1 },
-      { id: "OBJ-2", text: STRINGS.en.outcome2 },
-      { id: "OBJ-3", text: STRINGS.en.outcome3 },
-      { id: "OBJ-4", text: STRINGS.en.outcome4 },
-      { id: "OBJ-5", text: STRINGS.en.outcome5 },
-    ],
-    mastery: { streak: 3, max_avg_time_ms: 30000, max_hints: 1 },
-  },
+// Helper function to load translated content
+function getTranslatedContent() {
+  const t = i18n.t.bind(i18n);
+  
+  return {
+    metadata: {
+      version: "1.2",
+      locale: i18n.language || "en",
+      outcomes: [
+        { id: "OBJ-1", text: t("content:outcomes.OBJ-1") },
+        { id: "OBJ-2", text: t("content:outcomes.OBJ-2") },
+        { id: "OBJ-3", text: t("content:outcomes.OBJ-3") },
+        { id: "OBJ-4", text: t("content:outcomes.OBJ-4") },
+        { id: "OBJ-5", text: t("content:outcomes.OBJ-5") },
+      ],
+      mastery: { streak: 3, max_avg_time_ms: 30000, max_hints: 1 },
+    },
   items: [
     {
       objective_id: "OBJ-1",
@@ -163,33 +118,29 @@ const CONTENT = {
       difficulty: "easy",
       mechanic: "DecisionLab",
       stimulus: {
-        text: "Bluetooth headphones stream music from a phone. Is this IoT by the definition used here?",
+        text: t("content:items.IOT-1.stimulus"),
         media: null,
       },
       parameters: {},
       response_type: "decision+rationale",
-      options: ["Yes", "No"],
+      options: t("content:items.IOT-1.options", { returnObjects: true }) as string[],
       answer_key: {
-        correct: "No",
-        rules: ["IoT applications sense an environment, then share, process, and act on that info."],
+        correct: t("content:items.IOT-1.answer_correct"),
+        rules: t("content:items.IOT-1.answer_rules", { returnObjects: true }) as string[],
       },
       misconceptions: [
         {
           id: "any_connected_is_iot",
           detector: (resp: any) => resp?.choice === "Yes",
           feedback: {
-            why: "Being wireless alone isn't enough.",
-            contrast: "IoT involves sensing something about the world and acting on it.",
-            next_try: "Check whether environment sensing or actuation is present.",
+            why: t("content:items.IOT-1.misconceptions.any_connected_is_iot.why"),
+            contrast: t("content:items.IOT-1.misconceptions.any_connected_is_iot.contrast"),
+            next_try: t("content:items.IOT-1.misconceptions.any_connected_is_iot.next_try"),
           },
         },
       ],
-      hint_ladder: [
-        "Does this device sense the environment or act on it automatically?",
-        "Our definition needs: sense → share → process → act.",
-        "Headphones play audio but don't sense/act on the environment.",
-      ],
-      exemplar_response: "No. Headphones don't sense the environment or act on sensed data.",
+      hint_ladder: t("content:items.IOT-1.hints", { returnObjects: true }) as string[],
+      exemplar_response: t("content:items.IOT-1.exemplar"),
       scoring: { base: 1, time_ms_cap: 45000, hint_penalty: 0.25, retry_policy: "until_correct" },
       mastery_criterion: { streak: 3, max_avg_time_ms: 30000 },
       telemetry_fields: ["latency_ms", "hints_used", "misconception_id", "retries"],
