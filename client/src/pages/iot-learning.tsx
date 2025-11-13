@@ -1220,6 +1220,35 @@ function Triage({
 
   return (
     <div className="space-y-6">
+      {/* Introduction */}
+      <div className="rounded-xl border-2 border-primary/20 bg-primary/5 p-6 space-y-4">
+        <h3 className="text-lg font-semibold text-primary">Vulnerabilities vs. Mitigations</h3>
+        <div className="space-y-3 text-sm leading-relaxed">
+          <p>
+            IoT systems are networks of connected devices and sensors that collect and share data. 
+            In this game, decide whether each statement is:
+          </p>
+          <ul className="space-y-2 ml-4">
+            <li className="flex items-start gap-2">
+              <AlertTriangle className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
+              <div>
+                <strong className="text-destructive">A vulnerability</strong> – a weak spot that makes problems or attacks more likely
+              </div>
+            </li>
+            <li className="flex items-start gap-2">
+              <Shield className="h-4 w-4 text-green-600 dark:text-green-500 shrink-0 mt-0.5" />
+              <div>
+                <strong className="text-green-600 dark:text-green-500">A mitigation</strong> – a step that helps reduce those risks and make the system safer
+              </div>
+            </li>
+          </ul>
+          <p className="text-muted-foreground italic">
+            Think back to the readings and ask: "Does this make the system weaker, or safer?" Then pick your answer.
+          </p>
+        </div>
+      </div>
+
+      {/* Progress Indicator */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <p className="text-base leading-relaxed">{item.stimulus.text}</p>
         <Badge variant="outline" className="text-xs">
@@ -1310,14 +1339,17 @@ function Triage({
           onDrop={(e) => handleDrop(e, "vulnerability")}
           data-testid="zone-vulnerability"
         >
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <AlertTriangle className="h-4 w-4 text-destructive" />
-              <h4 className="text-sm font-semibold text-destructive">
-                {vulnBin?.label || t.bin_vulnerability}
-              </h4>
+          <div className="mb-3">
+            <div className="flex items-center justify-between mb-1">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4 text-destructive" />
+                <h4 className="text-sm font-semibold text-destructive">
+                  {vulnBin?.label || t.bin_vulnerability}
+                </h4>
+              </div>
+              <Badge variant="destructive" className="text-xs">{bins.vulnerability.length}</Badge>
             </div>
-            <Badge variant="destructive" className="text-xs">{bins.vulnerability.length}</Badge>
+            <p className="text-xs text-muted-foreground ml-6">Makes the system weaker</p>
           </div>
 
           <div className="space-y-2">
@@ -1383,14 +1415,17 @@ function Triage({
           onDrop={(e) => handleDrop(e, "mitigation")}
           data-testid="zone-mitigation"
         >
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <Shield className="h-4 w-4 text-green-600 dark:text-green-500" />
-              <h4 className="text-sm font-semibold text-green-600 dark:text-green-500">
-                {mitigBin?.label || t.bin_mitigation}
-              </h4>
+          <div className="mb-3">
+            <div className="flex items-center justify-between mb-1">
+              <div className="flex items-center gap-2">
+                <Shield className="h-4 w-4 text-green-600 dark:text-green-500" />
+                <h4 className="text-sm font-semibold text-green-600 dark:text-green-500">
+                  {mitigBin?.label || t.bin_mitigation}
+                </h4>
+              </div>
+              <Badge className="text-xs bg-green-600 hover:bg-green-600">{bins.mitigation.length}</Badge>
             </div>
-            <Badge className="text-xs bg-green-600 hover:bg-green-600">{bins.mitigation.length}</Badge>
+            <p className="text-xs text-muted-foreground ml-6">Makes the system safer</p>
           </div>
 
           <div className="space-y-2">
