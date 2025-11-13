@@ -1270,26 +1270,26 @@ function Triage({
                     <GripVertical className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
                     <span className="text-sm flex-1">{c}</span>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 min-w-0">
                     <Button
                       size="sm"
                       variant="outline"
                       onClick={() => moveCard(c, "unplaced", "vulnerability")}
-                      className="flex-1 text-xs h-8 bg-destructive/5 border-destructive/30 hover:bg-destructive/10"
+                      className="flex-1 text-xs h-8 px-2 bg-destructive/5 border-destructive/30 hover:bg-destructive/10 min-w-0"
                       data-testid={`place-vulnerability-${c}`}
                     >
-                      <AlertTriangle className="h-3 w-3 mr-1" />
-                      Vulnerability
+                      <AlertTriangle className="h-3 w-3 mr-1 shrink-0" />
+                      <span className="truncate">Vulnerability</span>
                     </Button>
                     <Button
                       size="sm"
                       variant="outline"
                       onClick={() => moveCard(c, "unplaced", "mitigation")}
-                      className="flex-1 text-xs h-8 bg-green-600/5 border-green-600/30 hover:bg-green-600/10"
+                      className="flex-1 text-xs h-8 px-2 bg-green-600/5 border-green-600/30 hover:bg-green-600/10 min-w-0"
                       data-testid={`place-mitigation-${c}`}
                     >
-                      <Shield className="h-3 w-3 mr-1" />
-                      Mitigation
+                      <Shield className="h-3 w-3 mr-1 shrink-0" />
+                      <span className="truncate">Mitigation</span>
                     </Button>
                   </div>
                 </div>
