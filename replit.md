@@ -54,6 +54,26 @@ The application is a pure frontend solution with no backend persistence, storing
 - Mitigation bin: "Makes the system safer"
 - Subtle text-muted-foreground styling, positioned below bin headers
 
+**Rewrote Card Text for True Beginners**:
+Updated all 6 cards to use concrete, accessible language for learners with zero IT background:
+
+*Vulnerabilities (Before → After):*
+1. ~~"Default password on outdoor camera"~~ → "Using the factory-set default password on an outdoor security camera."
+2. ~~"No remote update mechanism"~~ → "IoT device that cannot be updated over the network (you must visit it in person to install updates)."
+3. ~~"Physically accessible device enclosure"~~ → "IoT device installed where anyone can easily reach it and open its case."
+
+*Mitigations (Before → After):*
+1. ~~"Network segmentation (separate IoT VLAN)"~~ → "Putting IoT devices on their own separate network so they cannot directly reach more sensitive systems."
+2. ~~"Strong, unique credentials"~~ → "Using strong, unique passwords for each IoT device and login."
+3. ~~"Regular patching policy"~~ → "Regularly installing software updates on all IoT devices."
+
+**Text Improvements Rationale**:
+- **Concrete over abstract**: "security camera" vs "outdoor camera", "case" vs "enclosure"
+- **Explain technical concepts**: Added parenthetical explanations (e.g., "you must visit it in person")
+- **Remove jargon**: Dropped "VLAN", replaced "credentials" with "passwords"
+- **Real-world consequences**: "anyone can easily reach it" makes tampering risk obvious
+- **Tie to readings**: "software updates" connects to article's "outdated software" language
+
 **Design Integration**:
 - Indigo primary-colored intro box (border-primary/20, bg-primary/5)
 - Consistent icon reuse (AlertTriangle for vulnerabilities, Shield for mitigations)
@@ -63,6 +83,7 @@ The application is a pure frontend solution with no backend persistence, storing
 **Pedagogical Benefits**:
 - Scaffolds learning by explicitly defining core concepts upfront
 - Reduces cognitive load during game interaction
+- Card text accessible to complete beginners while preserving security concepts
 - Reinforces visual-conceptual associations (red=danger, green=safety)
 - Prompts metacognitive reflection before decision-making
 
