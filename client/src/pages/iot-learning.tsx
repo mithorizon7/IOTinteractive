@@ -469,12 +469,12 @@ const CONTENT = {
       parameters: {},
       response_type: "triage",
       cards: [
-        "Default password on outdoor camera",
-        "No remote update mechanism",
-        "Network segmentation (separate IoT VLAN)",
-        "Strong, unique credentials",
-        "Physically accessible device enclosure",
-        "Regular patching policy",
+        "Using the factory-set default password on an outdoor security camera.",
+        "IoT device that cannot be updated over the network (you must visit it in person to install updates).",
+        "Putting IoT devices on their own separate network so they cannot directly reach more sensitive systems.",
+        "Using strong, unique passwords for each IoT device and login.",
+        "IoT device installed where anyone can easily reach it and open its case.",
+        "Regularly installing software updates on all IoT devices.",
       ],
       bins: [
         { id: "vulnerability", label: STRINGS.en.bin_vulnerability },
@@ -483,35 +483,35 @@ const CONTENT = {
       answer_key: {
         correct: {
           vulnerability: [
-            "Default password on outdoor camera",
-            "No remote update mechanism",
-            "Physically accessible device enclosure",
+            "Using the factory-set default password on an outdoor security camera.",
+            "IoT device that cannot be updated over the network (you must visit it in person to install updates).",
+            "IoT device installed where anyone can easily reach it and open its case.",
           ],
           mitigation: [
-            "Network segmentation (separate IoT VLAN)",
-            "Strong, unique credentials",
-            "Regular patching policy",
+            "Putting IoT devices on their own separate network so they cannot directly reach more sensitive systems.",
+            "Using strong, unique passwords for each IoT device and login.",
+            "Regularly installing software updates on all IoT devices.",
           ],
         },
       },
       misconceptions: [
         {
           id: "segmentation_confused",
-          detector: (resp: any) => Array.isArray(resp?.bins?.vulnerability) && resp.bins.vulnerability.includes("Network segmentation (separate IoT VLAN)"),
+          detector: (resp: any) => Array.isArray(resp?.bins?.vulnerability) && resp.bins.vulnerability.includes("Putting IoT devices on their own separate network so they cannot directly reach more sensitive systems."),
           feedback: {
-            why: "Segmentation limits blast radius if a device is compromised.",
-            contrast: "It's a defensive control, not a risk by itself.",
-            next_try: "Place segmentation under Mitigation.",
+            why: "Separating IoT devices on their own network limits damage if a device is compromised.",
+            contrast: "It's a defensive control that contains problems, not a risk by itself.",
+            next_try: "Place this network separation strategy under Mitigation.",
           },
         },
       ],
       hint_ladder: [
-        "Ask: does this increase risk or reduce it?",
-        "Passwords & patching reduce risk.",
-        "Physical access & default creds increase risk.",
+        "Ask: does this make the system weaker (vulnerability) or safer (mitigation)?",
+        "Strong passwords and regular updates make systems safer.",
+        "Default passwords, no remote updates, and easy physical access make systems weaker.",
       ],
       exemplar_response:
-        "Vulns: default creds, no updates, physical access. Mitigations: segmentation, strong creds, patching.",
+        "Vulnerabilities: factory-set passwords, devices that can't be updated remotely, devices anyone can reach and open. Mitigations: separate network for IoT devices, strong unique passwords, regular software updates.",
       scoring: { base: 1, time_ms_cap: 60000, hint_penalty: 0.25, retry_policy: "until_correct" },
       mastery_criterion: { streak: 3, max_avg_time_ms: 30000 },
       telemetry_fields: ["latency_ms", "hints_used", "misconception_id", "retries"],
