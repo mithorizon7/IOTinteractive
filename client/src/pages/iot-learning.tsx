@@ -152,33 +152,29 @@ function getTranslatedContent() {
       difficulty: "easy",
       mechanic: "DecisionLab",
       stimulus: {
-        text: "A warehouse uses RFID tags on pallets. Gates read the tags and update the inventory system. Is this IoT?",
+        text: t("content:items.IOT-2.stimulus"),
         media: null,
       },
       parameters: {},
       response_type: "decision+rationale",
-      options: ["Yes", "No"],
+      options: t("content:items.IOT-2.options", { returnObjects: true }) as string[],
       answer_key: {
-        correct: "Yes",
-        rules: ["The system senses (RFID), shares data, processes it, then triggers actions like stock updates."],
+        correct: t("content:items.IOT-2.answer_correct"),
+        rules: t("content:items.IOT-2.answer_rules", { returnObjects: true }) as string[],
       },
       misconceptions: [
         {
           id: "rfid_not_iot",
           detector: (resp: any) => resp?.choice === "No",
           feedback: {
-            why: "RFID can be part of IoT when it senses and shares object state.",
-            contrast: "RFID readers sense tags and update systems in real time.",
-            next_try: "Re-evaluate with the 'sense → share → process → act' loop.",
+            why: t("content:items.IOT-2.misconceptions.rfid_not_iot.why"),
+            contrast: t("content:items.IOT-2.misconceptions.rfid_not_iot.contrast"),
+            next_try: t("content:items.IOT-2.misconceptions.rfid_not_iot.next_try"),
           },
         },
       ],
-      hint_ladder: [
-        "What is being sensed here?",
-        "RFID readers collect tag IDs at the gate.",
-        "The data updates inventory—this is the act step.",
-      ],
-      exemplar_response: "Yes. RFID readers sense tag data and trigger inventory actions.",
+      hint_ladder: t("content:items.IOT-2.hints", { returnObjects: true }) as string[],
+      exemplar_response: t("content:items.IOT-2.exemplar"),
       scoring: { base: 1, time_ms_cap: 45000, hint_penalty: 0.25, retry_policy: "until_correct" },
       mastery_criterion: { streak: 3, max_avg_time_ms: 30000 },
       telemetry_fields: ["latency_ms", "hints_used", "misconception_id", "retries"],
@@ -190,33 +186,29 @@ function getTranslatedContent() {
       difficulty: "medium",
       mechanic: "DecisionLab",
       stimulus: {
-        text: "A smart thermostat uses motion sensors and a schedule to heat your house automatically. IoT?",
+        text: t("content:items.IOT-3.stimulus"),
         media: null,
       },
       parameters: {},
       response_type: "decision+rationale",
-      options: ["Yes", "No"],
+      options: t("content:items.IOT-3.options", { returnObjects: true }) as string[],
       answer_key: {
-        correct: "Yes",
-        rules: ["Sensors detect occupancy; data is processed; heating is adjusted (act)."],
+        correct: t("content:items.IOT-3.answer_correct"),
+        rules: t("content:items.IOT-3.answer_rules", { returnObjects: true }) as string[],
       },
       misconceptions: [
         {
           id: "needs_internet",
           detector: (resp: any) => resp?.choice === "No",
           feedback: {
-            why: "The 'internet' isn't required—only a device network that senses and acts.",
-            contrast: "IoT can run on local/private networks.",
-            next_try: "Focus on the loop, not the public internet.",
+            why: t("content:items.IOT-3.misconceptions.needs_internet.why"),
+            contrast: t("content:items.IOT-3.misconceptions.needs_internet.contrast"),
+            next_try: t("content:items.IOT-3.misconceptions.needs_internet.next_try"),
           },
         },
       ],
-      hint_ladder: [
-        "Does it sense the environment?",
-        "What is the action taken based on sensed data?",
-        "Heating adjusts based on motion/time: classic IoT.",
-      ],
-      exemplar_response: "Yes—senses motion and time, then acts by changing heat.",
+      hint_ladder: t("content:items.IOT-3.hints", { returnObjects: true }) as string[],
+      exemplar_response: t("content:items.IOT-3.exemplar"),
       scoring: { base: 1, time_ms_cap: 45000, hint_penalty: 0.25, retry_policy: "until_correct" },
       mastery_criterion: { streak: 3, max_avg_time_ms: 30000 },
       telemetry_fields: ["latency_ms", "hints_used", "misconception_id", "retries"],
@@ -227,28 +219,24 @@ function getTranslatedContent() {
       id: "IOT-4",
       difficulty: "easy",
       mechanic: "DecisionLab",
-      stimulus: { text: "A laptop browses the web. Is that IoT?", media: null },
+      stimulus: { text: t("content:items.IOT-4.stimulus"), media: null },
       parameters: {},
       response_type: "decision+rationale",
-      options: ["Yes", "No"],
-      answer_key: { correct: "No", rules: ["General-purpose computers are not IoT by themselves."] },
+      options: t("content:items.IOT-4.options", { returnObjects: true }) as string[],
+      answer_key: { correct: t("content:items.IOT-4.answer_correct"), rules: t("content:items.IOT-4.answer_rules", { returnObjects: true }) as string[] },
       misconceptions: [
         {
           id: "internet_equals_iot",
           detector: (resp: any) => resp?.choice === "Yes",
           feedback: {
-            why: "Internet use alone ≠ IoT.",
-            contrast: "We need sensing/actuation of the physical world.",
-            next_try: "Look for sense→share→process→act.",
+            why: t("content:items.IOT-4.misconceptions.internet_equals_iot.why"),
+            contrast: t("content:items.IOT-4.misconceptions.internet_equals_iot.contrast"),
+            next_try: t("content:items.IOT-4.misconceptions.internet_equals_iot.next_try"),
           },
         },
       ],
-      hint_ladder: [
-        "Is anything physical being sensed?",
-        "Browsing alone doesn't sense the environment.",
-        "So this is not IoT.",
-      ],
-      exemplar_response: "No—no environment sensing or actuation.",
+      hint_ladder: t("content:items.IOT-4.hints", { returnObjects: true }) as string[],
+      exemplar_response: t("content:items.IOT-4.exemplar"),
       scoring: { base: 1, time_ms_cap: 45000, hint_penalty: 0.25, retry_policy: "until_correct" },
       mastery_criterion: { streak: 3, max_avg_time_ms: 30000 },
       telemetry_fields: ["latency_ms", "hints_used", "misconception_id", "retries"],
@@ -260,35 +248,29 @@ function getTranslatedContent() {
       difficulty: "medium",
       mechanic: "DecisionLab",
       stimulus: {
-        text: "A factory's sensors report to a local server on the shop floor only. Pick the best connectivity.",
+        text: t("content:items.NET-1.stimulus"),
         media: null,
       },
       parameters: {},
       response_type: "decision+rationale",
-      options: [
-        "Private/local network (no internet)",
-        "Public internet via Wi-Fi",
-        "Cellular (4G/5G) + internet",
-        "RFID-only readers (no active radio on sensors)",
-      ],
-      answer_key: { correct: "Private/local network (no internet)", rules: ["IoT doesn't require the public internet."] },
+      options: t("content:items.NET-1.options", { returnObjects: true }) as string[],
+      answer_key: { correct: t("content:items.NET-1.answer_correct"), rules: t("content:items.NET-1.answer_rules", { returnObjects: true }) as string[] },
       misconceptions: [
         {
           id: "must_use_internet",
-          detector: (resp: any) => resp?.choice === "Public internet via Wi-Fi" || resp?.choice === "Cellular (4G/5G) + internet",
+          detector: (resp: any) => {
+            const opts = t("content:items.NET-1.options", { returnObjects: true }) as string[];
+            return resp?.choice === opts[1] || resp?.choice === opts[2];
+          },
           feedback: {
-            why: "The public internet isn't required for IoT to work.",
-            contrast: "Local networks can fully support IoT apps.",
-            next_try: "Choose a non-internet option when scope is on-prem only.",
+            why: t("content:items.NET-1.misconceptions.must_use_internet.why"),
+            contrast: t("content:items.NET-1.misconceptions.must_use_internet.contrast"),
+            next_try: t("content:items.NET-1.misconceptions.must_use_internet.next_try"),
           },
         },
       ],
-      hint_ladder: [
-        "Where does the data need to go?",
-        "Only to a local server.",
-        "Then a private/local network fits best.",
-      ],
-      exemplar_response: "Private/local network—keeps data on site; internet not required.",
+      hint_ladder: t("content:items.NET-1.hints", { returnObjects: true }) as string[],
+      exemplar_response: t("content:items.NET-1.exemplar"),
       scoring: { base: 1, time_ms_cap: 45000, hint_penalty: 0.25, retry_policy: "until_correct" },
       mastery_criterion: { streak: 3, max_avg_time_ms: 30000 },
       telemetry_fields: ["latency_ms", "hints_used", "misconception_id", "retries"],
@@ -299,29 +281,24 @@ function getTranslatedContent() {
       id: "NET-2",
       difficulty: "medium",
       mechanic: "DecisionLab",
-      stimulus: { text: "A delivery firm tracks boxes at gates with short-range readers. Best connectivity?", media: null },
+      stimulus: { text: t("content:items.NET-2.stimulus"), media: null },
       parameters: {},
       response_type: "decision+rationale",
-      options: [
-        "RFID-only readers (no active radio on sensors)",
-        "Public internet via Wi-Fi",
-        "Cellular (4G/5G) + internet",
-        "Private/local network (no internet)",
-      ],
-      answer_key: { correct: "RFID-only readers (no active radio on sensors)", rules: ["RFID gates scan passive tags."] },
+      options: t("content:items.NET-2.options", { returnObjects: true }) as string[],
+      answer_key: { correct: t("content:items.NET-2.answer_correct"), rules: t("content:items.NET-2.answer_rules", { returnObjects: true }) as string[] },
       misconceptions: [
         {
           id: "rfid_misunderstood",
-          detector: (resp: any) => resp?.choice !== "RFID-only readers (no active radio on sensors)",
+          detector: (resp: any) => resp?.choice !== t("content:items.NET-2.answer_correct"),
           feedback: {
-            why: "The scenario uses passive RFID tags.",
-            contrast: "Readers sense tags; items don't need Wi-Fi/cellular radios.",
-            next_try: "Pick the RFID option.",
+            why: t("content:items.NET-2.misconceptions.rfid_misunderstood.why"),
+            contrast: t("content:items.NET-2.misconceptions.rfid_misunderstood.contrast"),
+            next_try: t("content:items.NET-2.misconceptions.rfid_misunderstood.next_try"),
           },
         },
       ],
-      hint_ladder: ["What tech scans tags at gates?", "Think RFID.", "Choose RFID readers."],
-      exemplar_response: "RFID readers—gates scan passive tags; no Wi-Fi on boxes.",
+      hint_ladder: t("content:items.NET-2.hints", { returnObjects: true }) as string[],
+      exemplar_response: t("content:items.NET-2.exemplar"),
       scoring: { base: 1, time_ms_cap: 45000, hint_penalty: 0.25, retry_policy: "until_correct" },
       mastery_criterion: { streak: 3, max_avg_time_ms: 30000 },
       telemetry_fields: ["latency_ms", "hints_used", "misconception_id", "retries"],
@@ -332,29 +309,27 @@ function getTranslatedContent() {
       id: "NET-3",
       difficulty: "hard",
       mechanic: "DecisionLab",
-      stimulus: { text: "A car uploads maintenance data to the manufacturer from anywhere. Best connectivity?", media: null },
+      stimulus: { text: t("content:items.NET-3.stimulus"), media: null },
       parameters: {},
       response_type: "decision+rationale",
-      options: [
-        "Private/local network (no internet)",
-        "Public internet via Wi-Fi",
-        "Cellular (4G/5G) + internet",
-        "RFID-only readers (no active radio on sensors)",
-      ],
-      answer_key: { correct: "Cellular (4G/5G) + internet", rules: ["Wide-area connectivity is needed on the road."] },
+      options: t("content:items.NET-3.options", { returnObjects: true }) as string[],
+      answer_key: { correct: t("content:items.NET-3.answer_correct"), rules: t("content:items.NET-3.answer_rules", { returnObjects: true }) as string[] },
       misconceptions: [
         {
           id: "wifi_everywhere",
-          detector: (resp: any) => resp?.choice === "Public internet via Wi-Fi",
+          detector: (resp: any) => {
+            const opts = t("content:items.NET-3.options", { returnObjects: true }) as string[];
+            return resp?.choice === opts[1];
+          },
           feedback: {
-            why: "Wi-Fi lacks coverage away from hotspots.",
-            contrast: "Cellular is designed for mobility & coverage.",
-            next_try: "Pick cellular + internet.",
+            why: t("content:items.NET-3.misconceptions.wifi_everywhere.why"),
+            contrast: t("content:items.NET-3.misconceptions.wifi_everywhere.contrast"),
+            next_try: t("content:items.NET-3.misconceptions.wifi_everywhere.next_try"),
           },
         },
       ],
-      hint_ladder: ["Does it need coverage while moving?", "Wi-Fi is limited to hotspots.", "Use cellular + internet."],
-      exemplar_response: "Cellular + internet for coverage anywhere.",
+      hint_ladder: t("content:items.NET-3.hints", { returnObjects: true }) as string[],
+      exemplar_response: t("content:items.NET-3.exemplar"),
       scoring: { base: 1, time_ms_cap: 45000, hint_penalty: 0.25, retry_policy: "until_correct" },
       mastery_criterion: { streak: 3, max_avg_time_ms: 30000 },
       telemetry_fields: ["latency_ms", "hints_used", "misconception_id", "retries"],
@@ -366,43 +341,33 @@ function getTranslatedContent() {
       difficulty: "medium",
       mechanic: "Match",
       stimulus: {
-        text: "Match each technology to the role it plays in IoT.",
+        text: t("content:items.MATCH-1.stimulus"),
         media: null,
       },
       parameters: {},
       response_type: "match",
-      pairs_left: ["5G", "Big data / AI", "Digital twin", "Cybersecurity"],
-      pairs_right: [
-        "High-capacity wireless for many devices",
-        "Analyze large sensor streams to find patterns",
-        "Live virtual copy of a physical system",
-        "Reduce risks (patching, segmentation, physical safeguards)",
-      ],
+      pairs_left: t("content:items.MATCH-1.pairs_left", { returnObjects: true }) as string[],
+      pairs_right: t("content:items.MATCH-1.pairs_right", { returnObjects: true }) as string[],
       answer_key: {
-        correct: {
-          "5G": "High-capacity wireless for many devices",
-          "Big data / AI": "Analyze large sensor streams to find patterns",
-          "Digital twin": "Live virtual copy of a physical system",
-          "Cybersecurity": "Reduce risks (patching, segmentation, physical safeguards)",
-        },
+        correct: t("content:items.MATCH-1.answer_correct", { returnObjects: true }) as Record<string, string>,
       },
       misconceptions: [
         {
           id: "twin_as_3d_only",
-          detector: (resp: any) => resp?.pairs && resp.pairs["Digital twin"] === "High-capacity wireless for many devices",
+          detector: (resp: any) => {
+            const correctAns = t("content:items.MATCH-1.answer_correct", { returnObjects: true }) as Record<string, string>;
+            const pairs_left = t("content:items.MATCH-1.pairs_left", { returnObjects: true }) as string[];
+            return resp?.pairs && resp.pairs[pairs_left[2]] === Object.values(correctAns)[0];
+          },
           feedback: {
-            why: "A digital twin isn't just 3D or network tech; it's a live data-fed model.",
-            contrast: "Sensors feed the twin to mirror the real object.",
-            next_try: "Match digital twin to 'live virtual copy'.",
+            why: t("content:items.MATCH-1.misconceptions.twin_as_3d_only.why"),
+            contrast: t("content:items.MATCH-1.misconceptions.twin_as_3d_only.contrast"),
+            next_try: t("content:items.MATCH-1.misconceptions.twin_as_3d_only.next_try"),
           },
         },
       ],
-      hint_ladder: [
-        "Which tech talks; which tech thinks; which tech mirrors; which tech protects?",
-        "5G talks; AI thinks; twin mirrors; security protects.",
-        "Map accordingly.",
-      ],
-      exemplar_response: "5G→capacity; AI→analyze; twin→live copy; security→reduce risk.",
+      hint_ladder: t("content:items.MATCH-1.hints", { returnObjects: true }) as string[],
+      exemplar_response: t("content:items.MATCH-1.exemplar"),
       scoring: { base: 1, time_ms_cap: 60000, hint_penalty: 0.25, retry_policy: "until_correct" },
       mastery_criterion: { streak: 3, max_avg_time_ms: 30000 },
       telemetry_fields: ["latency_ms", "hints_used", "misconception_id", "retries"],
@@ -414,55 +379,35 @@ function getTranslatedContent() {
       difficulty: "medium",
       mechanic: "Triage",
       stimulus: {
-        text: "Sort each card into Vulnerability or Mitigation.",
+        text: t("content:items.TRIAGE-1.stimulus"),
         media: null,
       },
       parameters: {},
       response_type: "triage",
-      cards: [
-        "Using the factory-set default password on an outdoor security camera.",
-        "IoT device that cannot be updated over the network (you must visit it in person to install updates).",
-        "Putting IoT devices on their own separate network so they cannot directly reach more sensitive systems.",
-        "Using strong, unique passwords for each IoT device and login.",
-        "IoT device installed where anyone can easily reach it and open its case.",
-        "Regularly installing software updates on all IoT devices.",
-      ],
+      cards: t("content:items.TRIAGE-1.cards", { returnObjects: true }) as string[],
       bins: [
-        { id: "vulnerability", label: STRINGS.en.bin_vulnerability },
-        { id: "mitigation", label: STRINGS.en.bin_mitigation },
+        { id: "vulnerability", label: t("ui:bin_vulnerability") },
+        { id: "mitigation", label: t("ui:bin_mitigation") },
       ],
       answer_key: {
-        correct: {
-          vulnerability: [
-            "Using the factory-set default password on an outdoor security camera.",
-            "IoT device that cannot be updated over the network (you must visit it in person to install updates).",
-            "IoT device installed where anyone can easily reach it and open its case.",
-          ],
-          mitigation: [
-            "Putting IoT devices on their own separate network so they cannot directly reach more sensitive systems.",
-            "Using strong, unique passwords for each IoT device and login.",
-            "Regularly installing software updates on all IoT devices.",
-          ],
-        },
+        correct: t("content:items.TRIAGE-1.answer_correct", { returnObjects: true }) as Record<string, string[]>,
       },
       misconceptions: [
         {
           id: "segmentation_confused",
-          detector: (resp: any) => Array.isArray(resp?.bins?.vulnerability) && resp.bins.vulnerability.includes("Putting IoT devices on their own separate network so they cannot directly reach more sensitive systems."),
+          detector: (resp: any) => {
+            const cards = t("content:items.TRIAGE-1.cards", { returnObjects: true }) as string[];
+            return Array.isArray(resp?.bins?.vulnerability) && resp.bins.vulnerability.includes(cards[2]);
+          },
           feedback: {
-            why: "Separating IoT devices on their own network limits damage if a device is compromised.",
-            contrast: "It's a defensive control that contains problems, not a risk by itself.",
-            next_try: "Place this network separation strategy under Mitigation.",
+            why: t("content:items.TRIAGE-1.misconceptions.segmentation_confused.why"),
+            contrast: t("content:items.TRIAGE-1.misconceptions.segmentation_confused.contrast"),
+            next_try: t("content:items.TRIAGE-1.misconceptions.segmentation_confused.next_try"),
           },
         },
       ],
-      hint_ladder: [
-        "Ask: does this make the system weaker (vulnerability) or safer (mitigation)?",
-        "Strong passwords and regular updates make systems safer.",
-        "Default passwords, no remote updates, and easy physical access make systems weaker.",
-      ],
-      exemplar_response:
-        "Vulnerabilities: factory-set passwords, devices that can't be updated remotely, devices anyone can reach and open. Mitigations: separate network for IoT devices, strong unique passwords, regular software updates.",
+      hint_ladder: t("content:items.TRIAGE-1.hints", { returnObjects: true }) as string[],
+      exemplar_response: t("content:items.TRIAGE-1.exemplar"),
       scoring: { base: 1, time_ms_cap: 60000, hint_penalty: 0.25, retry_policy: "until_correct" },
       mastery_criterion: { streak: 3, max_avg_time_ms: 30000 },
       telemetry_fields: ["latency_ms", "hints_used", "misconception_id", "retries"],
@@ -473,35 +418,38 @@ function getTranslatedContent() {
       id: "SEQ-1",
       difficulty: "easy",
       mechanic: "Sequencer",
-      stimulus: { text: "Order the IoT loop from first to last.", media: null },
+      stimulus: { text: t("content:items.SEQ-1.stimulus"), media: null },
       parameters: {},
       response_type: "order",
-      steps: ["Act", "Share", "Process/Analyze", "Sense"],
-      answer_key: { correctOrder: ["Sense", "Share", "Process/Analyze", "Act"] },
+      steps: t("content:items.SEQ-1.steps", { returnObjects: true }) as string[],
+      answer_key: { correctOrder: t("content:items.SEQ-1.answer_correct_order", { returnObjects: true }) as string[] },
       misconceptions: [
         {
           id: "act_first",
-          detector: (resp: any) => resp?.order && resp.order[0] === "Act",
+          detector: (resp: any) => {
+            const steps = t("content:items.SEQ-1.steps", { returnObjects: true }) as string[];
+            return resp?.order && resp.order[0] === steps[0];
+          },
           feedback: {
-            why: "Action comes after data is sensed and analyzed.",
-            contrast: "Correct order is Sense → Share → Process → Act.",
-            next_try: "Place Sense at the start.",
+            why: t("content:items.SEQ-1.misconceptions.act_first.why"),
+            contrast: t("content:items.SEQ-1.misconceptions.act_first.contrast"),
+            next_try: t("content:items.SEQ-1.misconceptions.act_first.next_try"),
           },
         },
       ],
-      hint_ladder: [
-        "What must happen before action?",
-        "We need data and analysis first.",
-        "Sense then share then process then act.",
-      ],
-      exemplar_response: "Sense → Share → Process/Analyze → Act.",
+      hint_ladder: t("content:items.SEQ-1.hints", { returnObjects: true }) as string[],
+      exemplar_response: t("content:items.SEQ-1.exemplar"),
       scoring: { base: 1, time_ms_cap: 45000, hint_penalty: 0.25, retry_policy: "until_correct" },
       mastery_criterion: { streak: 3, max_avg_time_ms: 30000 },
       telemetry_fields: ["latency_ms", "hints_used", "misconception_id", "retries"],
       accessibility: { alt_text: null, aria_labels: ["reorder list"], reading_level: "≤8" },
     },
   ] as Item[],
-};
+  };
+}
+
+// Create CONTENT constant using translated content
+const CONTENT = getTranslatedContent();
 
 /*************************
  * Utility helpers       *
@@ -761,7 +709,7 @@ function CompletionScreen({
   onRestart: () => void;
   onDownloadTelemetry: () => void;
 }) {
-  const t = STRINGS.en;
+  const { t } = useTranslation('ui');
   const totalTime = history.reduce((sum, h) => sum + h.latency_ms, 0);
   const totalTimeSeconds = Math.round(totalTime / 1000);
   const totalItems = history.length;
@@ -868,7 +816,7 @@ function Header({
   totalItems: number;
   onTelemetryToggle: () => void;
 }) {
-  const t = STRINGS.en;
+  const { t } = useTranslation('ui');
   
   return (
     <header className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -928,7 +876,7 @@ function Header({
  * Component: OutcomeList*
  *************************/
 function OutcomeList() {
-  const t = STRINGS.en;
+  const { t } = useTranslation('ui');
   
   return (
     <section className="space-y-6">
@@ -952,7 +900,7 @@ function OutcomeList() {
  *************************/
 function TelemetryPanel({ open, onClose }: { open: boolean; onClose: () => void }) {
   const data = getTelemetry();
-  const t = STRINGS.en;
+  const { t } = useTranslation('ui');
   
   if (!open) return null;
   
@@ -1011,7 +959,7 @@ function DecisionLab({
 }) {
   const [choice, setChoice] = useState<string | null>(null);
   const [rationale, setRationale] = useState("");
-  const t = STRINGS.en;
+  const { t } = useTranslation('ui');
 
   return (
     <div className="space-y-6" aria-live="polite">
@@ -1087,7 +1035,7 @@ function Triage({
   onHint: () => void;
   hintUsed: boolean;
 }) {
-  const t = STRINGS.en;
+  const { t } = useTranslation('ui');
   // Extract bin definitions with stable IDs
   const binDefs = item.bins || [];
   const vulnBin = binDefs.find((b: any) => b.id === "vulnerability");
@@ -1481,7 +1429,7 @@ function Sequencer({
   hintUsed: boolean;
 }) {
   const [order, setOrder] = useState<string[]>(shuffle(item.steps || []));
-  const t = STRINGS.en;
+  const { t } = useTranslation('ui');
 
   const move = (idx: number, dir: number) => {
     const ni = idx + dir;
@@ -1564,7 +1512,7 @@ function MatchPairs({
   const [pairs, setPairs] = useState<Record<string, string>>({});
   const [selLeft, setSelLeft] = useState<string | null>(null);
   const [selRight, setSelRight] = useState<string | null>(null);
-  const t = STRINGS.en;
+  const { t } = useTranslation('ui');
 
   const unpairedLeft = (item.pairs_left || []).filter((l) => !(l in pairs));
   const unpairedRight = (item.pairs_right || []).filter((r) => !Object.values(pairs).includes(r));
@@ -1698,7 +1646,7 @@ function Feedback({
   onRetry: () => void;
   onNext: () => void;
 }) {
-  const t = STRINGS.en;
+  const { t } = useTranslation('ui');
   const misconception = item.misconceptions?.find((m) => m.id === feedbackState.misconception_id);
 
   return (
@@ -1796,7 +1744,7 @@ function Feedback({
  * Main Orchestrator     *
  *************************/
 export default function IoTLearningLab() {
-  const t = STRINGS.en;
+  const { t } = useTranslation('ui');
   
   // Session state
   const [started, setStarted] = useState(false);
