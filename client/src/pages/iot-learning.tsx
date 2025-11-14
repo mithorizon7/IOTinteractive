@@ -2085,7 +2085,9 @@ export default function IoTLearningLab() {
   
   // Check if mastery is met and trigger completion
   useEffect(() => {
-    if (mastery.masteryMet && !sessionCompleted && history.length > 0) {
+    // Only trigger completion if mastery is met AND all items have been seen at least once
+    const allItemsSeen = seenCounts.every(count => count > 0);
+    if (mastery.masteryMet && allItemsSeen && !sessionCompleted && history.length > 0) {
       // Give a small delay before showing completion screen
       const timer = setTimeout(() => {
         setSessionCompleted(true);
@@ -2099,7 +2101,7 @@ export default function IoTLearningLab() {
       }, 500);
       return () => clearTimeout(timer);
     }
-  }, [mastery.masteryMet, sessionCompleted, mastery.streak, mastery.avgTimeS, mastery.hints, history.length]);
+  }, [mastery.masteryMet, sessionCompleted, mastery.streak, mastery.avgTimeS, mastery.hints, history.length, seenCounts]);
   
   // Handlers
   const handleStart = () => {
