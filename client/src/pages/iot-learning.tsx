@@ -1206,16 +1206,16 @@ function Triage({
   }, [bins.vulnerability.length, bins.mitigation.length, placedCount, totalCards]);
   
   // Helper to wrap card with tooltip if incorrect
-  const renderCardWithFeedback = (cardContent: React.ReactNode, card: string) => {
+  const renderCardWithFeedback = (cardContent: React.ReactNode, card: string, key: string) => {
     const feedback = getCardFeedback(card);
     const incorrect = isCardIncorrect(card);
     
     if (!incorrect || !feedback) {
-      return cardContent;
+      return <React.Fragment key={key}>{cardContent}</React.Fragment>;
     }
     
     return (
-      <Tooltip>
+      <Tooltip key={key}>
         <TooltipTrigger asChild>
           {cardContent}
         </TooltipTrigger>
@@ -1371,7 +1371,6 @@ function Triage({
             ) : (
               bins.vulnerability.map((c) => renderCardWithFeedback(
                 <div
-                  key={c}
                   draggable={!submitted}
                   onDragStart={() => handleDragStart(c, "vulnerability")}
                   onDragEnd={handleDragEnd}
@@ -1416,6 +1415,7 @@ function Triage({
                     </div>
                   )}
                 </div>,
+                c,
                 c
               ))
             )}
@@ -1456,7 +1456,6 @@ function Triage({
             ) : (
               bins.mitigation.map((c) => renderCardWithFeedback(
                 <div
-                  key={c}
                   draggable={!submitted}
                   onDragStart={() => handleDragStart(c, "mitigation")}
                   onDragEnd={handleDragEnd}
@@ -1501,6 +1500,7 @@ function Triage({
                     </div>
                   )}
                 </div>,
+                c,
                 c
               ))
             )}
