@@ -1369,14 +1369,20 @@ function Triage({
                 Drop vulnerabilities here
               </div>
             ) : (
-              bins.vulnerability.map((c) => (
+              bins.vulnerability.map((c) => renderCardWithFeedback(
                 <div
                   key={c}
-                  draggable
+                  draggable={!submitted}
                   onDragStart={() => handleDragStart(c, "vulnerability")}
                   onDragEnd={handleDragEnd}
-                  className={`group rounded-xl border bg-card p-3 cursor-move transition-all hover:shadow-md ${
-                    draggedCard === c ? "opacity-50 scale-95" : "hover:border-destructive"
+                  className={`group rounded-xl border p-3 transition-all ${
+                    isCardIncorrect(c) 
+                      ? "border-destructive bg-destructive/10 dark:bg-destructive/15" 
+                      : "bg-card"
+                  } ${
+                    draggedCard === c ? "opacity-50 scale-95" : ""
+                  } ${
+                    !submitted ? "cursor-move hover:shadow-md hover:border-destructive" : ""
                   }`}
                   data-testid={`vulnerability-${c}`}
                   aria-label={`Vulnerability: ${c}`}
@@ -1385,29 +1391,32 @@ function Triage({
                     <GripVertical className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
                     <span className="text-sm flex-1">{c}</span>
                   </div>
-                  <div className="flex gap-2 justify-center">
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      onClick={() => moveCard(c, "vulnerability", "mitigation")}
-                      className="h-8 w-8 text-green-600 dark:text-green-500"
-                      aria-label="Move to mitigation"
-                      data-testid={`move-to-mitigation-${c}`}
-                    >
-                      <ArrowRight className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      onClick={() => moveCard(c, "vulnerability", "unplaced")}
-                      className="h-8 w-8"
-                      aria-label="Remove card"
-                      data-testid={`remove-${c}`}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
+                  {!submitted && (
+                    <div className="flex gap-2 justify-center">
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => moveCard(c, "vulnerability", "mitigation")}
+                        className="h-8 w-8 text-green-600 dark:text-green-500"
+                        aria-label="Move to mitigation"
+                        data-testid={`move-to-mitigation-${c}`}
+                      >
+                        <ArrowRight className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => moveCard(c, "vulnerability", "unplaced")}
+                        className="h-8 w-8"
+                        aria-label="Remove card"
+                        data-testid={`remove-${c}`}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
+                </div>,
+                c
               ))
             )}
           </div>
@@ -1445,14 +1454,20 @@ function Triage({
                 Drop mitigations here
               </div>
             ) : (
-              bins.mitigation.map((c) => (
+              bins.mitigation.map((c) => renderCardWithFeedback(
                 <div
                   key={c}
-                  draggable
+                  draggable={!submitted}
                   onDragStart={() => handleDragStart(c, "mitigation")}
                   onDragEnd={handleDragEnd}
-                  className={`group rounded-xl border bg-card p-3 cursor-move transition-all hover:shadow-md ${
-                    draggedCard === c ? "opacity-50 scale-95" : "hover:border-green-600"
+                  className={`group rounded-xl border p-3 transition-all ${
+                    isCardIncorrect(c) 
+                      ? "border-destructive bg-destructive/10 dark:bg-destructive/15" 
+                      : "bg-card"
+                  } ${
+                    draggedCard === c ? "opacity-50 scale-95" : ""
+                  } ${
+                    !submitted ? "cursor-move hover:shadow-md hover:border-green-600" : ""
                   }`}
                   data-testid={`mitigation-${c}`}
                   aria-label={`Mitigation: ${c}`}
@@ -1461,29 +1476,32 @@ function Triage({
                     <GripVertical className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
                     <span className="text-sm flex-1">{c}</span>
                   </div>
-                  <div className="flex gap-2 justify-center">
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      onClick={() => moveCard(c, "mitigation", "vulnerability")}
-                      className="h-8 w-8 text-destructive"
-                      aria-label="Move to vulnerability"
-                      data-testid={`move-to-vulnerability-${c}`}
-                    >
-                      <ArrowLeft className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      onClick={() => moveCard(c, "mitigation", "unplaced")}
-                      className="h-8 w-8"
-                      aria-label="Remove card"
-                      data-testid={`remove-from-mitigation-${c}`}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
+                  {!submitted && (
+                    <div className="flex gap-2 justify-center">
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => moveCard(c, "mitigation", "vulnerability")}
+                        className="h-8 w-8 text-destructive"
+                        aria-label="Move to vulnerability"
+                        data-testid={`move-to-vulnerability-${c}`}
+                      >
+                        <ArrowLeft className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => moveCard(c, "mitigation", "unplaced")}
+                        className="h-8 w-8"
+                        aria-label="Remove card"
+                        data-testid={`remove-from-mitigation-${c}`}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
+                </div>,
+                c
               ))
             )}
           </div>
