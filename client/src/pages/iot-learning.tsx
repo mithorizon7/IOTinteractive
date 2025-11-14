@@ -2107,6 +2107,13 @@ export default function IoTLearningLab() {
       return; // Guard against empty submissions
     }
     
+    const forceNext = response.forceNext || false;
+    
+    // Reset mastery state when starting new item (allows forceNext to persist mastery until next submission)
+    if (!forceNext && currentItemRetries === 0) {
+      setCurrentItemMastered(false);
+    }
+    
     const latency_ms = now() - startMs;
     const result = evaluate(item, response);
     const hints_used = hintIdx + 1;
@@ -2159,6 +2166,23 @@ export default function IoTLearningLab() {
         newSet.delete(currentIndex);
         return newSet;
       });
+    }
+    
+    // Special handling for Triage's forceNext (inline feedback bypass)
+    if (forceNext) {
+      // Mark as mastered to allow progression (already done above if correct)
+      setCurrentItemMastered(true);
+      // Advance to next item immediately, skipping feedback screen
+      const nextIdx = chooseNextIndex(result.correct);
+      setCurrentIndex(nextIdx);
+      setShowFeedback(false);
+      setFeedbackState(null);
+      setHintIdx(-1);
+      setStartMs(now());
+      // Reset retry counter for NEW item
+      setCurrentItemRetries(0);
+      // Note: currentItemMastered will be reset on next submission
+      return;
     }
     
     // Show feedback
