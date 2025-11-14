@@ -1100,10 +1100,13 @@ function Triage({
   // Submission and feedback state
   const [submitted, setSubmitted] = useState(false);
   const [cardFeedback, setCardFeedback] = useState<Map<string, {isCorrect: boolean; why: string}>>(new Map());
+  const [allCorrect, setAllCorrect] = useState(false);
+  const [attempts, setAttempts] = useState(0);
 
   // Move card from source to destination
   const moveCard = (card: string, fromLocation: string, toLocation: string) => {
-    if (submitted) return; // Disable moves after submission
+    // Allow moves even after submission unless all cards are correct
+    if (submitted && allCorrect) return; // Only disable if all correct
     if (fromLocation === toLocation) return;
 
     // Remove from source
@@ -1135,6 +1138,7 @@ function Triage({
     // Compute per-card feedback from content explanations
     const feedback = new Map<string, {isCorrect: boolean; why: string}>();
     const explanations = item.answer_key.explanations || {};
+    let correctCount = 0;
     
     (item.cards || []).forEach((card: string) => {
       const explanation = explanations[card];
@@ -1144,27 +1148,38 @@ function Triage({
       const chosenBin = bins.vulnerability.includes(card) ? 'vulnerability' : 'mitigation';
       const isCorrect = correctBin === chosenBin;
       
+      if (isCorrect) correctCount++;
+      
       feedback.set(card, {
         isCorrect,
         why: isCorrect ? '' : explanation.why
       });
     });
     
+    const allCardsCorrect = correctCount === (item.cards || []).length;
+    
     setCardFeedback(feedback);
     setSubmitted(true);
+    setAllCorrect(allCardsCorrect);
+    setAttempts(a => a + 1);
     
-    // Call parent onSubmit for telemetry
-    onSubmit({ bins });
+    // Only call parent onSubmit when all cards are correct
+    if (allCardsCorrect) {
+      onSubmit({ bins, attempts_before_correct: attempts + 1 });
+    }
   };
   
   const handleRetry = () => {
     setSubmitted(false);
     setCardFeedback(new Map());
+    setAllCorrect(false);
+    // Don't reset attempts - keep counting across retries
   };
 
   // Drag handlers
   const handleDragStart = (card: string, from: string) => {
-    if (submitted) return; // Disable drag after submission
+    // Allow dragging unless all cards are correct
+    if (submitted && allCorrect) return; 
     setDraggedCard(card);
     setDraggedFrom(from);
   };
@@ -1199,6 +1214,31 @@ function Triage({
   // Helper to check if card is incorrect
   const getCardFeedback = (card: string) => cardFeedback.get(card);
   const isCardIncorrect = (card: string) => submitted && cardFeedback.get(card) && !cardFeedback.get(card)?.isCorrect;
+  const isCardCorrect = (card: string) => submitted && cardFeedback.get(card) && cardFeedback.get(card)?.isCorrect;
+  
+  // Helper to get card border and background classes
+  const getCardClasses = (card: string, baseClasses: string) => {
+    if (!submitted) return baseClasses;
+    
+    const feedback = getCardFeedback(card);
+    if (!feedback) return baseClasses;
+    
+    if (feedback.isCorrect) {
+      return `${baseClasses} border-blue-500 dark:border-blue-400 bg-blue-500/10 dark:bg-blue-400/10`;
+    } else {
+      return `${baseClasses} border-amber-500 dark:border-amber-400 bg-amber-500/10 dark:bg-amber-400/10`;
+    }
+  };
+  
+  // Reset state when item changes
+  useEffect(() => {
+    setUnplaced(item.cards || []);
+    setBins({ vulnerability: [], mitigation: [] });
+    setSubmitted(false);
+    setCardFeedback(new Map());
+    setAllCorrect(false);
+    setAttempts(0);
+  }, [item.id]);
   
   // Announce zone changes for screen readers
   const [announcement, setAnnouncement] = useState("");
@@ -1376,18 +1416,17 @@ function Triage({
             ) : (
               bins.vulnerability.map((c) => renderCardWithFeedback(
                 <div
-                  draggable={!submitted}
+                  draggable={!submitted || !allCorrect}
                   onDragStart={() => handleDragStart(c, "vulnerability")}
                   onDragEnd={handleDragEnd}
-                  className={`group rounded-xl border p-3 transition-all ${
-                    isCardIncorrect(c) 
-                      ? "border-destructive bg-destructive/10 dark:bg-destructive/15" 
-                      : "bg-card"
-                  } ${
-                    draggedCard === c ? "opacity-50 scale-95" : ""
-                  } ${
-                    !submitted ? "cursor-move hover:shadow-md hover:border-destructive" : ""
-                  }`}
+                  className={getCardClasses(
+                    c,
+                    `group rounded-xl border-2 p-3 transition-all bg-card ${
+                      draggedCard === c ? "opacity-50 scale-95" : ""
+                    } ${
+                      (!submitted || !allCorrect) ? "cursor-move hover:shadow-md hover:border-destructive" : ""
+                    }`
+                  )}
                   data-testid={`vulnerability-${c}`}
                   aria-label={`Vulnerability: ${c}`}
                 >
@@ -1395,7 +1434,7 @@ function Triage({
                     <GripVertical className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
                     <span className="text-sm flex-1">{c}</span>
                   </div>
-                  {!submitted && (
+                  {(!submitted || !allCorrect) && (
                     <div className="flex gap-2 justify-center">
                       <Button
                         size="icon"
@@ -1461,18 +1500,17 @@ function Triage({
             ) : (
               bins.mitigation.map((c) => renderCardWithFeedback(
                 <div
-                  draggable={!submitted}
+                  draggable={!submitted || !allCorrect}
                   onDragStart={() => handleDragStart(c, "mitigation")}
                   onDragEnd={handleDragEnd}
-                  className={`group rounded-xl border p-3 transition-all ${
-                    isCardIncorrect(c) 
-                      ? "border-destructive bg-destructive/10 dark:bg-destructive/15" 
-                      : "bg-card"
-                  } ${
-                    draggedCard === c ? "opacity-50 scale-95" : ""
-                  } ${
-                    !submitted ? "cursor-move hover:shadow-md hover:border-green-600" : ""
-                  }`}
+                  className={getCardClasses(
+                    c,
+                    `group rounded-xl border-2 p-3 transition-all bg-card ${
+                      draggedCard === c ? "opacity-50 scale-95" : ""
+                    } ${
+                      (!submitted || !allCorrect) ? "cursor-move hover:shadow-md hover:border-green-600" : ""
+                    }`
+                  )}
                   data-testid={`mitigation-${c}`}
                   aria-label={`Mitigation: ${c}`}
                 >
@@ -1480,7 +1518,7 @@ function Triage({
                     <GripVertical className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
                     <span className="text-sm flex-1">{c}</span>
                   </div>
-                  {!submitted && (
+                  {(!submitted || !allCorrect) && (
                     <div className="flex gap-2 justify-center">
                       <Button
                         size="icon"
@@ -1532,28 +1570,27 @@ function Triage({
             className="min-w-[120px]"
           >
             <Check className="h-4 w-4 mr-2" />
-            {t('submit')}
+            Check Answer
+          </Button>
+        ) : allCorrect ? (
+          <Button 
+            onClick={() => onSubmit({ bins, attempts_before_correct: attempts })} 
+            data-testid="button-continue"
+            className="min-w-[120px]"
+          >
+            <ChevronRight className="h-4 w-4 mr-2" />
+            {t('continue')}
           </Button>
         ) : (
-          <>
-            <Button 
-              variant="outline"
-              onClick={handleRetry} 
-              data-testid="button-try-again"
-              className="min-w-[120px]"
-            >
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Try Again
-            </Button>
-            <Button 
-              onClick={() => onSubmit({ bins, forceNext: true })} 
-              data-testid="button-continue"
-              className="min-w-[120px]"
-            >
-              <ChevronRight className="h-4 w-4 mr-2" />
-              Continue
-            </Button>
-          </>
+          <Button 
+            variant="outline"
+            onClick={handleRetry} 
+            data-testid="button-try-again"
+            className="min-w-[120px]"
+          >
+            <RefreshCw className="h-4 w-4 mr-2" />
+            {t('try_again')}
+          </Button>
         )}
         <Button variant="outline" onClick={onHint} data-testid="button-hint">
           <HelpCircle className="h-4 w-4 mr-2" />
