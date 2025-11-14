@@ -25,6 +25,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Languages } from "lucide-react";
 
 /**
@@ -1095,9 +1096,14 @@ function Triage({
   const [draggedCard, setDraggedCard] = useState<string | null>(null);
   const [draggedFrom, setDraggedFrom] = useState<string | null>(null);
   const [dropTarget, setDropTarget] = useState<string | null>(null);
+  
+  // Submission and feedback state
+  const [submitted, setSubmitted] = useState(false);
+  const [cardFeedback, setCardFeedback] = useState<Map<string, {isCorrect: boolean; why: string}>>(new Map());
 
   // Move card from source to destination
   const moveCard = (card: string, fromLocation: string, toLocation: string) => {
+    if (submitted) return; // Disable moves after submission
     if (fromLocation === toLocation) return;
 
     // Remove from source
@@ -1118,10 +1124,42 @@ function Triage({
   const reset = () => {
     setUnplaced(item.cards || []);
     setBins({ vulnerability: [], mitigation: [] });
+    setSubmitted(false);
+    setCardFeedback(new Map());
+  };
+  
+  // Handle submission with inline feedback
+  const handleSubmit = () => {
+    if (!isComplete) return;
+    
+    // Compute per-card feedback from content explanations
+    const feedback = new Map<string, {isCorrect: boolean; why: string}>();
+    const explanations = item.answer_key.explanations || {};
+    
+    (item.cards || []).forEach((card: string) => {
+      const explanation = explanations[card];
+      if (!explanation) return;
+      
+      const correctBin = explanation.correct_bin;
+      const chosenBin = bins.vulnerability.includes(card) ? 'vulnerability' : 'mitigation';
+      const isCorrect = correctBin === chosenBin;
+      
+      feedback.set(card, {
+        isCorrect,
+        why: isCorrect ? '' : explanation.why
+      });
+    });
+    
+    setCardFeedback(feedback);
+    setSubmitted(true);
+    
+    // Call parent onSubmit for telemetry
+    onSubmit({ bins });
   };
 
   // Drag handlers
   const handleDragStart = (card: string, from: string) => {
+    if (submitted) return; // Disable drag after submission
     setDraggedCard(card);
     setDraggedFrom(from);
   };
@@ -1153,6 +1191,10 @@ function Triage({
   const placedCount = bins.vulnerability.length + bins.mitigation.length;
   const isComplete = placedCount === totalCards;
   
+  // Helper to check if card is incorrect
+  const getCardFeedback = (card: string) => cardFeedback.get(card);
+  const isCardIncorrect = (card: string) => submitted && cardFeedback.get(card) && !cardFeedback.get(card)?.isCorrect;
+  
   // Announce zone changes for screen readers
   const [announcement, setAnnouncement] = useState("");
   
@@ -1162,8 +1204,31 @@ function Triage({
       `${placedCount} of ${totalCards} cards placed. ${bins.vulnerability.length} vulnerabilities, ${bins.mitigation.length} mitigations.`
     );
   }, [bins.vulnerability.length, bins.mitigation.length, placedCount, totalCards]);
+  
+  // Helper to wrap card with tooltip if incorrect
+  const renderCardWithFeedback = (cardContent: React.ReactNode, card: string) => {
+    const feedback = getCardFeedback(card);
+    const incorrect = isCardIncorrect(card);
+    
+    if (!incorrect || !feedback) {
+      return cardContent;
+    }
+    
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>
+          {cardContent}
+        </TooltipTrigger>
+        <TooltipContent className="max-w-xs text-sm leading-relaxed" data-testid={`tooltip-${card.substring(0, 20)}`}>
+          <p className="font-semibold mb-1">Why this is incorrect:</p>
+          <p>{feedback.why}</p>
+        </TooltipContent>
+      </Tooltip>
+    );
+  };
 
   return (
+    <TooltipProvider>
     <div className="space-y-6">
       {/* Introduction */}
       <div className="rounded-xl border-2 border-primary/20 bg-primary/5 p-6 space-y-4">
@@ -1436,15 +1501,26 @@ function Triage({
 
       {/* Action Buttons */}
       <div className="flex items-center gap-3 flex-wrap" role="group" aria-label="actions">
-        <Button 
-          onClick={() => onSubmit({ bins })} 
-          disabled={!isComplete}
-          data-testid="button-submit"
-          className="min-w-[120px]"
-        >
-          <Check className="h-4 w-4 mr-2" />
-          {t('submit')}
-        </Button>
+        {!submitted ? (
+          <Button 
+            onClick={handleSubmit} 
+            disabled={!isComplete}
+            data-testid="button-submit"
+            className="min-w-[120px]"
+          >
+            <Check className="h-4 w-4 mr-2" />
+            {t('submit')}
+          </Button>
+        ) : (
+          <Button 
+            onClick={() => onSubmit({ bins, forceNext: true })} 
+            data-testid="button-continue"
+            className="min-w-[120px]"
+          >
+            <ChevronRight className="h-4 w-4 mr-2" />
+            Continue
+          </Button>
+        )}
         <Button variant="outline" onClick={onHint} data-testid="button-hint">
           <HelpCircle className="h-4 w-4 mr-2" />
           {hintUsed ? t('use_hint') : t('show_hint')}
@@ -1460,6 +1536,7 @@ function Triage({
         {announcement}
       </div>
     </div>
+    </TooltipProvider>
   );
 }
 

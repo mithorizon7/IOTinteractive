@@ -206,6 +206,32 @@
           "Regularly installing software updates on all IoT devices."
         ]
       },
+      "explanations": {
+        "Using the factory-set default password on an outdoor security camera.": {
+          "correct_bin": "vulnerability",
+          "why": "Default passwords are widely known and easy for attackers to guess, making the device vulnerable to unauthorized access."
+        },
+        "IoT device that cannot be updated over the network (you must visit it in person to install updates).": {
+          "correct_bin": "vulnerability",
+          "why": "Devices that can't be updated remotely stay vulnerable to known security flaws because updates are difficult and often neglected."
+        },
+        "Putting IoT devices on their own separate network so they cannot directly reach more sensitive systems.": {
+          "correct_bin": "mitigation",
+          "why": "Network segmentation limits damage if an IoT device is compromised—it's a defensive strategy that makes the system safer."
+        },
+        "Using strong, unique passwords for each IoT device and login.": {
+          "correct_bin": "mitigation",
+          "why": "Strong, unique passwords prevent unauthorized access and make it harder for attackers to break into devices."
+        },
+        "IoT device installed where anyone can easily reach it and open its case.": {
+          "correct_bin": "vulnerability",
+          "why": "Physical access allows tampering, theft, or direct attacks on the device's internal components."
+        },
+        "Regularly installing software updates on all IoT devices.": {
+          "correct_bin": "mitigation",
+          "why": "Software updates patch security vulnerabilities and protect devices from known attack methods."
+        }
+      },
       "misconceptions": {
         "segmentation_confused": {
           "why": "Separating IoT devices on their own network limits damage if a device is compromised.",
