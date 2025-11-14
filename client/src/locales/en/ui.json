@@ -54,5 +54,12 @@
   "card_one": "card",
   "card_other": "cards",
   "items_progress": "{{current}} of {{total}}",
-  "cards_placed_announcement": "{{count}} of {{total}} cards placed. {{vulnerabilities}} vulnerabilities, {{mitigations}} mitigations."
+  "cards_placed_announcement": "{{count}} of {{total}} cards placed. {{vulnerabilities}} vulnerabilities, {{mitigations}} mitigations.",
+  "completion_message": "You've achieved all mastery criteria. Excellent work!",
+  "placeholder_rationale": "Explain your reasoning in one sentence...",
+  "triage_unplaced_empty": "All cards sorted!",
+  "triage_vulnerability_drop": "Drop vulnerabilities here",
+  "triage_mitigation_drop": "Drop mitigations here",
+  "triage_instructions": "Drag cards to bins or use the buttons to classify each item.",
+  "mastery_banner_message": "You've achieved the mastery criteria! Great work."
 }

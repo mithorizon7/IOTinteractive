@@ -734,7 +734,7 @@ function CompletionScreen({
           <div className="text-center space-y-2">
             <h1 className="text-3xl md:text-4xl font-bold">{t('mastery_unlocked')}</h1>
             <p className="text-lg text-muted-foreground">
-              You've achieved all mastery criteria. Excellent work!
+              {t('completion_message')}
             </p>
           </div>
           
@@ -1047,7 +1047,7 @@ function DecisionLab({
           rows={2}
           value={rationale}
           onChange={(e) => setRationale(e.target.value)}
-          placeholder="Explain your reasoning in one sentence..."
+          placeholder={t('placeholder_rationale')}
           aria-label="rationale"
           data-testid="input-rationale"
         />
@@ -1295,7 +1295,7 @@ function Triage({
             {unplaced.length === 0 ? (
               <div className="text-center py-8 text-sm text-muted-foreground">
                 <Package className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                All cards sorted!
+                {t('triage_unplaced_empty')}
               </div>
             ) : (
               unplaced.map((c) => (
@@ -1371,7 +1371,7 @@ function Triage({
             {bins.vulnerability.length === 0 ? (
               <div className="text-center py-8 text-sm text-muted-foreground">
                 <AlertTriangle className="h-8 w-8 mx-auto mb-2 opacity-30" />
-                Drop vulnerabilities here
+                {t('triage_vulnerability_drop')}
               </div>
             ) : (
               bins.vulnerability.map((c) => renderCardWithFeedback(
@@ -1456,7 +1456,7 @@ function Triage({
             {bins.mitigation.length === 0 ? (
               <div className="text-center py-8 text-sm text-muted-foreground">
                 <Shield className="h-8 w-8 mx-auto mb-2 opacity-30" />
-                Drop mitigations here
+                {t('triage_mitigation_drop')}
               </div>
             ) : (
               bins.mitigation.map((c) => renderCardWithFeedback(
@@ -1517,8 +1517,8 @@ function Triage({
       <div className="flex items-start gap-2 p-3 rounded-xl bg-muted/30 text-sm text-muted-foreground">
         <HelpCircle className="h-4 w-4 shrink-0 mt-0.5" />
         <p>
-          <strong>Drag cards</strong> to bins or use the <strong>buttons</strong> to classify each item.
-          {!isComplete && ` ${totalCards - placedCount} card${totalCards - placedCount !== 1 ? 's' : ''} remaining.`}
+          {t('triage_instructions')}
+          {!isComplete && ` ${totalCards - placedCount} ${t(totalCards - placedCount === 1 ? 'card_one' : 'card_other')} remaining.`}
         </p>
       </div>
 
@@ -2312,7 +2312,7 @@ export default function IoTLearningLab() {
               <div>
                 <h3 className="text-lg font-semibold">{t('mastery_unlocked')}</h3>
                 <p className="text-sm text-muted-foreground">
-                  You've achieved the mastery criteria! Great work.
+                  {t('mastery_banner_message')}
                 </p>
               </div>
             </div>
