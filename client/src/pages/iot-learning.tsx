@@ -1211,12 +1211,12 @@ function Triage({
   }, [bins.vulnerability.length, bins.mitigation.length, placedCount, totalCards]);
   
   // Helper to wrap card with tooltip if incorrect
-  const renderCardWithFeedback = (cardContent: React.ReactNode, card: string, key: string) => {
+  const renderCardWithFeedback = (cardContent: JSX.Element, card: string, key: string) => {
     const feedback = getCardFeedback(card);
     const incorrect = isCardIncorrect(card);
     
     if (!incorrect || !feedback) {
-      return <React.Fragment key={key}>{cardContent}</React.Fragment>;
+      return <div key={key}>{cardContent}</div>;
     }
     
     return (
