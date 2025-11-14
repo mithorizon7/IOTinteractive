@@ -811,7 +811,11 @@ function LanguageSwitcher() {
   const { i18n } = useTranslation();
   
   // Only show language switcher if multiple languages are configured
-  const availableLanguages = i18n.options.supportedLngs?.filter(lng => lng !== 'cimode') || [];
+  const supportedLngs = i18n.options.supportedLngs;
+  const availableLanguages = Array.isArray(supportedLngs) 
+    ? supportedLngs.filter((lng: string) => lng !== 'cimode') 
+    : [];
+  
   if (availableLanguages.length <= 1) {
     return null; // Hide switcher when only one language is available
   }
@@ -833,7 +837,7 @@ function LanguageSwitcher() {
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
-        {availableLanguages.map(lng => (
+        {availableLanguages.map((lng: string) => (
           <SelectItem key={lng} value={lng} data-testid={`language-option-${lng}`}>
             {languageNames[lng] || lng}
           </SelectItem>
@@ -1316,26 +1320,26 @@ function Triage({
                     <GripVertical className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
                     <span className="text-sm flex-1">{c}</span>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 justify-center">
                     <Button
-                      size="sm"
+                      size="icon"
                       variant="ghost"
                       onClick={() => moveCard(c, "vulnerability", "mitigation")}
-                      className="flex-1 text-xs h-8"
+                      className="h-8 w-8 text-green-600 dark:text-green-500"
+                      aria-label="Move to mitigation"
                       data-testid={`move-to-mitigation-${c}`}
                     >
-                      <ArrowRight className="h-3 w-3 mr-1" />
-                      To Mitigation
+                      <ArrowRight className="h-4 w-4" />
                     </Button>
                     <Button
-                      size="sm"
+                      size="icon"
                       variant="ghost"
                       onClick={() => moveCard(c, "vulnerability", "unplaced")}
-                      className="h-8 w-8 p-0"
+                      className="h-8 w-8"
                       aria-label="Remove card"
                       data-testid={`remove-${c}`}
                     >
-                      <X className="h-3 w-3" />
+                      <X className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
@@ -1392,26 +1396,26 @@ function Triage({
                     <GripVertical className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
                     <span className="text-sm flex-1">{c}</span>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 justify-center">
                     <Button
-                      size="sm"
+                      size="icon"
                       variant="ghost"
                       onClick={() => moveCard(c, "mitigation", "vulnerability")}
-                      className="flex-1 text-xs h-8"
+                      className="h-8 w-8 text-destructive"
+                      aria-label="Move to vulnerability"
                       data-testid={`move-to-vulnerability-${c}`}
                     >
-                      <ArrowLeft className="h-3 w-3 mr-1" />
-                      To Vulnerability
+                      <ArrowLeft className="h-4 w-4" />
                     </Button>
                     <Button
-                      size="sm"
+                      size="icon"
                       variant="ghost"
                       onClick={() => moveCard(c, "mitigation", "unplaced")}
-                      className="h-8 w-8 p-0"
+                      className="h-8 w-8"
                       aria-label="Remove card"
                       data-testid={`remove-from-mitigation-${c}`}
                     >
-                      <X className="h-3 w-3" />
+                      <X className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
