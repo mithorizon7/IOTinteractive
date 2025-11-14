@@ -1244,26 +1244,26 @@ function Triage({
                     <GripVertical className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
                     <span className="text-sm flex-1">{c}</span>
                   </div>
-                  <div className="flex gap-2 min-w-0">
+                  <div className="flex gap-2 justify-center">
                     <Button
-                      size="sm"
+                      size="icon"
                       variant="outline"
                       onClick={() => moveCard(c, "unplaced", "vulnerability")}
-                      className="flex-1 text-xs h-8 px-2 bg-destructive/5 border-destructive/30 hover:bg-destructive/10 min-w-0"
+                      className="h-8 w-8 bg-destructive/5 border-destructive/30 hover:bg-destructive/10 text-destructive"
+                      aria-label="Mark as vulnerability"
                       data-testid={`place-vulnerability-${c}`}
                     >
-                      <AlertTriangle className="h-3 w-3 mr-1 shrink-0" />
-                      <span className="truncate">Vulnerability</span>
+                      <AlertTriangle className="h-4 w-4" />
                     </Button>
                     <Button
-                      size="sm"
+                      size="icon"
                       variant="outline"
                       onClick={() => moveCard(c, "unplaced", "mitigation")}
-                      className="flex-1 text-xs h-8 px-2 bg-green-600/5 border-green-600/30 hover:bg-green-600/10 min-w-0"
+                      className="h-8 w-8 bg-green-600/5 border-green-600/30 hover:bg-green-600/10 text-green-600 dark:text-green-500"
+                      aria-label="Mark as mitigation"
                       data-testid={`place-mitigation-${c}`}
                     >
-                      <Shield className="h-3 w-3 mr-1 shrink-0" />
-                      <span className="truncate">Mitigation</span>
+                      <Shield className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
