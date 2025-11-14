@@ -1156,6 +1156,11 @@ function Triage({
     // Call parent onSubmit for telemetry
     onSubmit({ bins });
   };
+  
+  const handleRetry = () => {
+    setSubmitted(false);
+    setCardFeedback(new Map());
+  };
 
   // Drag handlers
   const handleDragStart = (card: string, from: string) => {
@@ -1530,14 +1535,25 @@ function Triage({
             {t('submit')}
           </Button>
         ) : (
-          <Button 
-            onClick={() => onSubmit({ bins, forceNext: true })} 
-            data-testid="button-continue"
-            className="min-w-[120px]"
-          >
-            <ChevronRight className="h-4 w-4 mr-2" />
-            Continue
-          </Button>
+          <>
+            <Button 
+              variant="outline"
+              onClick={handleRetry} 
+              data-testid="button-try-again"
+              className="min-w-[120px]"
+            >
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Try Again
+            </Button>
+            <Button 
+              onClick={() => onSubmit({ bins, forceNext: true })} 
+              data-testid="button-continue"
+              className="min-w-[120px]"
+            >
+              <ChevronRight className="h-4 w-4 mr-2" />
+              Continue
+            </Button>
+          </>
         )}
         <Button variant="outline" onClick={onHint} data-testid="button-hint">
           <HelpCircle className="h-4 w-4 mr-2" />
