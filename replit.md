@@ -147,3 +147,44 @@ Updated all 6 cards to use concrete, accessible language for learners with zero 
 - Prompts metacognitive reflection before decision-making
 
 **Architect Status**: ✅ Approved as production-ready
+
+### **2025-11-14** - Triage Inline Feedback System
+
+**Problem**: Generic "Not quite" feedback screen didn't help learners understand which cards were misclassified or why.
+
+**Solution**: Implemented inline, per-card feedback with tooltips showing specific explanations for incorrect placements.
+
+**Content Changes**:
+- Added `explanations` object to TRIAGE-1 in `content.json`
+- Each card includes `correct_bin` and `why` fields with educational explanations
+
+**UI/UX Implementation**:
+- **Visual Feedback**: Incorrect cards display red border (`border-destructive`) and red background (`bg-destructive/10`) after submission
+- **Tooltips**: Hover over incorrect cards to see "Why this is incorrect:" with specific explanation
+- **Dual Action Buttons**: After submission, learners choose:
+  - **Try Again** (outline): Resets submission state, re-enables editing (preserves mastery gating)
+  - **Continue** (default): Advances to next item (bypasses retry requirement for Triage only)
+- **Disabled Interactions**: Drag/drop and movement buttons disabled after submission to prevent confusion
+
+**Technical Implementation**:
+- `submitted` state tracks whether Triage has been submitted
+- `cardFeedback` Map stores per-card correctness and explanations
+- `renderCardWithFeedback` helper wraps incorrect cards with Tooltip components
+- React keys properly managed (on outer Tooltip wrapper, not inner div)
+- `forceNext` flag passed to parent to bypass normal feedback screen
+
+**Progression Changes**:
+- Modified parent `handleSubmit` to handle `forceNext` flag
+- Full telemetry, history, and seen-count tracking preserved for all submissions
+- Mastery state management: resets on first submission of new item (not on index change)
+- `useEffect` removed to prevent premature mastery reset
+- Allows Triage to bypass retry-until-correct policy while maintaining analytics integrity
+
+**Pedagogical Benefits**:
+- Immediate, contextual feedback reduces guesswork
+- Learners see exactly which cards are wrong and why
+- Option to retry preserves mastery pathway
+- Option to continue reduces frustration for struggling learners
+- Maintains full telemetry for educator insights
+
+**Architect Status**: ✅ Production-ready, mastery timing and telemetry verified
