@@ -1131,9 +1131,21 @@ function Triage({
     setCardFeedback(new Map());
   };
   
+  // Normalize text for comparison (handle curly quotes, whitespace)
+  const normalizeText = (text: string): string => {
+    return text
+      .trim()
+      .replace(/[\u2018\u2019]/g, "'") // Curly single quotes → straight
+      .replace(/[\u201C\u201D]/g, '"') // Curly double quotes → straight
+      .replace(/\s+/g, ' '); // Collapse whitespace
+  };
+  
   // Handle submission with inline feedback
   const handleSubmit = () => {
     if (!isComplete) return;
+    
+    console.log('[Triage] Starting evaluation');
+    console.log('[Triage] Current bins:', { vulnerability: bins.vulnerability, mitigation: bins.mitigation });
     
     // Compute per-card feedback from content explanations
     const feedback = new Map<string, {isCorrect: boolean; why: string}>();
@@ -1141,12 +1153,33 @@ function Triage({
     let correctCount = 0;
     
     (item.cards || []).forEach((card: string) => {
-      const explanation = explanations[card];
-      if (!explanation) return;
+      const normalizedCard = normalizeText(card);
+      console.log('[Triage] Evaluating card:', card.substring(0, 40) + '...');
+      console.log('[Triage] Normalized:', normalizedCard.substring(0, 40) + '...');
+      
+      // Find explanation by normalized match
+      let explanation = explanations[card];
+      if (!explanation) {
+        // Try normalized lookup if exact match fails
+        const normalizedKey = Object.keys(explanations).find(
+          k => normalizeText(k) === normalizedCard
+        );
+        explanation = normalizedKey ? explanations[normalizedKey] : null;
+        console.log('[Triage] Used normalized lookup, found:', !!explanation);
+      }
+      
+      if (!explanation) {
+        console.log('[Triage] ERROR: No explanation found for card');
+        return;
+      }
       
       const correctBin = explanation.correct_bin;
-      const chosenBin = bins.vulnerability.includes(card) ? 'vulnerability' : 'mitigation';
+      // Check if normalized card is in either bin
+      const inVulnBin = bins.vulnerability.some(c => normalizeText(c) === normalizedCard);
+      const chosenBin = inVulnBin ? 'vulnerability' : 'mitigation';
       const isCorrect = correctBin === chosenBin;
+      
+      console.log('[Triage] Expected bin:', correctBin, '| Chosen bin:', chosenBin, '| Correct:', isCorrect);
       
       if (isCorrect) correctCount++;
       
@@ -1158,6 +1191,9 @@ function Triage({
     
     const allCardsCorrect = correctCount === (item.cards || []).length;
     
+    console.log('[Triage] Total correct:', correctCount, '/', (item.cards || []).length);
+    console.log('[Triage] All correct:', allCardsCorrect);
+    
     setCardFeedback(feedback);
     setSubmitted(true);
     setAllCorrect(allCardsCorrect);
@@ -1165,7 +1201,10 @@ function Triage({
     
     // Only call parent onSubmit when all cards are correct
     if (allCardsCorrect) {
+      console.log('[Triage] All correct! Advancing to next item');
       onSubmit({ bins, attempts_before_correct: attempts + 1 });
+    } else {
+      console.log('[Triage] Not all correct, showing Try Again');
     }
   };
   

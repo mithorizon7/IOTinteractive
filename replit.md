@@ -148,43 +148,75 @@ Updated all 6 cards to use concrete, accessible language for learners with zero 
 
 **Architect Status**: ✅ Approved as production-ready
 
-### **2025-11-14** - Triage Inline Feedback System
+### **2025-11-20** - Triage Inline Feedback System (Complete Rewrite)
 
-**Problem**: Generic "Not quite" feedback screen didn't help learners understand which cards were misclassified or why.
+**User Request**: "When I submit the Vulnerabilities vs. Mitigations answers, I don't want it to go to a new screen. I instead just want it to stay on the same screen, but the boxes that are in the wrong place should signify they're wrong (red/yellow border), and the other ones should signify they're right (blue/green border). Tooltips on wrong boxes with hints. Never leave this page until they have them all right."
 
-**Solution**: Implemented inline, per-card feedback with tooltips showing specific explanations for incorrect placements.
+**Implementation - Stay On Page Until All Correct**:
+- Complete redesign of Triage submission flow
+- Local evaluation within Triage component before calling parent
+- Only advances to next item when ALL cards are correctly placed
+- Never navigates to feedback screen for partial correctness
 
-**Content Changes**:
-- Added `explanations` object to TRIAGE-1 in `content.json`
-- Each card includes `correct_bin` and `why` fields with educational explanations
+**State Management**:
+- Added `allCorrect: boolean` - tracks if all cards correctly placed
+- Added `attempts: number` - counts submission attempts for telemetry
+- Modified `handleSubmit` to evaluate correctness locally first
+- Only calls parent `onSubmit({ bins, attempts_before_correct })` when `allCorrect === true`
+- Parent receives final placement data and attempt count for full telemetry
 
-**UI/UX Implementation**:
-- **Visual Feedback**: Incorrect cards display red border (`border-destructive`) and red background (`bg-destructive/10`) after submission
-- **Tooltips**: Hover over incorrect cards to see "Why this is incorrect:" with specific explanation
-- **Dual Action Buttons**: After submission, learners choose:
-  - **Try Again** (outline): Resets submission state, re-enables editing (preserves mastery gating)
-  - **Continue** (default): Advances to next item (bypasses retry requirement for Triage only)
-- **Disabled Interactions**: Drag/drop and movement buttons disabled after submission to prevent confusion
+**Visual Feedback System**:
+- Created `getCardClasses()` helper for consistent color application
+- **Correct cards**: Blue border (`border-blue-500 dark:border-blue-400`) + subtle blue background (`bg-blue-500/10 dark:bg-blue-400/10`)
+- **Incorrect cards**: Amber border (`border-amber-500 dark:border-amber-400`) + subtle amber background (`bg-amber-500/10 dark:bg-amber-400/10`)
+- Colors chosen per architect guidance (info=blue, warning=amber) for light/dark theme compatibility
+- Applied to both vulnerability and mitigation bin cards
 
-**Technical Implementation**:
-- `submitted` state tracks whether Triage has been submitted
-- `cardFeedback` Map stores per-card correctness and explanations
-- `renderCardWithFeedback` helper wraps incorrect cards with Tooltip components
-- React keys properly managed (on outer Tooltip wrapper, not inner div)
-- `forceNext` flag passed to parent to bypass normal feedback screen
+**Interaction Flow**:
+- **Before submission**: "Check Answer" button enabled when all cards placed
+- **After submission (not all correct)**: 
+  - Cards show blue/amber borders based on correctness
+  - "Try Again" button clears submission state, allows rearranging
+  - Cards remain draggable for adjustment
+  - Tooltips show on incorrect cards with educational explanations
+- **After submission (all correct)**:
+  - All cards show blue borders
+  - "Continue" button appears to advance to next item
+  - Cards locked (not draggable)
 
-**Progression Changes**:
-- Modified parent `handleSubmit` to handle `forceNext` flag
-- Full telemetry, history, and seen-count tracking preserved for all submissions
-- Mastery state management: resets on first submission of new item (not on index change)
-- `useEffect` removed to prevent premature mastery reset
-- Allows Triage to bypass retry-until-correct policy while maintaining analytics integrity
+**Text Normalization Fix** (P0 Critical Bug):
+- **Issue**: Curly apostrophes in translation files caused string comparison failures
+- **Root Cause**: DOM `innerText` normalizes Unicode characters differently than answer key
+- **Solution**: Added `normalizeText()` function that:
+  - Trims whitespace
+  - Converts curly quotes (`'`, `'`, `"`, `"`) → straight (`'`, `"`)
+  - Collapses multiple spaces
+- Applied normalization to both card text and answer key before comparison
+- Ensures `allCorrect` evaluates correctly regardless of character encoding
+
+**Mastery Gate Fix** (P0 Critical Bug):
+- **Issue**: Session completed prematurely after 3 items instead of allowing all 11 items
+- **Root Cause**: Mastery criteria checked without requiring all items seen first
+- **Solution**: Added `allItemsSeen` check: `seenCounts.every(count => count > 0)`
+- Session now only completes when mastery met AND all items completed once
+- Preserves sequential-then-adaptive progression architecture
+
+**Item State Reset**:
+- Added `useEffect` watching `item.id` to reset state when item changes
+- Resets: `unplaced`, `bins`, `submitted`, `cardFeedback`, `allCorrect`, `attempts`
+- Ensures fresh telemetry tracking per item
+
+**Accessibility Maintained**:
+- Tooltips on incorrect cards use Shadcn Tooltip primitives
+- ARIA labels preserved on all interactive elements
+- Keyboard navigation still functional
+- Screen reader announcements for bin changes
 
 **Pedagogical Benefits**:
-- Immediate, contextual feedback reduces guesswork
-- Learners see exactly which cards are wrong and why
-- Option to retry preserves mastery pathway
-- Option to continue reduces frustration for struggling learners
-- Maintains full telemetry for educator insights
+- Learners never lose context by leaving the game page
+- Immediate visual feedback (blue=correct, amber=incorrect) reduces cognitive load
+- Tooltips provide just-in-time educational explanations
+- "Try Again" encourages persistence without penalty
+- "Continue" only appears when mastery achieved, reinforcing success
 
-**Architect Status**: ✅ Production-ready, mastery timing and telemetry verified
+**Architect Status**: ✅ Pass rating, production-ready with text normalization fix applied

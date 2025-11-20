@@ -1,0 +1,75 @@
+Here is the comprehensive analysis of your IoT Interactive Learning Engine.
+
+Part 1: Developer Bug & Fix Report
+To: Engineering Team From: QA / Product Subject: Prioritized Fixes for IoT Interactive Engine (iot-learning.tsx)
+
+This report focuses on the active codebase found in client/src/pages/iot-learning.tsx. Note: The file io_t_mini_games_beginner_interactive_react_app_1762978302524.jsx is truncated/corrupt and should be deleted to avoid confusion.
+
+🚨 P0: Critical (Data Integrity & Crashes)
+Telemetry CSV Corruption
+
+Location: downloadTelemetryCSV function in iot-learning.tsx.
+
+Issue: The response field in the telemetry logs is a nested JSON object (e.g., { choice: "Yes", rationale: "..." }). When JSON.stringify is called on the row value during CSV generation, it creates unescaped internal commas and quotes, breaking the CSV column structure.
+
+Fix: Flatten the response object into a string before writing to CSV, or strictly escape the JSON string.
+
+Code Suggestion:
+
+TypeScript
+
+// Inside downloadTelemetryCSV mapping:
+const cellValue = row[h];
+const stringified = typeof cellValue === 'object'
+  ? JSON.stringify(cellValue).replace(/"/g, '""') // Escape double quotes
+  : cellValue;
+return `"${stringified}"`; // Wrap in quotes
+State Stale-ness on Item Transition (Component Reuse)
+
+Location: IoTLearningLab -> renderGameMechanic.
+
+Issue: When transitioning between two items of the same mechanic (e.g., IOT-1 to IOT-2, both DecisionLab), React reconciles the Virtual DOM and may preserve the component instance state (choice, rationale) if the component type hasn't changed. While Triage has a useEffect to reset state on item.id change, DecisionLab, Sequencer, and MatchPairs do not.
+
+Consequence: The user will see their previous answer pre-filled when the next question appears.
+
+Fix: Add a unique key prop to the rendered component to force a remount.
+
+Code Change:
+
+TypeScript
+
+// In renderGameMechanic:
+const props = { key: item.id, ... }; // Add key here
+🟠 P1: High (UX & Logic)
+Triage Feedback State Sync
+
+Location: Triage component.
+
+Issue: After a user submits an incorrect triage attempt, the cards turn Red/Green based on cardFeedback. The user clicks "Try Again" (or simply continues dragging because drag isn't fully disabled for incorrect cards). If they move a "Red" card to the correct bin, the visual style remains Red (incorrect) until they hit "Check Answer" again. This creates a confusing UI state where a card is in the right spot but looks wrong.
+
+Fix: Clear specific cardFeedback for a card as soon as the user interacts with it (drags it or clicks move), or clear submitted state immediately upon interaction.
+
+Missing Telemetry Trigger for Triage "Continue"
+
+Location: Triage component -> onSubmit calls.
+
+Issue: When the user gets it right and clicks "Continue", the parent handleSubmit is called. However, if the user forces "Continue" after a failure (if logic allows) or retries, we need to ensure the attempts_before_correct metric is accurately passed.
+
+Verification: Ensure attempts state in Triage is not resetting on handleRetry (the code currently says // Don't reset attempts, which is good, but verify this persists through the parent re-render if the parent state updates).
+
+🟡 P2: Medium (Polish & Accessibility)
+MatchPairs Keyboard Navigation Trap
+
+Location: MatchPairs component.
+
+Issue: The "Selected" state (selLeft / selRight) relies on visual styling (borders).
+
+Fix: Ensure aria-selected="true" is applied to the button elements when they are in the selected state so screen readers know which term is currently "holding" the connection.
+
+Hardcoded "Schema Version" Logic
+
+Location: saveSession / migrateSessionData.
+
+Issue: You are effectively hardcoding schemaVersion: 2 in the save logic. If you change the content pack structure again (e.g., renaming items), this migration logic will need manual updating.
+
+Recommendation: Abstract the version number to a constant CURRENT_SCHEMA_VERSION to prevent future regression.

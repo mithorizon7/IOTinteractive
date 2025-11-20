@@ -1,0 +1,53 @@
+🚀 Recommendations for Improvement
+1. Concrete-to-Abstract Sequencing (The "Fade-out" Effect)
+
+Observation: The "Sequencer" game (SEQ-1) asks for the abstract loop: Sense → Share → Process → Act.
+
+Critique: For a beginner, this is purely abstract.
+
+Recommendation: Add a "Concrete Sequencer" item before the abstract one.
+
+Example: "Order the steps of this Smart Thermostat: 1. Thermometer reads 70°F. 2. Wi-Fi sends temp to cloud. 3. Cloud decides 'Too cold'. 4. Furnace turns on."
+
+Benefit: This grounds the abstract concepts in reality before asking for the general rule.
+
+2. Visual Anchoring for "DecisionLab"
+
+Observation: The IOT-1 to IOT-4 questions are text-only.
+
+Recommendation: Even simple icons or schematic SVGs next to the prompt (e.g., a diagram of the RFID gate for IOT-2) would significantly reduce cognitive load. Dual-coding theory suggests text + image improves retention.
+
+3. The "Counter-Example" Mechanic
+
+Observation: You mentioned a "CounterExample" mechanic in the brief, but it's implemented as just DecisionLab currently.
+
+Recommendation: Explicitly frame a level as "Break the Rule."
+
+Prompt: "People often say 'IoT is anything with Wi-Fi'. Select the device below that has Wi-Fi but is NOT IoT."
+
+Options: Smart Bulb (IoT), Laptop (Not IoT), Smart Lock (IoT).
+
+Benefit: This actively trains the learner to delineate the boundaries of the definition.
+
+4. Elaborative Interrogation (The Rationale Box)
+
+Observation: You have a rationale text box in DecisionLab, but it doesn't seem to do anything with the input other than log it.
+
+Recommendation: In the feedback screen, mirror their rationale back to them next to the "Model Answer."
+
+UI Text: "You said: [User's Rationale]. Expert Note: [Model Rationale]."
+
+Benefit: This triggers self-reflection ("Did I get the right answer for the wrong reason?").
+
+5. Spaced Repetition Tuning
+
+Observation: The current chooseNextIndex logic is good (recent buffer + least seen).
+
+Recommendation: If a user fails an item, don't just show it again later. Show a variant of it (an "Isomorph").
+
+Implementation: If they fail "Is Bluetooth Headphones IoT?", the retry shouldn't be the exact same headphones question immediately. It could be "Are Bluetooth Speakers IoT?".
+
+Why: To prevent pattern matching (memorizing "Headphones = No") and ensure concept mastery. (This requires expanding the content pack).
+
+Summary
+The engine is technically sound and pedagogically advanced compared to standard quizzes. Fixing the state-persistence bugs in iot-learning.tsx is the immediate priority. To elevate the learning outcomes, focus on visual dual-coding and concrete examples before abstract rules.
