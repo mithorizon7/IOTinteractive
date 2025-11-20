@@ -246,6 +246,56 @@
       ],
       "exemplar": "Vulnerabilities: factory-set passwords, devices that can't be updated remotely, devices anyone can reach and open. Mitigations: separate network for IoT devices, strong unique passwords, regular software updates."
     },
+    "TRIAGE-2": {
+      "stimulus": "Sort each card into Vulnerability or Mitigation.",
+      "cards": [
+        "Unencrypted data transmission between IoT devices and the cloud.",
+        "Two-factor authentication for accessing IoT device controls.",
+        "IoT device using an outdated operating system with known security flaws.",
+        "Regular security audits and penetration testing of IoT systems."
+      ],
+      "answer_correct": {
+        "vulnerability": [
+          "Unencrypted data transmission between IoT devices and the cloud.",
+          "IoT device using an outdated operating system with known security flaws."
+        ],
+        "mitigation": [
+          "Two-factor authentication for accessing IoT device controls.",
+          "Regular security audits and penetration testing of IoT systems."
+        ]
+      },
+      "explanations": {
+        "Unencrypted data transmission between IoT devices and the cloud.": {
+          "correct_bin": "vulnerability",
+          "why": "Unencrypted data can be intercepted and read by attackers, exposing sensitive information."
+        },
+        "Two-factor authentication for accessing IoT device controls.": {
+          "correct_bin": "mitigation",
+          "why": "Two-factor authentication adds an extra security layer, making unauthorized access much harder."
+        },
+        "IoT device using an outdated operating system with known security flaws.": {
+          "correct_bin": "vulnerability",
+          "why": "Outdated systems have known vulnerabilities that attackers can easily exploit."
+        },
+        "Regular security audits and penetration testing of IoT systems.": {
+          "correct_bin": "mitigation",
+          "why": "Regular audits help identify and fix security weaknesses before attackers can exploit them."
+        }
+      },
+      "misconceptions": {
+        "encryption_confused": {
+          "why": "Unencrypted data transmission is a vulnerability because it exposes data to interception.",
+          "contrast": "Encryption protects data in transit, making it a mitigation strategy.",
+          "next_try": "Place unencrypted transmission under Vulnerability."
+        }
+      },
+      "hints": [
+        "Ask: does this make the system weaker (vulnerability) or safer (mitigation)?",
+        "Two-factor auth and audits make systems safer.",
+        "Unencrypted data and outdated systems make systems weaker."
+      ],
+      "exemplar": "Vulnerabilities: unencrypted data, outdated OS. Mitigations: two-factor auth, security audits."
+    },
     "SEQ-1": {
       "stimulus": "Order the IoT loop from first to last.",
       "steps": ["Act", "Share", "Process/Analyze", "Sense"],

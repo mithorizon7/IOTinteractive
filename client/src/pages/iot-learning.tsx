@@ -394,6 +394,7 @@ function getTranslatedContent() {
       ],
       answer_key: {
         correct: t("content:items.TRIAGE-1.answer_correct", { returnObjects: true }) as Record<string, string[]>,
+        explanations: t("content:items.TRIAGE-1.explanations", { returnObjects: true }) as Record<string, { correct_bin: string; why: string }>,
       },
       misconceptions: [
         {
@@ -411,6 +412,47 @@ function getTranslatedContent() {
       ],
       hint_ladder: t("content:items.TRIAGE-1.hints", { returnObjects: true }) as string[],
       exemplar_response: t("content:items.TRIAGE-1.exemplar"),
+      scoring: { base: 1, time_ms_cap: 60000, hint_penalty: 0.25, retry_policy: "until_correct" },
+      mastery_criterion: { streak: 3, max_avg_time_ms: 30000 },
+      telemetry_fields: ["latency_ms", "hints_used", "misconception_id", "retries"],
+      accessibility: { alt_text: null, aria_labels: ["cards", "bins"], reading_level: "≤8" },
+    },
+    {
+      objective_id: "OBJ-4",
+      id: "TRIAGE-2",
+      difficulty: "medium",
+      mechanic: "Triage",
+      stimulus: {
+        text: t("content:items.TRIAGE-2.stimulus"),
+        media: null,
+      },
+      parameters: {},
+      response_type: "triage",
+      cards: t("content:items.TRIAGE-2.cards", { returnObjects: true }) as string[],
+      bins: [
+        { id: "vulnerability", label: t("ui:bin_vulnerability") },
+        { id: "mitigation", label: t("ui:bin_mitigation") },
+      ],
+      answer_key: {
+        correct: t("content:items.TRIAGE-2.answer_correct", { returnObjects: true }) as Record<string, string[]>,
+        explanations: t("content:items.TRIAGE-2.explanations", { returnObjects: true }) as Record<string, { correct_bin: string; why: string }>,
+      },
+      misconceptions: [
+        {
+          id: "encryption_confused",
+          detector: (resp: any) => {
+            const cards = t("content:items.TRIAGE-2.cards", { returnObjects: true }) as string[];
+            return Array.isArray(resp?.bins?.mitigation) && resp.bins.mitigation.includes(cards[0]);
+          },
+          feedback: {
+            why: t("content:items.TRIAGE-2.misconceptions.encryption_confused.why"),
+            contrast: t("content:items.TRIAGE-2.misconceptions.encryption_confused.contrast"),
+            next_try: t("content:items.TRIAGE-2.misconceptions.encryption_confused.next_try"),
+          },
+        },
+      ],
+      hint_ladder: t("content:items.TRIAGE-2.hints", { returnObjects: true }) as string[],
+      exemplar_response: t("content:items.TRIAGE-2.exemplar"),
       scoring: { base: 1, time_ms_cap: 60000, hint_penalty: 0.25, retry_policy: "until_correct" },
       mastery_criterion: { streak: 3, max_avg_time_ms: 30000 },
       telemetry_fields: ["latency_ms", "hints_used", "misconception_id", "retries"],
@@ -1144,9 +1186,6 @@ function Triage({
   const handleSubmit = () => {
     if (!isComplete) return;
     
-    console.log('[Triage] Starting evaluation');
-    console.log('[Triage] Current bins:', { vulnerability: bins.vulnerability, mitigation: bins.mitigation });
-    
     // Compute per-card feedback from content explanations
     const feedback = new Map<string, {isCorrect: boolean; why: string}>();
     const explanations = item.answer_key.explanations || {};
@@ -1154,32 +1193,25 @@ function Triage({
     
     (item.cards || []).forEach((card: string) => {
       const normalizedCard = normalizeText(card);
-      console.log('[Triage] Evaluating card:', card.substring(0, 40) + '...');
-      console.log('[Triage] Normalized:', normalizedCard.substring(0, 40) + '...');
       
       // Find explanation by normalized match
       let explanation = explanations[card];
+      
       if (!explanation) {
         // Try normalized lookup if exact match fails
         const normalizedKey = Object.keys(explanations).find(
           k => normalizeText(k) === normalizedCard
         );
         explanation = normalizedKey ? explanations[normalizedKey] : null;
-        console.log('[Triage] Used normalized lookup, found:', !!explanation);
       }
       
-      if (!explanation) {
-        console.log('[Triage] ERROR: No explanation found for card');
-        return;
-      }
+      if (!explanation) return;
       
       const correctBin = explanation.correct_bin;
       // Check if normalized card is in either bin
       const inVulnBin = bins.vulnerability.some(c => normalizeText(c) === normalizedCard);
       const chosenBin = inVulnBin ? 'vulnerability' : 'mitigation';
       const isCorrect = correctBin === chosenBin;
-      
-      console.log('[Triage] Expected bin:', correctBin, '| Chosen bin:', chosenBin, '| Correct:', isCorrect);
       
       if (isCorrect) correctCount++;
       
@@ -1191,9 +1223,6 @@ function Triage({
     
     const allCardsCorrect = correctCount === (item.cards || []).length;
     
-    console.log('[Triage] Total correct:', correctCount, '/', (item.cards || []).length);
-    console.log('[Triage] All correct:', allCardsCorrect);
-    
     setCardFeedback(feedback);
     setSubmitted(true);
     setAllCorrect(allCardsCorrect);
@@ -1201,10 +1230,7 @@ function Triage({
     
     // Only call parent onSubmit when all cards are correct
     if (allCardsCorrect) {
-      console.log('[Triage] All correct! Advancing to next item');
       onSubmit({ bins, attempts_before_correct: attempts + 1 });
-    } else {
-      console.log('[Triage] Not all correct, showing Try Again');
     }
   };
   
