@@ -2197,8 +2197,8 @@ export default function IoTLearningLab() {
     return { streak, avgTimeS, hints, masteryMet };
   }, [history]);
   
-  // Sequential-then-adaptive progression
-  const chooseNextIndex = (lastCorrect: boolean) => {
+  // Sequential-then-review progression: only repeat items that were answered incorrectly
+  const chooseNextIndex = (lastCorrect: boolean): number | null => {
     const allSeen = seenCounts.every((c) => c > 0);
     
     if (!allSeen) {
@@ -2207,12 +2207,13 @@ export default function IoTLearningLab() {
       return nextIdx >= 0 ? nextIdx : 0;
     }
     
-    // Get recent item IDs from history (last 3) to avoid immediate repetition
-    const recentItemIds = history.slice(-3).map((h) => h.item_id);
-    
-    // Adaptive phase: prioritize incorrect items, avoiding recent ones
+    // Review phase: ONLY show items that were answered incorrectly
+    // Once an item is answered correctly, it's removed from incorrectItems and never shown again
     if (incorrectItems.size > 0) {
-      let incorrectArr = Array.from(incorrectItems);
+      const incorrectArr = Array.from(incorrectItems);
+      
+      // Get recent item IDs from history (last 2) to avoid immediate repetition
+      const recentItemIds = history.slice(-2).map((h) => h.item_id);
       
       // Filter out recently shown items
       const candidatesFiltered = incorrectArr.filter(
@@ -2222,48 +2223,14 @@ export default function IoTLearningLab() {
       // If all incorrect items were shown recently, allow any incorrect item
       const candidates = candidatesFiltered.length > 0 ? candidatesFiltered : incorrectArr;
       
-      // Pick least-seen incorrect item from candidates
-      candidates.sort((a, b) => seenCounts[a] - seenCounts[b]);
-      return candidates[0];
+      // Pick a random incorrect item from candidates
+      return candidates[Math.floor(Math.random() * candidates.length)];
     }
     
-    // All items correct at least once: find least-seen, avoiding recent ones
-    const minCount = Math.min(...seenCounts);
-    let candidates = seenCounts
-      .map((c, i) => ({ i, c }))
-      .filter((x) => x.c === minCount && !recentItemIds.includes(content.items[x.i].id))
-      .map((x) => x.i);
-    
-    // If all least-seen items were shown recently, allow any least-seen item
-    if (candidates.length === 0) {
-      candidates = seenCounts
-        .map((c, i) => ({ i, c }))
-        .filter((x) => x.c === minCount)
-        .map((x) => x.i);
-    }
-    
-    return candidates[Math.floor(Math.random() * candidates.length)];
+    // All items have been seen and answered correctly at least once - session complete!
+    return null;
   };
   
-  // Check if mastery is met and trigger completion
-  useEffect(() => {
-    // Only trigger completion if mastery is met AND all items have been seen at least once
-    const allItemsSeen = seenCounts.every(count => count > 0);
-    if (mastery.masteryMet && allItemsSeen && !sessionCompleted && history.length > 0) {
-      // Give a small delay before showing completion screen
-      const timer = setTimeout(() => {
-        setSessionCompleted(true);
-        recordEvent({
-          type: "session_complete",
-          final_streak: mastery.streak,
-          final_avg_time: mastery.avgTimeS,
-          final_hints: mastery.hints,
-          total_items: history.length,
-        });
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-  }, [mastery.masteryMet, sessionCompleted, mastery.streak, mastery.avgTimeS, mastery.hints, history.length, seenCounts]);
   
   // Handlers
   const handleStart = () => {
@@ -2375,6 +2342,20 @@ export default function IoTLearningLab() {
       setCurrentItemMastered(true);
       // Advance to next item immediately, skipping feedback screen
       const nextIdx = chooseNextIndex(result.correct);
+      
+      // If null, all items completed correctly - trigger session complete
+      if (nextIdx === null) {
+        setSessionCompleted(true);
+        recordEvent({
+          type: "session_complete",
+          final_streak: mastery.streak,
+          final_avg_time: mastery.avgTimeS,
+          final_hints: mastery.hints,
+          total_items: history.length + 1,
+        });
+        return;
+      }
+      
       setCurrentIndex(nextIdx);
       setShowFeedback(false);
       setFeedbackState(null);
@@ -2412,6 +2393,20 @@ export default function IoTLearningLab() {
     }
     
     const nextIdx = chooseNextIndex(feedbackState?.correct || false);
+    
+    // If null, all items completed correctly - trigger session complete
+    if (nextIdx === null) {
+      setSessionCompleted(true);
+      recordEvent({
+        type: "session_complete",
+        final_streak: mastery.streak,
+        final_avg_time: mastery.avgTimeS,
+        final_hints: mastery.hints,
+        total_items: history.length,
+      });
+      return;
+    }
+    
     setCurrentIndex(nextIdx);
     setShowFeedback(false);
     setFeedbackState(null);
