@@ -9,7 +9,9 @@
   "items": {
     "IOT-1": {
       "stimulus": "",
+      "option_ids": ["opt_yes", "opt_no"],
       "options": ["", ""],
+      "answer_correct_id": "opt_no",
       "answer_correct": "",
       "answer_rules": [""],
       "misconceptions": {
@@ -24,7 +26,9 @@
     },
     "IOT-2": {
       "stimulus": "",
+      "option_ids": ["opt_yes", "opt_no"],
       "options": ["", ""],
+      "answer_correct_id": "opt_yes",
       "answer_correct": "",
       "answer_rules": [""],
       "misconceptions": {
@@ -39,7 +43,9 @@
     },
     "IOT-3": {
       "stimulus": "",
+      "option_ids": ["opt_yes", "opt_no"],
       "options": ["", ""],
+      "answer_correct_id": "opt_yes",
       "answer_correct": "",
       "answer_rules": [""],
       "misconceptions": {
@@ -54,7 +60,9 @@
     },
     "IOT-4": {
       "stimulus": "",
+      "option_ids": ["opt_yes", "opt_no"],
       "options": ["", ""],
+      "answer_correct_id": "opt_no",
       "answer_correct": "",
       "answer_rules": [""],
       "misconceptions": {
@@ -69,7 +77,9 @@
     },
     "NET-1": {
       "stimulus": "",
+      "option_ids": ["opt_private", "opt_wifi", "opt_cellular", "opt_rfid"],
       "options": ["", "", "", ""],
+      "answer_correct_id": "opt_private",
       "answer_correct": "",
       "answer_rules": [""],
       "misconceptions": {
@@ -84,7 +94,9 @@
     },
     "NET-2": {
       "stimulus": "",
+      "option_ids": ["opt_rfid", "opt_wifi", "opt_cellular", "opt_private"],
       "options": ["", "", "", ""],
+      "answer_correct_id": "opt_rfid",
       "answer_correct": "",
       "answer_rules": [""],
       "misconceptions": {
@@ -99,7 +111,9 @@
     },
     "NET-3": {
       "stimulus": "",
+      "option_ids": ["opt_private", "opt_wifi", "opt_cellular", "opt_rfid"],
       "options": ["", "", "", ""],
+      "answer_correct_id": "opt_cellular",
       "answer_correct": "",
       "answer_rules": [""],
       "misconceptions": {
@@ -116,6 +130,7 @@
       "stimulus": "",
       "pairs_left": ["", "", "", ""],
       "pairs_right": ["", "", "", ""],
+      "answer_correct_indices": {"0": 0, "1": 1, "2": 2, "3": 3},
       "answer_correct": {
         "5G": "",
         "Big data / AI": "",

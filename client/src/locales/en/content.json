@@ -9,7 +9,9 @@
   "items": {
     "IOT-1": {
       "stimulus": "Bluetooth headphones stream music from a phone. Is this IoT by the definition used here?",
+      "option_ids": ["opt_yes", "opt_no"],
       "options": ["Yes", "No"],
+      "answer_correct_id": "opt_no",
       "answer_correct": "No",
       "answer_rules": ["IoT applications sense an environment, then share, process, and act on that info."],
       "misconceptions": {
@@ -28,7 +30,9 @@
     },
     "IOT-2": {
       "stimulus": "A warehouse uses RFID tags on pallets. Gates read the tags and update the inventory system. Is this IoT?",
+      "option_ids": ["opt_yes", "opt_no"],
       "options": ["Yes", "No"],
+      "answer_correct_id": "opt_yes",
       "answer_correct": "Yes",
       "answer_rules": ["The system senses (RFID), shares data, processes it, then triggers actions like stock updates."],
       "misconceptions": {
@@ -47,7 +51,9 @@
     },
     "IOT-3": {
       "stimulus": "A smart thermostat uses motion sensors and a schedule to heat your house automatically. IoT?",
+      "option_ids": ["opt_yes", "opt_no"],
       "options": ["Yes", "No"],
+      "answer_correct_id": "opt_yes",
       "answer_correct": "Yes",
       "answer_rules": ["Sensors detect occupancy; data is processed; heating is adjusted (act)."],
       "misconceptions": {
@@ -66,7 +72,9 @@
     },
     "IOT-4": {
       "stimulus": "A laptop browses the web. Is that IoT?",
+      "option_ids": ["opt_yes", "opt_no"],
       "options": ["Yes", "No"],
+      "answer_correct_id": "opt_no",
       "answer_correct": "No",
       "answer_rules": ["General-purpose computers are not IoT by themselves."],
       "misconceptions": {
@@ -85,12 +93,14 @@
     },
     "NET-1": {
       "stimulus": "A factory's sensors report to a local server on the shop floor only. Pick the best connectivity.",
+      "option_ids": ["opt_private", "opt_wifi", "opt_cellular", "opt_rfid"],
       "options": [
         "Private/local network (no internet)",
         "Public internet via Wi-Fi",
         "Cellular (4G/5G) + internet",
         "RFID-only readers (no active radio on sensors)"
       ],
+      "answer_correct_id": "opt_private",
       "answer_correct": "Private/local network (no internet)",
       "answer_rules": ["IoT doesn't require the public internet."],
       "misconceptions": {
@@ -109,12 +119,14 @@
     },
     "NET-2": {
       "stimulus": "A delivery firm tracks boxes at gates with short-range readers. Best connectivity?",
+      "option_ids": ["opt_rfid", "opt_wifi", "opt_cellular", "opt_private"],
       "options": [
         "RFID-only readers (no active radio on sensors)",
         "Public internet via Wi-Fi",
         "Cellular (4G/5G) + internet",
         "Private/local network (no internet)"
       ],
+      "answer_correct_id": "opt_rfid",
       "answer_correct": "RFID-only readers (no active radio on sensors)",
       "answer_rules": ["RFID gates scan passive tags."],
       "misconceptions": {
@@ -133,12 +145,14 @@
     },
     "NET-3": {
       "stimulus": "A car uploads maintenance data to the manufacturer from anywhere. Best connectivity?",
+      "option_ids": ["opt_private", "opt_wifi", "opt_cellular", "opt_rfid"],
       "options": [
         "Private/local network (no internet)",
         "Public internet via Wi-Fi",
         "Cellular (4G/5G) + internet",
         "RFID-only readers (no active radio on sensors)"
       ],
+      "answer_correct_id": "opt_cellular",
       "answer_correct": "Cellular (4G/5G) + internet",
       "answer_rules": ["Wide-area connectivity is needed on the road."],
       "misconceptions": {
@@ -164,6 +178,7 @@
         "Live virtual copy of a physical system",
         "Reduce risks (patching, segmentation, physical safeguards)"
       ],
+      "answer_correct_indices": {"0": 0, "1": 1, "2": 2, "3": 3},
       "answer_correct": {
         "5G": "High-capacity wireless for many devices",
         "Big data / AI": "Analyze large sensor streams to find patterns",

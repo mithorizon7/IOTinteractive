@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { Component, useState, useMemo, useEffect, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import i18n from "@/i18n/config";
 import {
@@ -54,6 +54,7 @@ interface Item {
   };
   parameters: Record<string, any>;
   response_type: string;
+  option_ids?: string[];
   options?: string[];
   pairs_left?: string[];
   pairs_right?: string[];
@@ -95,6 +96,60 @@ interface HistoryEntry {
 }
 
 /*************************
+ * Error Boundary        *
+ *************************/
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error?: Error;
+}
+
+class ErrorBoundary extends Component<{ children: ReactNode }, ErrorBoundaryState> {
+  constructor(props: { children: ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error("[ErrorBoundary] Caught error:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen bg-background flex items-center justify-center p-4">
+          <Card className="w-full max-w-lg">
+            <CardContent className="p-8 text-center space-y-6">
+              <div className="rounded-full bg-destructive/10 p-4 w-fit mx-auto">
+                <AlertTriangle className="h-12 w-12 text-destructive" />
+              </div>
+              <div className="space-y-2">
+                <h2 className="text-2xl font-bold">Something went wrong</h2>
+                <p className="text-muted-foreground">
+                  An unexpected error occurred. Please try refreshing the page.
+                </p>
+              </div>
+              <Button 
+                onClick={() => window.location.reload()}
+                data-testid="button-refresh-page"
+              >
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Refresh Page
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
+/*************************
  * Content pack builder  *
  *************************/
 // Helper function to load translated content
@@ -126,15 +181,17 @@ function getTranslatedContent() {
       },
       parameters: {},
       response_type: "decision+rationale",
+      option_ids: t("content:items.IOT-1.option_ids", { returnObjects: true }) as string[],
       options: t("content:items.IOT-1.options", { returnObjects: true }) as string[],
       answer_key: {
+        correct_id: t("content:items.IOT-1.answer_correct_id"),
         correct: t("content:items.IOT-1.answer_correct"),
         rules: t("content:items.IOT-1.answer_rules", { returnObjects: true }) as string[],
       },
       misconceptions: [
         {
           id: "any_connected_is_iot",
-          detector: (resp: any) => resp?.choice === "Yes",
+          detector: (resp: any) => resp?.choice_id === "opt_yes",
           feedback: {
             why: t("content:items.IOT-1.misconceptions.any_connected_is_iot.why"),
             contrast: t("content:items.IOT-1.misconceptions.any_connected_is_iot.contrast"),
@@ -160,15 +217,17 @@ function getTranslatedContent() {
       },
       parameters: {},
       response_type: "decision+rationale",
+      option_ids: t("content:items.IOT-2.option_ids", { returnObjects: true }) as string[],
       options: t("content:items.IOT-2.options", { returnObjects: true }) as string[],
       answer_key: {
+        correct_id: t("content:items.IOT-2.answer_correct_id"),
         correct: t("content:items.IOT-2.answer_correct"),
         rules: t("content:items.IOT-2.answer_rules", { returnObjects: true }) as string[],
       },
       misconceptions: [
         {
           id: "rfid_not_iot",
-          detector: (resp: any) => resp?.choice === "No",
+          detector: (resp: any) => resp?.choice_id === "opt_no",
           feedback: {
             why: t("content:items.IOT-2.misconceptions.rfid_not_iot.why"),
             contrast: t("content:items.IOT-2.misconceptions.rfid_not_iot.contrast"),
@@ -194,15 +253,17 @@ function getTranslatedContent() {
       },
       parameters: {},
       response_type: "decision+rationale",
+      option_ids: t("content:items.IOT-3.option_ids", { returnObjects: true }) as string[],
       options: t("content:items.IOT-3.options", { returnObjects: true }) as string[],
       answer_key: {
+        correct_id: t("content:items.IOT-3.answer_correct_id"),
         correct: t("content:items.IOT-3.answer_correct"),
         rules: t("content:items.IOT-3.answer_rules", { returnObjects: true }) as string[],
       },
       misconceptions: [
         {
           id: "needs_internet",
-          detector: (resp: any) => resp?.choice === "No",
+          detector: (resp: any) => resp?.choice_id === "opt_no",
           feedback: {
             why: t("content:items.IOT-3.misconceptions.needs_internet.why"),
             contrast: t("content:items.IOT-3.misconceptions.needs_internet.contrast"),
@@ -225,12 +286,13 @@ function getTranslatedContent() {
       stimulus: { text: t("content:items.IOT-4.stimulus"), media: null },
       parameters: {},
       response_type: "decision+rationale",
+      option_ids: t("content:items.IOT-4.option_ids", { returnObjects: true }) as string[],
       options: t("content:items.IOT-4.options", { returnObjects: true }) as string[],
-      answer_key: { correct: t("content:items.IOT-4.answer_correct"), rules: t("content:items.IOT-4.answer_rules", { returnObjects: true }) as string[] },
+      answer_key: { correct_id: t("content:items.IOT-4.answer_correct_id"), correct: t("content:items.IOT-4.answer_correct"), rules: t("content:items.IOT-4.answer_rules", { returnObjects: true }) as string[] },
       misconceptions: [
         {
           id: "internet_equals_iot",
-          detector: (resp: any) => resp?.choice === "Yes",
+          detector: (resp: any) => resp?.choice_id === "opt_yes",
           feedback: {
             why: t("content:items.IOT-4.misconceptions.internet_equals_iot.why"),
             contrast: t("content:items.IOT-4.misconceptions.internet_equals_iot.contrast"),
@@ -256,15 +318,13 @@ function getTranslatedContent() {
       },
       parameters: {},
       response_type: "decision+rationale",
+      option_ids: t("content:items.NET-1.option_ids", { returnObjects: true }) as string[],
       options: t("content:items.NET-1.options", { returnObjects: true }) as string[],
-      answer_key: { correct: t("content:items.NET-1.answer_correct"), rules: t("content:items.NET-1.answer_rules", { returnObjects: true }) as string[] },
+      answer_key: { correct_id: t("content:items.NET-1.answer_correct_id"), correct: t("content:items.NET-1.answer_correct"), rules: t("content:items.NET-1.answer_rules", { returnObjects: true }) as string[] },
       misconceptions: [
         {
           id: "must_use_internet",
-          detector: (resp: any) => {
-            const opts = t("content:items.NET-1.options", { returnObjects: true }) as string[];
-            return resp?.choice === opts[1] || resp?.choice === opts[2];
-          },
+          detector: (resp: any) => resp?.choice_id === "opt_wifi" || resp?.choice_id === "opt_cellular",
           feedback: {
             why: t("content:items.NET-1.misconceptions.must_use_internet.why"),
             contrast: t("content:items.NET-1.misconceptions.must_use_internet.contrast"),
@@ -287,12 +347,13 @@ function getTranslatedContent() {
       stimulus: { text: t("content:items.NET-2.stimulus"), media: null },
       parameters: {},
       response_type: "decision+rationale",
+      option_ids: t("content:items.NET-2.option_ids", { returnObjects: true }) as string[],
       options: t("content:items.NET-2.options", { returnObjects: true }) as string[],
-      answer_key: { correct: t("content:items.NET-2.answer_correct"), rules: t("content:items.NET-2.answer_rules", { returnObjects: true }) as string[] },
+      answer_key: { correct_id: t("content:items.NET-2.answer_correct_id"), correct: t("content:items.NET-2.answer_correct"), rules: t("content:items.NET-2.answer_rules", { returnObjects: true }) as string[] },
       misconceptions: [
         {
           id: "rfid_misunderstood",
-          detector: (resp: any) => resp?.choice !== t("content:items.NET-2.answer_correct"),
+          detector: (resp: any) => resp?.choice_id !== "opt_rfid",
           feedback: {
             why: t("content:items.NET-2.misconceptions.rfid_misunderstood.why"),
             contrast: t("content:items.NET-2.misconceptions.rfid_misunderstood.contrast"),
@@ -315,15 +376,13 @@ function getTranslatedContent() {
       stimulus: { text: t("content:items.NET-3.stimulus"), media: null },
       parameters: {},
       response_type: "decision+rationale",
+      option_ids: t("content:items.NET-3.option_ids", { returnObjects: true }) as string[],
       options: t("content:items.NET-3.options", { returnObjects: true }) as string[],
-      answer_key: { correct: t("content:items.NET-3.answer_correct"), rules: t("content:items.NET-3.answer_rules", { returnObjects: true }) as string[] },
+      answer_key: { correct_id: t("content:items.NET-3.answer_correct_id"), correct: t("content:items.NET-3.answer_correct"), rules: t("content:items.NET-3.answer_rules", { returnObjects: true }) as string[] },
       misconceptions: [
         {
           id: "wifi_everywhere",
-          detector: (resp: any) => {
-            const opts = t("content:items.NET-3.options", { returnObjects: true }) as string[];
-            return resp?.choice === opts[1];
-          },
+          detector: (resp: any) => resp?.choice_id === "opt_wifi",
           feedback: {
             why: t("content:items.NET-3.misconceptions.wifi_everywhere.why"),
             contrast: t("content:items.NET-3.misconceptions.wifi_everywhere.contrast"),
@@ -353,14 +412,14 @@ function getTranslatedContent() {
       pairs_right: t("content:items.MATCH-1.pairs_right", { returnObjects: true }) as string[],
       answer_key: {
         correct: t("content:items.MATCH-1.answer_correct", { returnObjects: true }) as Record<string, string>,
+        correct_indices: t("content:items.MATCH-1.answer_correct_indices", { returnObjects: true }) as Record<string, number>,
       },
       misconceptions: [
         {
           id: "twin_as_3d_only",
           detector: (resp: any) => {
-            const correctAns = t("content:items.MATCH-1.answer_correct", { returnObjects: true }) as Record<string, string>;
-            const pairs_left = t("content:items.MATCH-1.pairs_left", { returnObjects: true }) as string[];
-            return resp?.pairs && resp.pairs[pairs_left[2]] === Object.values(correctAns)[0];
+            // Detect if user matched Digital twin (index 2) to 5G's role (index 0)
+            return resp?.pair_indices && resp.pair_indices["2"] === 0;
           },
           feedback: {
             why: t("content:items.MATCH-1.misconceptions.twin_as_3d_only.why"),
@@ -693,7 +752,10 @@ function clearSession() {
  *************************/
 function evaluate(item: Item, response: any): { correct: boolean; misconception_id?: string } {
   if (item.response_type === "decision+rationale") {
-    const correct = response?.choice === item.answer_key.correct;
+    // Use ID-based comparison for i18n compatibility
+    const correct = response?.choice_id 
+      ? response.choice_id === item.answer_key.correct_id
+      : response?.choice === item.answer_key.correct; // Fallback for legacy responses
     if (!correct && Array.isArray(item.misconceptions)) {
       const mis = item.misconceptions.find((m) => {
         try {
@@ -714,6 +776,19 @@ function evaluate(item: Item, response: any): { correct: boolean; misconception_
   }
 
   if (item.response_type === "match") {
+    // Use index-based comparison for i18n compatibility
+    const expectedIndices = item.answer_key.correct_indices as Record<string, number> | undefined;
+    const pairIndices = response?.pair_indices || {};
+    
+    if (expectedIndices) {
+      const keys = Object.keys(expectedIndices);
+      const correct = keys.every((k) => expectedIndices[k] === pairIndices[k]) && 
+                      keys.length === Object.keys(pairIndices).length;
+      const mis = !correct && item.misconceptions?.find((m) => m.detector?.(response));
+      return { correct, misconception_id: mis && typeof mis === 'object' ? mis.id : undefined };
+    }
+    
+    // Fallback for legacy text-based comparison
     const expected = item.answer_key.correct;
     const pairs = response?.pairs || {};
     const keys = Object.keys(expected || {});
@@ -1046,32 +1121,42 @@ function DecisionLab({
   onHint: () => void;
   hintUsed: boolean;
 }) {
-  const [choice, setChoice] = useState<string | null>(null);
+  const [choiceIndex, setChoiceIndex] = useState<number | null>(null);
   const [rationale, setRationale] = useState("");
   const { t } = useTranslation('ui');
+
+  const optionIds = item.option_ids || [];
+  const options = item.options || [];
+
+  const handleSubmit = () => {
+    if (choiceIndex === null) return;
+    const choice_id = optionIds[choiceIndex] || null;
+    const choice = options[choiceIndex] || null;
+    onSubmit({ choice, choice_id, rationale });
+  };
 
   return (
     <div className="space-y-6" aria-live="polite">
       <p className="text-base leading-relaxed">{item.stimulus.text}</p>
       
       <div className="grid gap-3 md:grid-cols-2" role="radiogroup" aria-label="decision choices">
-        {item.options?.map((opt) => (
+        {options.map((opt, idx) => (
           <label
-            key={opt}
+            key={optionIds[idx] || idx}
             className={`flex items-center gap-3 rounded-xl border-2 p-4 cursor-pointer transition-all hover-elevate ${
-              choice === opt
+              choiceIndex === idx
                 ? "border-primary bg-primary/5"
                 : "border-border hover:border-muted-foreground/30"
             }`}
-            data-testid={`option-${opt}`}
+            data-testid={`option-${optionIds[idx] || idx}`}
           >
             <input
               type="radio"
               className="h-4 w-4 text-primary focus:ring-2 focus:ring-primary"
               name={`choice-${item.id}`}
-              value={opt}
-              checked={choice === opt}
-              onChange={() => setChoice(opt)}
+              value={optionIds[idx] || idx}
+              checked={choiceIndex === idx}
+              onChange={() => setChoiceIndex(idx)}
               aria-label={opt}
             />
             <span className="text-sm font-medium">{opt}</span>
@@ -1097,8 +1182,8 @@ function DecisionLab({
 
       <div className="flex gap-3 flex-wrap">
         <Button
-          onClick={() => onSubmit({ choice, rationale })}
-          disabled={!choice}
+          onClick={handleSubmit}
+          disabled={choiceIndex === null}
           data-testid="button-submit"
         >
           <Check className="h-4 w-4 mr-2" />
@@ -1768,19 +1853,26 @@ function MatchPairs({
   onHint: () => void;
   hintUsed: boolean;
 }) {
-  const [pairs, setPairs] = useState<Record<string, string>>({});
-  const [selLeft, setSelLeft] = useState<string | null>(null);
-  const [selRight, setSelRight] = useState<string | null>(null);
+  // Store pairs as indices for i18n compatibility
+  const [pairIndices, setPairIndices] = useState<Record<string, number>>({});
+  const [selLeftIdx, setSelLeftIdx] = useState<number | null>(null);
+  const [selRightIdx, setSelRightIdx] = useState<number | null>(null);
   const { t } = useTranslation('ui');
 
-  const unpairedLeft = (item.pairs_left || []).filter((l) => !(l in pairs));
-  const unpairedRight = (item.pairs_right || []).filter((r) => !Object.values(pairs).includes(r));
+  const pairs_left = item.pairs_left || [];
+  const pairs_right = item.pairs_right || [];
+
+  // Get unpaired indices
+  const pairedLeftIndices = Object.keys(pairIndices).map(k => parseInt(k));
+  const pairedRightIndices = Object.values(pairIndices);
+  const unpairedLeftIndices = pairs_left.map((_, i) => i).filter(i => !pairedLeftIndices.includes(i));
+  const unpairedRightIndices = pairs_right.map((_, i) => i).filter(i => !pairedRightIndices.includes(i));
 
   const addPair = () => {
-    if (!selLeft || !selRight) return;
-    setPairs((p) => ({ ...p, [selLeft]: selRight }));
-    setSelLeft(null);
-    setSelRight(null);
+    if (selLeftIdx === null || selRightIdx === null) return;
+    setPairIndices((p) => ({ ...p, [selLeftIdx.toString()]: selRightIdx }));
+    setSelLeftIdx(null);
+    setSelRightIdx(null);
   };
 
   return (
@@ -1791,19 +1883,19 @@ function MatchPairs({
         <div aria-label="left list">
           <h4 className="mb-3 text-sm font-semibold">{t('terms')}</h4>
           <div className="space-y-2">
-            {unpairedLeft.map((l) => (
+            {unpairedLeftIndices.map((idx) => (
               <button
-                key={l}
-                onClick={() => setSelLeft(l)}
+                key={idx}
+                onClick={() => setSelLeftIdx(idx)}
                 className={`w-full rounded-xl border-2 p-3 text-left text-sm transition-all hover-elevate ${
-                  selLeft === l
+                  selLeftIdx === idx
                     ? "border-primary bg-primary/5"
                     : "border-border hover:border-muted-foreground/30"
                 }`}
-                aria-label={`Select ${l}`}
-                data-testid={`term-${l}`}
+                aria-label={`Select ${pairs_left[idx]}`}
+                data-testid={`term-${idx}`}
               >
-                {l}
+                {pairs_left[idx]}
               </button>
             ))}
           </div>
@@ -1812,37 +1904,37 @@ function MatchPairs({
         <div aria-label="right list">
           <h4 className="mb-3 text-sm font-semibold">{t('roles')}</h4>
           <div className="space-y-2">
-            {unpairedRight.map((r) => (
+            {unpairedRightIndices.map((idx) => (
               <button
-                key={r}
-                onClick={() => setSelRight(r)}
+                key={idx}
+                onClick={() => setSelRightIdx(idx)}
                 className={`w-full rounded-xl border-2 p-3 text-left text-sm transition-all hover-elevate ${
-                  selRight === r
+                  selRightIdx === idx
                     ? "border-primary bg-primary/5"
                     : "border-border hover:border-muted-foreground/30"
                 }`}
-                aria-label={`Select ${r}`}
-                data-testid={`role-${r}`}
+                aria-label={`Select ${pairs_right[idx]}`}
+                data-testid={`role-${idx}`}
               >
-                {r}
+                {pairs_right[idx]}
               </button>
             ))}
           </div>
         </div>
       </div>
 
-      {(selLeft || selRight) && (
+      {(selLeftIdx !== null || selRightIdx !== null) && (
         <div className="flex items-center gap-3 p-4 rounded-xl bg-muted/30 border">
           <Badge variant="outline" className="shrink-0">Selected</Badge>
           <div className="flex items-center gap-2 flex-1 flex-wrap">
-            {selLeft && <span className="text-sm font-medium">{selLeft}</span>}
-            {selLeft && selRight && <span className="text-muted-foreground">→</span>}
-            {selRight && <span className="text-sm">{selRight}</span>}
+            {selLeftIdx !== null && <span className="text-sm font-medium">{pairs_left[selLeftIdx]}</span>}
+            {selLeftIdx !== null && selRightIdx !== null && <span className="text-muted-foreground">→</span>}
+            {selRightIdx !== null && <span className="text-sm">{pairs_right[selRightIdx]}</span>}
           </div>
           <Button
             size="sm"
             onClick={addPair}
-            disabled={!selLeft || !selRight}
+            disabled={selLeftIdx === null || selRightIdx === null}
             data-testid="button-add-pair"
           >
             <Check className="h-4 w-4 mr-2" />
@@ -1851,20 +1943,20 @@ function MatchPairs({
         </div>
       )}
 
-      {Object.keys(pairs).length > 0 && (
+      {Object.keys(pairIndices).length > 0 && (
         <div>
           <h4 className="mb-3 text-sm font-semibold">{t('your_pairs')}</h4>
           <div className="grid gap-2 md:grid-cols-2">
-            {Object.entries(pairs).map(([l, r]) => (
+            {Object.entries(pairIndices).map(([leftIdx, rightIdx]) => (
               <div
-                key={l}
+                key={leftIdx}
                 className="flex items-center gap-2 rounded-xl border bg-card p-3 text-sm"
-                data-testid={`pair-${l}`}
+                data-testid={`pair-${leftIdx}`}
               >
                 <Check className="h-4 w-4 text-green-600 shrink-0" />
-                <span className="font-semibold">{l}</span>
+                <span className="font-semibold">{pairs_left[parseInt(leftIdx)]}</span>
                 <span className="text-muted-foreground">→</span>
-                <span className="flex-1">{r}</span>
+                <span className="flex-1">{pairs_right[rightIdx]}</span>
               </div>
             ))}
           </div>
@@ -1873,8 +1965,8 @@ function MatchPairs({
 
       <div className="flex gap-3 flex-wrap">
         <Button
-          onClick={() => onSubmit({ pairs })}
-          disabled={Object.keys(pairs).length === 0}
+          onClick={() => onSubmit({ pair_indices: pairIndices })}
+          disabled={Object.keys(pairIndices).length === 0}
           data-testid="button-submit"
         >
           <Check className="h-4 w-4 mr-2" />
@@ -2485,5 +2577,14 @@ export default function IoTLearningLab() {
       
       <TelemetryPanel open={teleOpen} onClose={() => setTeleOpen(false)} />
     </div>
+  );
+}
+
+// Wrap with ErrorBoundary for graceful error handling
+export function IoTLearningLabWithErrorBoundary() {
+  return (
+    <ErrorBoundary>
+      <IoTLearningLab />
+    </ErrorBoundary>
   );
 }
