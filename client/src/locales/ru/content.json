@@ -139,8 +139,69 @@
         "vulnerability": ["", "", ""],
         "mitigation": ["", "", ""]
       },
+      "explanations": {
+        "IoT device with factory-set default password that was never changed.": {
+          "correct_bin": "",
+          "why": ""
+        },
+        "Putting all IoT devices on their own separate network.": {
+          "correct_bin": "",
+          "why": ""
+        },
+        "IoT device that cannot be updated over the network.": {
+          "correct_bin": "",
+          "why": ""
+        },
+        "Using strong, unique passwords for each IoT device.": {
+          "correct_bin": "",
+          "why": ""
+        },
+        "IoT device installed where anyone can easily reach it and open its case.": {
+          "correct_bin": "",
+          "why": ""
+        },
+        "Regularly installing software updates on all IoT devices.": {
+          "correct_bin": "",
+          "why": ""
+        }
+      },
       "misconceptions": {
         "segmentation_confused": {
+          "why": "",
+          "contrast": "",
+          "next_try": ""
+        }
+      },
+      "hints": ["", "", ""],
+      "exemplar": ""
+    },
+    "TRIAGE-2": {
+      "stimulus": "",
+      "cards": ["", "", "", ""],
+      "answer_correct": {
+        "vulnerability": ["", ""],
+        "mitigation": ["", ""]
+      },
+      "explanations": {
+        "Unencrypted data transmission between IoT devices and the cloud.": {
+          "correct_bin": "",
+          "why": ""
+        },
+        "Two-factor authentication for accessing IoT device controls.": {
+          "correct_bin": "",
+          "why": ""
+        },
+        "IoT device using an outdated operating system with known security flaws.": {
+          "correct_bin": "",
+          "why": ""
+        },
+        "Regular security audits and penetration testing of IoT systems.": {
+          "correct_bin": "",
+          "why": ""
+        }
+      },
+      "misconceptions": {
+        "encryption_confused": {
           "why": "",
           "contrast": "",
           "next_try": ""
