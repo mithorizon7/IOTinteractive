@@ -1,10 +1,10 @@
 {
-  "app_title": "IoT mini-spēles (iesācējiem)",
-  "app_sub": "Pielieto apgūtās zināšanas praksē: bez sarežģītas terminoloģijas, ar tūlītēju atgriezenisko saiti.",
+  "app_title": "IoT Mini-lietotnes",
+  "app_sub": "Izpēti, kā savienotās ierīces, sensori un tīkli sadarbojas, veidojot viedās sistēmas.",
   "start": "Sākt",
   "interactive_learning_badge": "Interaktīvā mācīšanās",
   "outcomes_subtitle": "Apgūsti šīs prasmes caur interaktīviem izaicinājumiem",
-  "game_types_title": "Interaktīvas mini-spēles",
+  "game_types_title": "Interaktīvas mini-lietotnes",
   "game_types_subtitle": "Četri aizraujoši veidi, kā mācīties",
   "game_decisionlab_name": "Lēmumu laboratorija",
   "game_decisionlab_desc": "Jā/Nē lēmumi ar pamatojumu",
