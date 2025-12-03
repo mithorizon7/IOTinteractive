@@ -1,0 +1,333 @@
+{
+  "outcomes": {
+    "OBJ-1": "Noteikt, vai scenārijs ir IoT piemērs, un paskaidrot kāpēc.",
+    "OBJ-2": "Izvēlēties piemērotu savienojamību (internets vai privāti tīkli; Wi-Fi, mobilie sakari, RFID).",
+    "OBJ-3": "Saskaņot tehnoloģijas ar to lomām IoT (5G, lielie dati/MI, digitālie dvīņi, kiberdrošība).",
+    "OBJ-4": "Pamanīt biežākās IoT drošības problēmas un izvēlēties efektīvus aizsardzības pasākumus.",
+    "OBJ-5": "Sakārtot IoT datu ciklu: Uztvert → Koplietot → Apstrādāt → Rīkoties."
+  },
+  "items": {
+    "IOT-1": {
+      "stimulus": "Bluetooth austiņas straumē mūziku no telefona. Vai tas atbilst IoT definīcijai, ko mēs lietojam?",
+      "option_ids": ["opt_yes", "opt_no"],
+      "options": ["Jā", "Nē"],
+      "answer_correct_id": "opt_no",
+      "answer_correct": "Nē",
+      "answer_rules": ["IoT lietojumprogrammas uztver vides datus, pēc tam tos koplieto, apstrādā un rīkojas atbilstoši."],
+      "misconceptions": {
+        "any_connected_is_iot": {
+          "why": "Ar bezvadu savienojumu vien nepietiek.",
+          "contrast": "IoT ietver vides uztveri un automātisku rīcību.",
+          "next_try": "Pārbaudi, vai ir vides uztveršana vai automātiska darbība."
+        }
+      },
+      "hints": [
+        "Vai šī ierīce uztver vidi vai automātiski uz to reaģē?",
+        "Mūsu definīcijai nepieciešams: uztvert → koplietot → apstrādāt → rīkoties.",
+        "Austiņas atskaņo audio, bet neuztver vidi un neveic automātiskas darbības."
+      ],
+      "exemplar": "Nē. Austiņas neuztver vidi un nerīkojas, pamatojoties uz uztvertajiem datiem."
+    },
+    "IOT-2": {
+      "stimulus": "Noliktavā uz paletēm tiek izmantotas RFID birkas. Vārtu lasītāji nolasa birkas un atjaunina inventāra sistēmu. Vai tas ir IoT?",
+      "option_ids": ["opt_yes", "opt_no"],
+      "options": ["Jā", "Nē"],
+      "answer_correct_id": "opt_yes",
+      "answer_correct": "Jā",
+      "answer_rules": ["Sistēma uztver (RFID), koplieto datus, apstrādā tos un izraisa darbības, piemēram, krājumu atjaunināšanu."],
+      "misconceptions": {
+        "rfid_not_iot": {
+          "why": "RFID var būt IoT daļa, ja tā uztver un koplieto objektu stāvokli.",
+          "contrast": "RFID lasītāji uztver birkas un atjaunina sistēmas reāllaikā.",
+          "next_try": "Pārvērtē ar ciklu 'uztvert → koplietot → apstrādāt → rīkoties'."
+        }
+      },
+      "hints": [
+        "Kas šeit tiek uztverts?",
+        "RFID lasītāji vārtos apkopo birku ID.",
+        "Dati atjaunina inventāru — tā ir rīcības posms."
+      ],
+      "exemplar": "Jā. RFID lasītāji uztver birku datus un izraisa inventāra darbības."
+    },
+    "IOT-3": {
+      "stimulus": "Viedais termostats izmanto kustību sensorus un grafiku, lai automātiski apsildītu māju. Vai tas ir IoT?",
+      "option_ids": ["opt_yes", "opt_no"],
+      "options": ["Jā", "Nē"],
+      "answer_correct_id": "opt_yes",
+      "answer_correct": "Jā",
+      "answer_rules": ["Sensori nosaka klātbūtni; dati tiek apstrādāti; apkure tiek pielāgota (rīcība)."],
+      "misconceptions": {
+        "needs_internet": {
+          "why": "'Internets' nav obligāts — pietiek ar ierīču tīklu, kas uztver un rīkojas.",
+          "contrast": "IoT var darboties lokālajos/privātajos tīklos.",
+          "next_try": "Koncentrējies uz ciklu, nevis publisko internetu."
+        }
+      },
+      "hints": [
+        "Vai ierīce uztver vidi?",
+        "Kāda darbība tiek veikta, pamatojoties uz uztvertajiem datiem?",
+        "Apkure pielāgojas kustībai/laikam: klasisks IoT piemērs."
+      ],
+      "exemplar": "Jā — uztver kustību un laiku, pēc tam regulē apkuri."
+    },
+    "IOT-4": {
+      "stimulus": "Portatīvais dators pārlūko tīmekli. Vai tas ir IoT?",
+      "option_ids": ["opt_yes", "opt_no"],
+      "options": ["Jā", "Nē"],
+      "answer_correct_id": "opt_no",
+      "answer_correct": "Nē",
+      "answer_rules": ["Universālie datori paši par sevi nav IoT."],
+      "misconceptions": {
+        "internet_equals_iot": {
+          "why": "Interneta lietošana vien ≠ IoT.",
+          "contrast": "Nepieciešama fiziskās pasaules uztveršana/darbība.",
+          "next_try": "Meklē uztvert→koplietot→apstrādāt→rīkoties."
+        }
+      },
+      "hints": [
+        "Vai tiek uztverts kaut kas fizisks?",
+        "Vienkārša pārlūkošana neuztver vidi.",
+        "Tātad tas nav IoT."
+      ],
+      "exemplar": "Nē — nav vides uztveršanas vai automātiskas darbības."
+    },
+    "NET-1": {
+      "stimulus": "Rūpnīcas sensori ziņo lokālajam serverim tikai ceha telpās. Izvēlies labāko savienojamību.",
+      "option_ids": ["opt_private", "opt_wifi", "opt_cellular", "opt_rfid"],
+      "options": [
+        "Privāts/lokāls tīkls (bez interneta)",
+        "Publiskais internets caur Wi-Fi",
+        "Mobilie sakari (4G/5G) + internets",
+        "Tikai RFID lasītāji (bez aktīvā radio uz sensoriem)"
+      ],
+      "answer_correct_id": "opt_private",
+      "answer_correct": "Privāts/lokāls tīkls (bez interneta)",
+      "answer_rules": ["IoT neprasa publisko internetu."],
+      "misconceptions": {
+        "must_use_internet": {
+          "why": "Publiskais internets nav obligāts IoT darbībai.",
+          "contrast": "Lokālie tīkli pilnībā var nodrošināt IoT lietojumprogrammas.",
+          "next_try": "Izvēlies variantu bez interneta, ja darbības notiek tikai uz vietas."
+        }
+      },
+      "hints": [
+        "Kur datiem jānonāk?",
+        "Tikai uz lokālo serveri.",
+        "Tad vislabāk der privāts/lokāls tīkls."
+      ],
+      "exemplar": "Privāts/lokāls tīkls — dati paliek uz vietas; internets nav nepieciešams."
+    },
+    "NET-2": {
+      "stimulus": "Piegādes uzņēmums izseko kastes pie vārtiem ar tuvas darbības lasītājiem. Labākā savienojamība?",
+      "option_ids": ["opt_rfid", "opt_wifi", "opt_cellular", "opt_private"],
+      "options": [
+        "Tikai RFID lasītāji (bez aktīvā radio uz sensoriem)",
+        "Publiskais internets caur Wi-Fi",
+        "Mobilie sakari (4G/5G) + internets",
+        "Privāts/lokāls tīkls (bez interneta)"
+      ],
+      "answer_correct_id": "opt_rfid",
+      "answer_correct": "Tikai RFID lasītāji (bez aktīvā radio uz sensoriem)",
+      "answer_rules": ["RFID vārti skenē pasīvās birkas."],
+      "misconceptions": {
+        "rfid_misunderstood": {
+          "why": "Scenārijs izmanto pasīvās RFID birkas.",
+          "contrast": "Lasītāji uztver birkas; priekšmetiem nav nepieciešams Wi-Fi/mobilais radio.",
+          "next_try": "Izvēlies RFID variantu."
+        }
+      },
+      "hints": [
+        "Kāda tehnoloģija skenē birkas pie vārtiem?",
+        "Domā par RFID.",
+        "Izvēlies RFID lasītājus."
+      ],
+      "exemplar": "RFID lasītāji — vārti skenē pasīvās birkas; nav nepieciešams Wi-Fi uz kastēm."
+    },
+    "NET-3": {
+      "stimulus": "Automašīna augšupielādē apkopes datus ražotājam no jebkuras vietas. Labākā savienojamība?",
+      "option_ids": ["opt_private", "opt_wifi", "opt_cellular", "opt_rfid"],
+      "options": [
+        "Privāts/lokāls tīkls (bez interneta)",
+        "Publiskais internets caur Wi-Fi",
+        "Mobilie sakari (4G/5G) + internets",
+        "Tikai RFID lasītāji (bez aktīvā radio uz sensoriem)"
+      ],
+      "answer_correct_id": "opt_cellular",
+      "answer_correct": "Mobilie sakari (4G/5G) + internets",
+      "answer_rules": ["Kustībā nepieciešams plaša apgabala pārklājums."],
+      "misconceptions": {
+        "wifi_everywhere": {
+          "why": "Wi-Fi pārklājums ir ierobežots ārpus piekļuves punktiem.",
+          "contrast": "Mobilie sakari ir paredzēti mobilitātei un plašam pārklājumam.",
+          "next_try": "Izvēlies mobilos sakarus + internetu."
+        }
+      },
+      "hints": [
+        "Vai nepieciešams pārklājums kustībā?",
+        "Wi-Fi ir ierobežots ar piekļuves punktiem.",
+        "Izmanto mobilos sakarus + internetu."
+      ],
+      "exemplar": "Mobilie sakari + internets pārklājumam jebkurā vietā."
+    },
+    "MATCH-1": {
+      "stimulus": "Saskaņo katru tehnoloģiju ar tās lomu IoT.",
+      "pairs_left": ["5G", "Lielie dati / MI", "Digitālais dvīnis", "Kiberdrošība"],
+      "pairs_right": [
+        "Lielas ietilpības bezvadu savienojums daudzām ierīcēm",
+        "Analizē lielas sensoru datu plūsmas, lai atrastu likumsakarības",
+        "Fiziskas sistēmas tiešsaistes virtuālā kopija",
+        "Samazina riskus (ielāpi, segmentācija, fiziska aizsardzība)"
+      ],
+      "answer_correct_indices": {"0": 0, "1": 1, "2": 2, "3": 3},
+      "answer_correct": {
+        "5G": "Lielas ietilpības bezvadu savienojums daudzām ierīcēm",
+        "Big data / AI": "Analizē lielas sensoru datu plūsmas, lai atrastu likumsakarības",
+        "Digital twin": "Fiziskas sistēmas tiešsaistes virtuālā kopija",
+        "Cybersecurity": "Samazina riskus (ielāpi, segmentācija, fiziska aizsardzība)"
+      },
+      "misconceptions": {
+        "twin_as_3d_only": {
+          "why": "Digitālais dvīnis nav tikai 3D vai tīkla tehnoloģija; tas ir ar datiem barots tiešsaistes modelis.",
+          "contrast": "Sensori baro dvīni, lai atspoguļotu reālo objektu.",
+          "next_try": "Saskaņo digitālo dvīni ar 'tiešsaistes virtuālo kopiju'."
+        }
+      },
+      "hints": [
+        "Kura tehnoloģija runā; kura domā; kura atspoguļo; kura aizsargā?",
+        "5G runā; MI domā; dvīnis atspoguļo; drošība aizsargā.",
+        "Saskaņo atbilstoši."
+      ],
+      "exemplar": "5G→ietilpība; MI→analīze; dvīnis→tiešsaistes kopija; drošība→risku mazināšana."
+    },
+    "TRIAGE-1": {
+      "stimulus": "Sakārto katru kartīti kategorijā Ievainojamība vai Aizsardzības pasākums.",
+      "cards": [
+        "Rūpnīcā iestatītas noklusējuma paroles izmantošana āra novērošanas kamerā.",
+        "IoT ierīce, ko nevar atjaunināt attālināti (jāierodas klātienē, lai instalētu atjauninājumus).",
+        "IoT ierīču izvietošana atsevišķā tīklā, lai tās nevarētu tieši piekļūt jutīgākām sistēmām.",
+        "Spēcīgu, unikālu paroļu izmantošana katrai IoT ierīcei un pieteikšanās kontam.",
+        "IoT ierīce, kas uzstādīta vietā, kur jebkurš var viegli to sasniegt un atvērt tās korpusu.",
+        "Regulāra programmatūras atjauninājumu instalēšana visās IoT ierīcēs."
+      ],
+      "answer_correct": {
+        "vulnerability": [
+          "Rūpnīcā iestatītas noklusējuma paroles izmantošana āra novērošanas kamerā.",
+          "IoT ierīce, ko nevar atjaunināt attālināti (jāierodas klātienē, lai instalētu atjauninājumus).",
+          "IoT ierīce, kas uzstādīta vietā, kur jebkurš var viegli to sasniegt un atvērt tās korpusu."
+        ],
+        "mitigation": [
+          "IoT ierīču izvietošana atsevišķā tīklā, lai tās nevarētu tieši piekļūt jutīgākām sistēmām.",
+          "Spēcīgu, unikālu paroļu izmantošana katrai IoT ierīcei un pieteikšanās kontam.",
+          "Regulāra programmatūras atjauninājumu instalēšana visās IoT ierīcēs."
+        ]
+      },
+      "explanations": {
+        "Rūpnīcā iestatītas noklusējuma paroles izmantošana āra novērošanas kamerā.": {
+          "correct_bin": "vulnerability",
+          "why": "Noklusējuma paroles ir plaši zināmas un uzbrucējiem viegli uzminamas, padarot ierīci neaizsargātu pret nesankcionētu piekļuvi."
+        },
+        "IoT ierīce, ko nevar atjaunināt attālināti (jāierodas klātienē, lai instalētu atjauninājumus).": {
+          "correct_bin": "vulnerability",
+          "why": "Ierīces, ko nevar atjaunināt attālināti, paliek neaizsargātas pret zināmām drošības problēmām, jo atjauninājumi ir sarežģīti un bieži tiek atlikti."
+        },
+        "IoT ierīču izvietošana atsevišķā tīklā, lai tās nevarētu tieši piekļūt jutīgākām sistēmām.": {
+          "correct_bin": "mitigation",
+          "why": "Tīkla segmentācija ierobežo kaitējumu, ja IoT ierīce tiek kompromitēta — tā ir aizsardzības stratēģija, kas padara sistēmu drošāku."
+        },
+        "Spēcīgu, unikālu paroļu izmantošana katrai IoT ierīcei un pieteikšanās kontam.": {
+          "correct_bin": "mitigation",
+          "why": "Spēcīgas, unikālas paroles novērš nesankcionētu piekļuvi un apgrūtina uzbrucējiem ierīču uzlaušanu."
+        },
+        "IoT ierīce, kas uzstādīta vietā, kur jebkurš var viegli to sasniegt un atvērt tās korpusu.": {
+          "correct_bin": "vulnerability",
+          "why": "Fiziska piekļuve ļauj manipulēt ar ierīci, to nozagt vai tieši uzbrukt tās iekšējām komponentēm."
+        },
+        "Regulāra programmatūras atjauninājumu instalēšana visās IoT ierīcēs.": {
+          "correct_bin": "mitigation",
+          "why": "Programmatūras atjauninājumi novērš drošības ievainojamības un aizsargā ierīces pret zināmām uzbrukuma metodēm."
+        }
+      },
+      "misconceptions": {
+        "segmentation_confused": {
+          "why": "IoT ierīču nodalīšana atsevišķā tīklā ierobežo kaitējumu, ja ierīce tiek kompromitēta.",
+          "contrast": "Tā ir aizsardzības kontrole, kas lokalizē problēmas, nevis pats par sevi risks.",
+          "next_try": "Ievieto šo tīkla nodalīšanas stratēģiju kategorijā Aizsardzības pasākums."
+        }
+      },
+      "hints": [
+        "Pajautā: vai tas padara sistēmu vājāku (ievainojamība) vai drošāku (aizsardzības pasākums)?",
+        "Spēcīgas paroles un regulāri atjauninājumi padara sistēmas drošākas.",
+        "Noklusējuma paroles, nespēja attālināti atjaunināt un viegla fiziska piekļuve padara sistēmas vājākas."
+      ],
+      "exemplar": "Ievainojamības: rūpnīcas paroles, ierīces bez attālinātas atjaunināšanas, ierīces, ko jebkurš var sasniegt un atvērt. Aizsardzības pasākumi: atsevišķs tīkls IoT ierīcēm, spēcīgas unikālas paroles, regulāri programmatūras atjauninājumi."
+    },
+    "TRIAGE-2": {
+      "stimulus": "Sakārto katru kartīti kategorijā Ievainojamība vai Aizsardzības pasākums.",
+      "cards": [
+        "Nešifrēta datu pārraide starp IoT ierīcēm un mākoni.",
+        "Divfaktoru autentifikācija IoT ierīču vadības piekļuvei.",
+        "IoT ierīce ar novecojušu operētājsistēmu, kurai ir zināmas drošības problēmas.",
+        "Regulārs drošības audits un iespiešanās testēšana IoT sistēmām."
+      ],
+      "answer_correct": {
+        "vulnerability": [
+          "Nešifrēta datu pārraide starp IoT ierīcēm un mākoni.",
+          "IoT ierīce ar novecojušu operētājsistēmu, kurai ir zināmas drošības problēmas."
+        ],
+        "mitigation": [
+          "Divfaktoru autentifikācija IoT ierīču vadības piekļuvei.",
+          "Regulārs drošības audits un iespiešanās testēšana IoT sistēmām."
+        ]
+      },
+      "explanations": {
+        "Nešifrēta datu pārraide starp IoT ierīcēm un mākoni.": {
+          "correct_bin": "vulnerability",
+          "why": "Nešifrētus datus uzbrucēji var pārtvert un nolasīt, atklājot sensitīvu informāciju."
+        },
+        "Divfaktoru autentifikācija IoT ierīču vadības piekļuvei.": {
+          "correct_bin": "mitigation",
+          "why": "Divfaktoru autentifikācija pievieno papildu drošības līmeni, būtiski apgrūtinot nesankcionētu piekļuvi."
+        },
+        "IoT ierīce ar novecojušu operētājsistēmu, kurai ir zināmas drošības problēmas.": {
+          "correct_bin": "vulnerability",
+          "why": "Novecojušām sistēmām ir zināmas ievainojamības, ko uzbrucēji var viegli izmantot."
+        },
+        "Regulārs drošības audits un iespiešanās testēšana IoT sistēmām.": {
+          "correct_bin": "mitigation",
+          "why": "Regulāras pārbaudes palīdz identificēt un novērst drošības vājās vietas, pirms uzbrucēji tās var izmantot."
+        }
+      },
+      "misconceptions": {
+        "encryption_confused": {
+          "why": "Nešifrēta datu pārraide ir ievainojamība, jo dati var tikt pārtverti.",
+          "contrast": "Šifrēšana aizsargā datus pārraides laikā, padarot to par aizsardzības pasākumu.",
+          "next_try": "Ievieto nešifrētu pārraidi kategorijā Ievainojamība."
+        }
+      },
+      "hints": [
+        "Pajautā: vai tas padara sistēmu vājāku (ievainojamība) vai drošāku (aizsardzības pasākums)?",
+        "Divfaktoru autentifikācija un auditi padara sistēmas drošākas.",
+        "Nešifrēti dati un novecojušas sistēmas padara sistēmas vājākas."
+      ],
+      "exemplar": "Ievainojamības: nešifrēti dati, novecojusi OS. Aizsardzības pasākumi: divfaktoru autentifikācija, drošības auditi."
+    },
+    "SEQ-1": {
+      "stimulus": "Sakārto IoT cikla posmus pareizā secībā.",
+      "steps": ["Rīkoties", "Koplietot", "Apstrādāt/Analizēt", "Uztvert"],
+      "answer_correct_order": ["Uztvert", "Koplietot", "Apstrādāt/Analizēt", "Rīkoties"],
+      "misconceptions": {
+        "act_first": {
+          "why": "Rīcība notiek pēc tam, kad dati ir uztvērti un analizēti.",
+          "contrast": "Pareizā secība ir Uztvert → Koplietot → Apstrādāt → Rīkoties.",
+          "next_try": "Novieto Uztvert sākumā."
+        }
+      },
+      "hints": [
+        "Kam jānotiek pirms rīcības?",
+        "Mums vispirms vajadzīgi dati un to analīze.",
+        "Uztvert, tad koplietot, tad apstrādāt, tad rīkoties."
+      ],
+      "exemplar": "Uztvert → Koplietot → Apstrādāt/Analizēt → Rīkoties."
+    }
+  }
+}
