@@ -29,7 +29,7 @@ The application is a pure frontend solution with no backend persistence, storing
 ## Translation Workflow
 
 ### Internationalization Architecture
-The application supports multiple languages (English, Finnish, Russian) using `react-i18next`. Content is separated into:
+The application supports multiple languages (English, Russian, Latvian) using `react-i18next`. Content is separated into:
 - **UI strings** (`client/src/locales/{lang}/ui.json`): Button labels, titles, static text
 - **Educational content** (`client/src/locales/{lang}/content.json`): Questions, options, hints, feedback
 
