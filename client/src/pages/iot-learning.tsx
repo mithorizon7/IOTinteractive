@@ -2299,7 +2299,7 @@ export default function IoTLearningLab() {
   };
   
   const handleSubmit = (response: any) => {
-    if (!response || (response.choice === undefined && !response.order && !response.pairs && !response.bins)) {
+    if (!response || (response.choice === undefined && !response.order && !response.pairs && !response.pair_indices && !response.bins)) {
       return; // Guard against empty submissions
     }
     
