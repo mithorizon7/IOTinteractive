@@ -4,26 +4,24 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 
 import enUI from '../locales/en/ui.json';
 import enContent from '../locales/en/content.json';
-// Uncomment when Finnish and Russian translations are complete:
-// import fiUI from '../locales/fi/ui.json';
-// import fiContent from '../locales/fi/content.json';
-// import ruUI from '../locales/ru/ui.json';
-// import ruContent from '../locales/ru/content.json';
+import ruUI from '../locales/ru/ui.json';
+import ruContent from '../locales/ru/content.json';
+import lvUI from '../locales/lv/ui.json';
+import lvContent from '../locales/lv/content.json';
 
 const resources = {
   en: {
     ui: enUI,
     content: enContent,
   },
-  // Uncomment when translations are ready:
-  // fi: {
-  //   ui: fiUI,
-  //   content: fiContent,
-  // },
-  // ru: {
-  //   ui: ruUI,
-  //   content: ruContent,
-  // },
+  ru: {
+    ui: ruUI,
+    content: ruContent,
+  },
+  lv: {
+    ui: lvUI,
+    content: lvContent,
+  },
 };
 
 i18n
@@ -32,7 +30,7 @@ i18n
   .init({
     resources,
     fallbackLng: 'en',
-    supportedLngs: ['en'], // Add 'fi', 'ru' when translations are ready
+    supportedLngs: ['en', 'ru', 'lv'],
     defaultNS: 'ui',
     ns: ['ui', 'content'],
     

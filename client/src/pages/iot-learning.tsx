@@ -940,8 +940,8 @@ function LanguageSwitcher() {
   
   const languageNames: Record<string, string> = {
     en: "English",
-    fi: "Suomi",
-    ru: "Русский"
+    ru: "Русский",
+    lv: "Latviešu"
   };
   
   const handleLanguageChange = (newLang: string) => {
