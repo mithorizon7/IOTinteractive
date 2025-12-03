@@ -1,10 +1,10 @@
 {
   "outcomes": {
-    "OBJ-1": "Noteikt, vai scenārijs ir IoT piemērs, un paskaidrot kāpēc.",
-    "OBJ-2": "Izvēlēties piemērotu savienojamību (internets vai privāti tīkli; Wi-Fi, mobilie sakari, RFID).",
-    "OBJ-3": "Saskaņot tehnoloģijas ar to lomām IoT (5G, lielie dati/MI, digitālie dvīņi, kiberdrošība).",
-    "OBJ-4": "Pamanīt biežākās IoT drošības problēmas un izvēlēties efektīvus aizsardzības pasākumus.",
-    "OBJ-5": "Sakārtot IoT datu ciklu: Uztvert → Koplietot → Apstrādāt → Rīkoties."
+    "OBJ-1": "Kas padara ierīci par IoT",
+    "OBJ-2": "Savienojamības iespējas",
+    "OBJ-3": "Pamattehnoloģijas",
+    "OBJ-4": "Drošība un privātums",
+    "OBJ-5": "Datu cikls"
   },
   "items": {
     "IOT-1": {

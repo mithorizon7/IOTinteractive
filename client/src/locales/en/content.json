@@ -1,10 +1,10 @@
 {
   "outcomes": {
-    "OBJ-1": "Decide whether a scenario is IoT and explain why/why not.",
-    "OBJ-2": "Choose appropriate connectivity (internet vs private networks; Wi-Fi, cellular, RFID).",
-    "OBJ-3": "Match overlapping tech to its role (5G, big data/AI, digital twins, cybersecurity).",
-    "OBJ-4": "Spot common IoT security pitfalls and choose effective mitigations.",
-    "OBJ-5": "Sequence the IoT data loop: Sense → Share → Process → Act."
+    "OBJ-1": "What Makes Something IoT",
+    "OBJ-2": "Connectivity Options",
+    "OBJ-3": "Enabling Technologies",
+    "OBJ-4": "Security & Privacy",
+    "OBJ-5": "The Data Loop"
   },
   "items": {
     "IOT-1": {

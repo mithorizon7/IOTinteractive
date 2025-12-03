@@ -1065,10 +1065,9 @@ function OutcomeList({ outcomes }: { outcomes: Array<{ id: string; text: string 
     <section className="space-y-6">
       <div className="text-center">
         <h2 className="text-xl font-semibold text-foreground">{t('outcomes_header')}</h2>
-        <p className="text-sm text-muted-foreground mt-1">{t('outcomes_subtitle')}</p>
       </div>
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {outcomes.map((outcome, index) => {
+        {outcomes.map((outcome) => {
           const IconComponent = outcomeIcons[outcome.id] || Target;
           return (
             <div 
@@ -1080,12 +1079,7 @@ function OutcomeList({ outcomes }: { outcomes: Array<{ id: string; text: string 
                 <div className="shrink-0 w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
                   <IconComponent className="w-5 h-5 text-primary" />
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-medium text-muted-foreground">{outcome.id}</span>
-                  </div>
-                  <p className="text-sm leading-relaxed text-foreground">{outcome.text}</p>
-                </div>
+                <p className="text-sm leading-relaxed text-foreground pt-2">{outcome.text}</p>
               </div>
             </div>
           );
