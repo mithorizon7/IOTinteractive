@@ -26,6 +26,57 @@ The frontend is a comprehensive React 18 application built with TypeScript, util
 ### System Design Choices
 The application is a pure frontend solution with no backend persistence, storing telemetry events and session progress in `localStorage`. Content is externalized in JSON translation files for easy internationalization, allowing for a self-contained, deployable unit without server-side dependencies beyond serving static files. The internationalization architecture uses `react-i18next` with a clear separation of UI strings and educational content, enabling translators to work solely with JSON files.
 
+## Translation Workflow
+
+### Internationalization Architecture
+The application supports multiple languages (English, Finnish, Russian) using `react-i18next`. Content is separated into:
+- **UI strings** (`client/src/locales/{lang}/ui.json`): Button labels, titles, static text
+- **Educational content** (`client/src/locales/{lang}/content.json`): Questions, options, hints, feedback
+
+### Key i18n Design Decisions
+1. **Locale-Independent Evaluation**: All answer evaluation uses stable IDs instead of text comparison:
+   - DecisionLab: `option_ids` array with `answer_correct_id` (e.g., `opt_yes`, `opt_no`)
+   - MatchPairs: `answer_correct_indices` for index-based pair matching
+   - Triage: Card indices for classification validation
+
+2. **Translation Workflow**:
+   - Translators only edit JSON files in `client/src/locales/{lang}/`
+   - No code changes required for adding translations
+   - Keep `option_ids` and `answer_correct_indices` identical across all locales
+
+3. **Adding a New Language**:
+   - Copy `client/src/locales/en/` folder to new locale (e.g., `de/`)
+   - Translate all string values in `ui.json` and `content.json`
+   - Add the locale to `client/src/i18n/config.ts` resources
+   - Add language option to `LanguageSwitcher` component
+
+### Content Structure
+```json
+// content.json structure for DecisionLab items
+{
+  "ITEM-ID": {
+    "stimulus": "Question text",
+    "option_ids": ["opt_a", "opt_b", "opt_c"],  // Stable IDs
+    "options": ["Option A text", "Option B text", "Option C text"],
+    "answer_correct_id": "opt_a",  // Correct answer ID
+    "answer_correct": "Option A text"  // Display text
+  }
+}
+
+// content.json structure for MatchPairs items
+{
+  "MATCH-ID": {
+    "pairs_left": ["Term 1", "Term 2"],
+    "pairs_right": ["Definition 1", "Definition 2"],
+    "answer_correct_indices": {"0": 0, "1": 1}  // Index mapping
+  }
+}
+```
+
+## Error Handling
+- **ErrorBoundary**: Wraps the main application to catch and gracefully handle runtime errors
+- **Session Persistence**: Automatically saves progress to localStorage, allowing session recovery
+
 ## External Dependencies
 - **React**: Frontend library
 - **TypeScript**: Superset of JavaScript for type safety
