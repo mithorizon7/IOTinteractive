@@ -2590,26 +2590,15 @@ export default function IoTLearningLab() {
                 <p className="text-muted-foreground mb-6">
                   {t('cta_challenges', { count: content.items.length, objectives: content.metadata.outcomes.length })}
                 </p>
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                  <Button 
-                    size="lg" 
-                    className="px-8 h-12 text-base gap-2 shadow-lg shadow-primary/20" 
-                    onClick={handleStart} 
-                    data-testid="button-start"
-                  >
-                    <Play className="h-5 w-5" />
-                    {t('start')}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setTeleOpen(true)}
-                    className="text-muted-foreground"
-                    data-testid="button-view-telemetry-prestart"
-                  >
-                    {t('view_log')}
-                  </Button>
-                </div>
+                <Button 
+                  size="lg" 
+                  className="px-8 h-12 text-base gap-2 shadow-lg shadow-primary/20" 
+                  onClick={handleStart} 
+                  data-testid="button-start"
+                >
+                  <Play className="h-5 w-5" />
+                  {t('start')}
+                </Button>
               </div>
             </div>
           </div>
