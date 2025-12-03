@@ -1862,11 +1862,16 @@ function MatchPairs({
   const pairs_left = item.pairs_left || [];
   const pairs_right = item.pairs_right || [];
 
-  // Get unpaired indices
+  // Scramble both sides on mount - useMemo ensures stable order during session
+  const shuffledLeftOrder = useMemo(() => shuffle(pairs_left.map((_, i) => i)), [item.id]);
+  const shuffledRightOrder = useMemo(() => shuffle(pairs_right.map((_, i) => i)), [item.id]);
+
+  // Get unpaired indices (in original index space)
   const pairedLeftIndices = Object.keys(pairIndices).map(k => parseInt(k));
   const pairedRightIndices = Object.values(pairIndices);
-  const unpairedLeftIndices = pairs_left.map((_, i) => i).filter(i => !pairedLeftIndices.includes(i));
-  const unpairedRightIndices = pairs_right.map((_, i) => i).filter(i => !pairedRightIndices.includes(i));
+  // Filter shuffled orders to get unpaired items in scrambled display order
+  const unpairedLeftIndices = shuffledLeftOrder.filter(i => !pairedLeftIndices.includes(i));
+  const unpairedRightIndices = shuffledRightOrder.filter(i => !pairedRightIndices.includes(i));
 
   const addPair = () => {
     if (selLeftIdx === null || selRightIdx === null) return;
