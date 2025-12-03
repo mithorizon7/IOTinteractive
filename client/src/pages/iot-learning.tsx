@@ -909,7 +909,7 @@ function CompletionScreen({
           <div className="flex flex-col sm:flex-row gap-3">
             <Button
               size="lg"
-              className="flex-1"
+              className="flex-1 min-h-12 md:min-h-10"
               onClick={onRestart}
               data-testid="button-restart-session"
             >
@@ -919,7 +919,7 @@ function CompletionScreen({
             <Button
               size="lg"
               variant="outline"
-              className="flex-1"
+              className="flex-1 min-h-12 md:min-h-10"
               onClick={onDownloadTelemetry}
               data-testid="button-download-completion"
             >
@@ -961,7 +961,7 @@ function LanguageSwitcher() {
   
   return (
     <Select value={i18n.language} onValueChange={handleLanguageChange}>
-      <SelectTrigger className="w-[140px]" data-testid="language-switcher">
+      <SelectTrigger className="w-[140px] min-h-11 md:min-h-9" data-testid="language-switcher">
         <Languages className="h-4 w-4 mr-2" />
         <SelectValue />
       </SelectTrigger>
@@ -1035,10 +1035,11 @@ function Header({
             <Button
               variant="outline"
               size="sm"
+              className="h-11 w-11 md:h-8 md:w-8 p-0"
               onClick={onTelemetryToggle}
               data-testid="button-telemetry-toggle"
             >
-              <ListChecks className="h-4 w-4" />
+              <ListChecks className="h-5 w-5 md:h-4 md:w-4" />
             </Button>
           </div>
         </div>
@@ -1232,7 +1233,7 @@ function DecisionLab({
         {options.map((opt, idx) => (
           <label
             key={optionIds[idx] || idx}
-            className={`flex items-center gap-3 rounded-xl border-2 p-4 cursor-pointer transition-all hover-elevate ${
+            className={`flex items-center gap-3 rounded-xl border-2 p-4 cursor-pointer transition-all hover-elevate min-h-14 md:min-h-0 ${
               choiceIndex === idx
                 ? "border-primary bg-primary/5"
                 : "border-border hover:border-muted-foreground/30"
@@ -1241,7 +1242,7 @@ function DecisionLab({
           >
             <input
               type="radio"
-              className="h-4 w-4 text-primary focus:ring-2 focus:ring-primary"
+              className="h-5 w-5 md:h-4 md:w-4 text-primary focus:ring-2 focus:ring-primary"
               name={`choice-${item.id}`}
               value={optionIds[idx] || idx}
               checked={choiceIndex === idx}
@@ -1273,12 +1274,13 @@ function DecisionLab({
         <Button
           onClick={handleSubmit}
           disabled={choiceIndex === null}
+          className="min-h-11 md:min-h-9"
           data-testid="button-submit"
         >
           <Check className="h-4 w-4 mr-2" />
           {t('submit')}
         </Button>
-        <Button variant="outline" onClick={onHint} data-testid="button-hint">
+        <Button variant="outline" onClick={onHint} className="min-h-11 md:min-h-9" data-testid="button-hint">
           <HelpCircle className="h-4 w-4 mr-2" />
           {hintUsed ? t('use_hint') : t('show_hint')}
         </Button>
@@ -1598,21 +1600,21 @@ function Triage({
                       size="icon"
                       variant="outline"
                       onClick={() => moveCard(c, "unplaced", "vulnerability")}
-                      className="h-8 w-8 bg-destructive/5 border-destructive/30 hover:bg-destructive/10 text-destructive"
+                      className="h-11 w-11 md:h-8 md:w-8 bg-destructive/5 border-destructive/30 hover:bg-destructive/10 text-destructive"
                       aria-label="Mark as vulnerability"
                       data-testid={`place-vulnerability-${c}`}
                     >
-                      <AlertTriangle className="h-4 w-4" />
+                      <AlertTriangle className="h-5 w-5 md:h-4 md:w-4" />
                     </Button>
                     <Button
                       size="icon"
                       variant="outline"
                       onClick={() => moveCard(c, "unplaced", "mitigation")}
-                      className="h-8 w-8 bg-green-600/5 border-green-600/30 hover:bg-green-600/10 text-green-600 dark:text-green-500"
+                      className="h-11 w-11 md:h-8 md:w-8 bg-green-600/5 border-green-600/30 hover:bg-green-600/10 text-green-600 dark:text-green-500"
                       aria-label="Mark as mitigation"
                       data-testid={`place-mitigation-${c}`}
                     >
-                      <Shield className="h-4 w-4" />
+                      <Shield className="h-5 w-5 md:h-4 md:w-4" />
                     </Button>
                   </div>
                 </div>
@@ -1679,21 +1681,21 @@ function Triage({
                         size="icon"
                         variant="ghost"
                         onClick={() => moveCard(c, "vulnerability", "mitigation")}
-                        className="h-8 w-8 text-green-600 dark:text-green-500"
+                        className="h-11 w-11 md:h-8 md:w-8 text-green-600 dark:text-green-500"
                         aria-label="Move to mitigation"
                         data-testid={`move-to-mitigation-${c}`}
                       >
-                        <ArrowRight className="h-4 w-4" />
+                        <ArrowRight className="h-5 w-5 md:h-4 md:w-4" />
                       </Button>
                       <Button
                         size="icon"
                         variant="ghost"
                         onClick={() => moveCard(c, "vulnerability", "unplaced")}
-                        className="h-8 w-8"
+                        className="h-11 w-11 md:h-8 md:w-8"
                         aria-label="Remove card"
                         data-testid={`remove-${c}`}
                       >
-                        <X className="h-4 w-4" />
+                        <X className="h-5 w-5 md:h-4 md:w-4" />
                       </Button>
                     </div>
                   )}
@@ -1763,17 +1765,17 @@ function Triage({
                         size="icon"
                         variant="ghost"
                         onClick={() => moveCard(c, "mitigation", "vulnerability")}
-                        className="h-8 w-8 text-destructive"
+                        className="h-11 w-11 md:h-8 md:w-8 text-destructive"
                         aria-label="Move to vulnerability"
                         data-testid={`move-to-vulnerability-${c}`}
                       >
-                        <ArrowLeft className="h-4 w-4" />
+                        <ArrowLeft className="h-5 w-5 md:h-4 md:w-4" />
                       </Button>
                       <Button
                         size="icon"
                         variant="ghost"
                         onClick={() => moveCard(c, "mitigation", "unplaced")}
-                        className="h-8 w-8"
+                        className="h-11 w-11 md:h-8 md:w-8"
                         aria-label="Remove card"
                         data-testid={`remove-from-mitigation-${c}`}
                       >
@@ -1806,7 +1808,7 @@ function Triage({
             onClick={handleSubmit} 
             disabled={!isComplete}
             data-testid="button-submit"
-            className="min-w-[120px]"
+            className="min-w-[120px] min-h-11 md:min-h-9"
           >
             <Check className="h-4 w-4 mr-2" />
             Check Answer
@@ -1815,7 +1817,7 @@ function Triage({
           <Button 
             onClick={() => onSubmit({ bins, attempts_before_correct: attempts })} 
             data-testid="button-continue"
-            className="min-w-[120px]"
+            className="min-w-[120px] min-h-11 md:min-h-9"
           >
             <ChevronRight className="h-4 w-4 mr-2" />
             {t('continue')}
@@ -1825,17 +1827,17 @@ function Triage({
             variant="outline"
             onClick={handleRetry} 
             data-testid="button-try-again"
-            className="min-w-[120px]"
+            className="min-w-[120px] min-h-11 md:min-h-9"
           >
             <RefreshCw className="h-4 w-4 mr-2" />
             {t('try_again')}
           </Button>
         )}
-        <Button variant="outline" onClick={onHint} data-testid="button-hint">
+        <Button variant="outline" onClick={onHint} className="min-h-11 md:min-h-9" data-testid="button-hint">
           <HelpCircle className="h-4 w-4 mr-2" />
           {hintUsed ? t('use_hint') : t('show_hint')}
         </Button>
-        <Button variant="outline" onClick={reset} data-testid="button-reset">
+        <Button variant="outline" onClick={reset} className="min-h-11 md:min-h-9" data-testid="button-reset">
           <RefreshCw className="h-4 w-4 mr-2" />
           {t('reset')}
         </Button>
@@ -1893,7 +1895,7 @@ function Sequencer({
               <Button
                 variant="outline"
                 size="sm"
-                className="h-8 w-8 p-0"
+                className="h-11 w-11 md:h-8 md:w-8 p-0 text-base md:text-sm"
                 onClick={() => move(i, -1)}
                 disabled={i === 0}
                 aria-label={`Move ${s} up`}
@@ -1904,7 +1906,7 @@ function Sequencer({
               <Button
                 variant="outline"
                 size="sm"
-                className="h-8 w-8 p-0"
+                className="h-11 w-11 md:h-8 md:w-8 p-0 text-base md:text-sm"
                 onClick={() => move(i, 1)}
                 disabled={i === order.length - 1}
                 aria-label={`Move ${s} down`}
@@ -1918,11 +1920,11 @@ function Sequencer({
       </ul>
 
       <div className="flex gap-3 flex-wrap">
-        <Button onClick={() => onSubmit({ order })} data-testid="button-submit">
+        <Button onClick={() => onSubmit({ order })} className="min-h-11 md:min-h-9" data-testid="button-submit">
           <Check className="h-4 w-4 mr-2" />
           {t('submit')}
         </Button>
-        <Button variant="outline" onClick={onHint} data-testid="button-hint">
+        <Button variant="outline" onClick={onHint} className="min-h-11 md:min-h-9" data-testid="button-hint">
           <HelpCircle className="h-4 w-4 mr-2" />
           {hintUsed ? t('use_hint') : t('show_hint')}
         </Button>
@@ -1981,7 +1983,7 @@ function MatchPairs({
               <button
                 key={idx}
                 onClick={() => setSelLeftIdx(idx)}
-                className={`w-full rounded-xl border-2 p-3 text-left text-sm transition-all hover-elevate ${
+                className={`w-full rounded-xl border-2 p-3 text-left text-sm transition-all hover-elevate min-h-12 md:min-h-0 ${
                   selLeftIdx === idx
                     ? "border-primary bg-primary/5"
                     : "border-border hover:border-muted-foreground/30"
@@ -2002,7 +2004,7 @@ function MatchPairs({
               <button
                 key={idx}
                 onClick={() => setSelRightIdx(idx)}
-                className={`w-full rounded-xl border-2 p-3 text-left text-sm transition-all hover-elevate ${
+                className={`w-full rounded-xl border-2 p-3 text-left text-sm transition-all hover-elevate min-h-12 md:min-h-0 ${
                   selRightIdx === idx
                     ? "border-primary bg-primary/5"
                     : "border-border hover:border-muted-foreground/30"
@@ -2029,6 +2031,7 @@ function MatchPairs({
             size="sm"
             onClick={addPair}
             disabled={selLeftIdx === null || selRightIdx === null}
+            className="min-h-11 md:min-h-8"
             data-testid="button-add-pair"
           >
             <Check className="h-4 w-4 mr-2" />
@@ -2061,12 +2064,13 @@ function MatchPairs({
         <Button
           onClick={() => onSubmit({ pair_indices: pairIndices })}
           disabled={Object.keys(pairIndices).length === 0}
+          className="min-h-11 md:min-h-9"
           data-testid="button-submit"
         >
           <Check className="h-4 w-4 mr-2" />
           {t('submit')}
         </Button>
-        <Button variant="outline" onClick={onHint} data-testid="button-hint">
+        <Button variant="outline" onClick={onHint} className="min-h-11 md:min-h-9" data-testid="button-hint">
           <HelpCircle className="h-4 w-4 mr-2" />
           {hintUsed ? t('use_hint') : t('show_hint')}
         </Button>
@@ -2170,12 +2174,12 @@ function Feedback({
       {/* Action buttons */}
       <div className="flex gap-3 flex-wrap pt-4">
         {feedbackState.correct ? (
-          <Button onClick={onNext} size="lg" data-testid="button-next">
+          <Button onClick={onNext} size="lg" className="min-h-12 md:min-h-10" data-testid="button-next">
             <ChevronRight className="h-4 w-4 mr-2" />
             {t('next_item')}
           </Button>
         ) : (
-          <Button onClick={onRetry} size="lg" data-testid="button-retry">
+          <Button onClick={onRetry} size="lg" className="min-h-12 md:min-h-10" data-testid="button-retry">
             <RefreshCw className="h-4 w-4 mr-2" />
             {t('try_again')}
           </Button>
