@@ -2533,11 +2533,8 @@ export default function IoTLearningLab() {
         <header className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
           <div className="container mx-auto max-w-6xl px-4 py-3">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-                  <Cpu className="w-4 h-4 text-primary-foreground" />
-                </div>
-                <span className="font-semibold text-sm hidden sm:block">IoT Learning</span>
+              <div className="flex items-center">
+                <img src={iotLogo} alt="Applying IoT" className="h-10 w-auto" />
               </div>
               <LanguageSwitcher />
             </div>
