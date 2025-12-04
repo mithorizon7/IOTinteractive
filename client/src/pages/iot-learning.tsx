@@ -1,6 +1,7 @@
 import { Component, useState, useMemo, useEffect, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import i18n from "@/i18n/config";
+import iotLogo from "@assets/iot_1764880945611.png";
 import {
   Check,
   X,
@@ -998,7 +999,10 @@ function Header({
       <div className="container mx-auto max-w-6xl px-4 py-4">
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <div className="flex-1 min-w-[200px]">
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">{t('app_title')}</h1>
+            <div className="flex items-center gap-3">
+              <img src={iotLogo} alt="IoT Logo" className="h-8 md:h-10 w-auto" />
+              <h1 className="text-2xl md:text-3xl font-bold tracking-tight">{t('app_title')}</h1>
+            </div>
             <div className="flex items-center gap-3 mt-1">
               <p className="text-sm text-muted-foreground">{t('app_sub')}</p>
               <Badge variant="outline" className="text-xs" data-testid="progress-indicator">
@@ -2548,9 +2552,12 @@ export default function IoTLearningLab() {
                 <Sparkles className="w-4 h-4" />
                 <span>{t('interactive_learning_badge')}</span>
               </div>
-              <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
-                {t('app_title')}
-              </h1>
+              <div className="flex items-center justify-center gap-4 mb-4">
+                <img src={iotLogo} alt="IoT Logo" className="h-12 md:h-16 w-auto" />
+                <h1 className="text-4xl md:text-5xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
+                  {t('app_title')}
+                </h1>
+              </div>
               <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
                 {t('app_sub')}
               </p>
