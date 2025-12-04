@@ -1033,14 +1033,6 @@ function Header({
               </div>
             </div>
             <LanguageSwitcher />
-            <Button
-              variant="outline"
-              className="h-[44px] w-[44px] min-h-[44px] min-w-[44px] p-0 md:h-8 md:w-8 md:min-h-8 md:min-w-8"
-              onClick={onTelemetryToggle}
-              data-testid="button-telemetry-toggle"
-            >
-              <ListChecks className="h-5 w-5" />
-            </Button>
           </div>
         </div>
       </div>
