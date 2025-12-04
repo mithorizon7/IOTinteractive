@@ -15,7 +15,7 @@ The IoT Interactive Learning Engine is an educational web application designed t
 The application features an accessible, responsive UI with light/dark mode support, inspired by Material Design 3 and educational platforms like Khan Academy and Duolingo. It exclusively uses the Inter font for typography and follows an indigo primary color scheme with semantic colors for feedback. Interaction design prioritizes clear feedback, progressive disclosure, and minimal animations.
 
 ### Technical Implementations
-The frontend is a comprehensive React 18 application built with TypeScript, utilizing Shadcn/ui and Radix UI primitives for components, and Tailwind CSS for styling. State management is handled with React hooks. The application implements four core game mechanics: DecisionLab (multiple choice), Triage (drag-and-drop classification), Sequencer (ordering tasks), and MatchPairs (matching items). It includes a feedback system with misconception detection and mastery tracking (streak, average time, hints used).
+The frontend is a comprehensive React 18 application built with TypeScript, utilizing Shadcn/ui and Radix UI primitives for components, and Tailwind CSS for styling. State management is handled with React hooks. The application implements four core game mechanics: DecisionLab (multiple choice), Triage (drag-and-drop classification), Sequencer (ordering tasks), and MatchPairs (matching items). It includes a feedback system with misconception detection, mastery tracking (streak, average time, hints used), and a telemetry system for progress tracking and CSV export.
 
 ### Feature Specifications
 - **Learning Progression**: A sequential-then-adaptive system ensures learners cover all items once before focusing on incorrectly answered or least-seen items.
@@ -25,7 +25,7 @@ The frontend is a comprehensive React 18 application built with TypeScript, util
 - **Mobile Touch Targets**: All interactive elements comply with WCAG 2.1 AA requirements (minimum 44×44px touch targets on mobile). Implemented using Tailwind arbitrary values: `min-h-[44px] md:min-h-9` for buttons, `h-[44px] w-[44px] min-h-[44px] min-w-[44px] p-0 md:h-8 md:w-8` for icon buttons. The Triage game uses tap-to-place icons as mobile-friendly alternatives to drag-and-drop.
 
 ### System Design Choices
-The application is a pure frontend solution with no backend persistence, storing session progress in `localStorage`. Content is externalized in JSON translation files for easy internationalization, allowing for a self-contained, deployable unit without server-side dependencies beyond serving static files. The internationalization architecture uses `react-i18next` with a clear separation of UI strings and educational content, enabling translators to work solely with JSON files.
+The application is a pure frontend solution with no backend persistence, storing telemetry events and session progress in `localStorage`. Content is externalized in JSON translation files for easy internationalization, allowing for a self-contained, deployable unit without server-side dependencies beyond serving static files. The internationalization architecture uses `react-i18next` with a clear separation of UI strings and educational content, enabling translators to work solely with JSON files.
 
 ## Translation Workflow
 

@@ -8,10 +8,12 @@ import {
   TimerIcon,
   RefreshCw,
   ChevronRight,
+  ListChecks,
   Undo2,
   Trophy,
   Clock,
   Flame,
+  Download,
   GripVertical,
   AlertTriangle,
   Shield,
@@ -45,6 +47,7 @@ import { Languages } from "lucide-react";
  * - Feedback system with misconception-specific messaging
  * - Mastery tracking (streak, avg time, hints)
  * - Sequential-then-adaptive progression
+ * - Telemetry recording
  * - Accessible, beautiful UI following design guidelines
  */
 
@@ -584,8 +587,9 @@ function arraysEqual<T>(a: T[] | undefined, b: T[] | undefined): boolean {
 }
 
 /*************************
- * Session Storage        *
+ * Telemetry & Session Storage *
  *************************/
+const TELEMETRY_KEY = "iot_minigames_telemetry_v1";
 const SESSION_KEY = "iot_minigames_session_v1";
 
 function sanitizeForJSON(obj: any): any {
@@ -608,6 +612,45 @@ function sanitizeForJSON(obj: any): any {
     }
   }
   return cleaned;
+}
+
+function recordEvent(evt: any) {
+  try {
+    const sanitized = sanitizeForJSON({ ...evt, ts: new Date().toISOString() });
+    const arr = JSON.parse(localStorage.getItem(TELEMETRY_KEY) || "[]");
+    arr.push(sanitized);
+    localStorage.setItem(TELEMETRY_KEY, JSON.stringify(arr));
+    console.log("[telemetry]", sanitized);
+  } catch (err) {
+    console.warn("[telemetry] Failed to record event:", err);
+  }
+}
+
+function getTelemetry(): any[] {
+  try {
+    return JSON.parse(localStorage.getItem(TELEMETRY_KEY) || "[]");
+  } catch {
+    return [];
+  }
+}
+
+function downloadTelemetryCSV() {
+  const data = getTelemetry();
+  if (data.length === 0) return;
+  
+  const headers = Object.keys(data[0]);
+  const csv = [
+    headers.join(","),
+    ...data.map((row) => headers.map((h) => JSON.stringify(row[h] || "")).join(",")),
+  ].join("\n");
+  
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `iot-telemetry-${new Date().toISOString()}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 /*************************
@@ -791,10 +834,12 @@ function CompletionScreen({
   mastery,
   history,
   onRestart,
+  onDownloadTelemetry,
 }: {
   mastery: any;
   history: HistoryEntry[];
   onRestart: () => void;
+  onDownloadTelemetry: () => void;
 }) {
   const { t } = useTranslation('ui');
   const totalTime = history.reduce((sum, h) => sum + h.latency_ms, 0);
@@ -862,15 +907,25 @@ function CompletionScreen({
           </div>
           
           {/* Actions */}
-          <div className="flex justify-center">
+          <div className="flex flex-col sm:flex-row gap-3">
             <Button
               size="lg"
-              className="min-h-[44px] md:min-h-9 px-8"
+              className="flex-1 min-h-[44px] md:min-h-9"
               onClick={onRestart}
               data-testid="button-restart-session"
             >
               <RefreshCw className="h-5 w-5 mr-2" />
               Start New Session
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              className="flex-1 min-h-[44px] md:min-h-9"
+              onClick={onDownloadTelemetry}
+              data-testid="button-download-completion"
+            >
+              <Download className="h-5 w-5 mr-2" />
+              {t('download_csv')}
             </Button>
           </div>
         </CardContent>
@@ -928,11 +983,13 @@ function LanguageSwitcher() {
 function Header({ 
   mastery, 
   currentIndex, 
-  totalItems
+  totalItems,
+  onTelemetryToggle 
 }: { 
   mastery: any; 
   currentIndex: number;
   totalItems: number;
+  onTelemetryToggle: () => void;
 }) {
   const { t } = useTranslation('ui');
   
@@ -976,6 +1033,14 @@ function Header({
               </div>
             </div>
             <LanguageSwitcher />
+            <Button
+              variant="outline"
+              className="h-[44px] w-[44px] min-h-[44px] min-w-[44px] p-0 md:h-8 md:w-8 md:min-h-8 md:min-w-8"
+              onClick={onTelemetryToggle}
+              data-testid="button-telemetry-toggle"
+            >
+              <ListChecks className="h-5 w-5" />
+            </Button>
           </div>
         </div>
       </div>
@@ -1081,6 +1146,56 @@ function GameTypesPreview() {
         ))}
       </div>
     </section>
+  );
+}
+
+/*************************
+ * Component: TelemetryPanel *
+ *************************/
+function TelemetryPanel({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const data = getTelemetry();
+  const { t } = useTranslation('ui');
+  
+  if (!open) return null;
+  
+  return (
+    <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm" role="dialog" aria-modal="true">
+      <div className="fixed inset-x-4 top-1/2 -translate-y-1/2 mx-auto max-w-4xl">
+        <Card className="max-h-[80vh] overflow-hidden">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+            <h3 className="text-lg font-semibold">Telemetry</h3>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="min-h-[44px] md:min-h-9"
+                onClick={downloadTelemetryCSV}
+                data-testid="button-download-csv"
+              >
+                <Download className="h-4 w-4 mr-2" />
+                {t('download_csv')}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-[44px] w-[44px] min-h-[44px] min-w-[44px] p-0 md:h-8 md:w-8 md:min-h-8 md:min-w-8"
+                onClick={onClose}
+                data-testid="button-close-telemetry"
+              >
+                <X className="h-5 w-5 md:h-4 md:w-4" />
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="max-h-[60vh] overflow-auto">
+            <div className="rounded border bg-muted/30 p-4">
+              <pre className="text-xs whitespace-pre-wrap break-words">
+                {JSON.stringify(data, null, 2)}
+              </pre>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
 }
 
@@ -2098,6 +2213,7 @@ export default function IoTLearningLab() {
   const [incorrectItems, setIncorrectItems] = useState<Set<number>>(new Set());
   
   // UI state
+  const [teleOpen, setTeleOpen] = useState(false);
   
   // Current item
   const item = content.items[currentIndex];
@@ -2209,6 +2325,7 @@ export default function IoTLearningLab() {
   const handleStart = () => {
     setStarted(true);
     setStartMs(now());
+    recordEvent({ type: "session_start" });
   };
   
   const handleRestart = () => {
@@ -2225,13 +2342,21 @@ export default function IoTLearningLab() {
     setHistory([]);
     setSeenCounts(content.items.map(() => 0));
     setIncorrectItems(new Set());
+    setTeleOpen(false);
     
     clearSession(); // Clear saved session
+    recordEvent({ type: "session_restart" });
   };
   
   const handleHint = () => {
     const nextHintIdx = hintIdx + 1;
     setHintIdx(nextHintIdx);
+    recordEvent({
+      type: "hint_shown",
+      item_id: item.id,
+      hint_index: nextHintIdx,
+      hint_text: item.hint_ladder[nextHintIdx],
+    });
   };
   
   const handleSubmit = (response: any) => {
@@ -2249,6 +2374,20 @@ export default function IoTLearningLab() {
     const latency_ms = now() - startMs;
     const result = evaluate(item, response);
     const hints_used = hintIdx + 1;
+    
+    // Record telemetry with minimal, serializable data
+    recordEvent({
+      type: "attempt",
+      item_id: item.id,
+      objective_id: item.objective_id,
+      mechanic: item.mechanic,
+      correct: result.correct,
+      latency_ms,
+      hints_used,
+      misconception_id: result.misconception_id,
+      response_type: item.response_type,
+      response,
+    });
     
     // Update history
     const entry: HistoryEntry = {
@@ -2296,6 +2435,13 @@ export default function IoTLearningLab() {
       // If null, all items completed correctly - trigger session complete
       if (nextIdx === null) {
         setSessionCompleted(true);
+        recordEvent({
+          type: "session_complete",
+          final_streak: mastery.streak,
+          final_avg_time: mastery.avgTimeS,
+          final_hints: mastery.hints,
+          total_items: history.length + 1,
+        });
         return;
       }
       
@@ -2340,6 +2486,13 @@ export default function IoTLearningLab() {
     // If null, all items completed correctly - trigger session complete
     if (nextIdx === null) {
       setSessionCompleted(true);
+      recordEvent({
+        type: "session_complete",
+        final_streak: mastery.streak,
+        final_avg_time: mastery.avgTimeS,
+        final_hints: mastery.hints,
+        total_items: history.length,
+      });
       return;
     }
     
@@ -2444,6 +2597,8 @@ export default function IoTLearningLab() {
             </div>
           </div>
         </div>
+        
+        <TelemetryPanel open={teleOpen} onClose={() => setTeleOpen(false)} />
       </div>
     );
   }
@@ -2455,6 +2610,7 @@ export default function IoTLearningLab() {
         mastery={mastery}
         history={history}
         onRestart={handleRestart}
+        onDownloadTelemetry={downloadTelemetryCSV}
       />
     );
   }
@@ -2466,6 +2622,7 @@ export default function IoTLearningLab() {
         mastery={mastery} 
         currentIndex={currentIndex}
         totalItems={content.items.length}
+        onTelemetryToggle={() => setTeleOpen(!teleOpen)} 
       />
       
       <main className="container mx-auto px-4 py-8 max-w-4xl">
@@ -2543,6 +2700,8 @@ export default function IoTLearningLab() {
           </CardContent>
         </Card>
       </main>
+      
+      <TelemetryPanel open={teleOpen} onClose={() => setTeleOpen(false)} />
     </div>
   );
 }
