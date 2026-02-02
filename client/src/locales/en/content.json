@@ -13,7 +13,9 @@
       "options": ["Yes", "No"],
       "answer_correct_id": "opt_no",
       "answer_correct": "No",
-      "answer_rules": ["IoT applications sense an environment, then share, process, and act on that info."],
+      "answer_rules": [
+        "IoT applications sense an environment, then share, process, and act on that info."
+      ],
       "misconceptions": {
         "any_connected_is_iot": {
           "why": "Being wireless alone isn't enough.",
@@ -34,7 +36,9 @@
       "options": ["Yes", "No"],
       "answer_correct_id": "opt_yes",
       "answer_correct": "Yes",
-      "answer_rules": ["The system senses (RFID), shares data, processes it, then triggers actions like stock updates."],
+      "answer_rules": [
+        "The system senses (RFID), shares data, processes it, then triggers actions like stock updates."
+      ],
       "misconceptions": {
         "rfid_not_iot": {
           "why": "RFID can be part of IoT when it senses and shares object state.",
@@ -136,11 +140,7 @@
           "next_try": "Pick the RFID option."
         }
       },
-      "hints": [
-        "What tech scans tags at gates?",
-        "Think RFID.",
-        "Choose RFID readers."
-      ],
+      "hints": ["What tech scans tags at gates?", "Think RFID.", "Choose RFID readers."],
       "exemplar": "RFID readers—gates scan passive tags; no Wi-Fi on boxes."
     },
     "NET-3": {
@@ -178,7 +178,7 @@
         "Live virtual copy of a physical system",
         "Reduce risks (patching, segmentation, physical safeguards)"
       ],
-      "answer_correct_indices": {"0": 0, "1": 1, "2": 2, "3": 3},
+      "answer_correct_indices": { "0": 0, "1": 1, "2": 2, "3": 3 },
       "answer_correct": {
         "5G": "High-capacity wireless for many devices",
         "Big data / AI": "Analyze large sensor streams to find patterns",

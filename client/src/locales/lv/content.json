@@ -13,7 +13,9 @@
       "options": ["Jā", "Nē"],
       "answer_correct_id": "opt_no",
       "answer_correct": "Nē",
-      "answer_rules": ["IoT lietojumprogrammas uztver vides datus, pēc tam tos koplieto, apstrādā un rīkojas atbilstoši."],
+      "answer_rules": [
+        "IoT lietojumprogrammas uztver vides datus, pēc tam tos koplieto, apstrādā un rīkojas atbilstoši."
+      ],
       "misconceptions": {
         "any_connected_is_iot": {
           "why": "Ar bezvadu savienojumu vien nepietiek.",
@@ -34,7 +36,9 @@
       "options": ["Jā", "Nē"],
       "answer_correct_id": "opt_yes",
       "answer_correct": "Jā",
-      "answer_rules": ["Sistēma uztver (RFID), koplieto datus, apstrādā tos un izraisa darbības, piemēram, krājumu atjaunināšanu."],
+      "answer_rules": [
+        "Sistēma uztver (RFID), koplieto datus, apstrādā tos un izraisa darbības, piemēram, krājumu atjaunināšanu."
+      ],
       "misconceptions": {
         "rfid_not_iot": {
           "why": "RFID var būt IoT daļa, ja tā uztver un koplieto objektu stāvokli.",
@@ -55,7 +59,9 @@
       "options": ["Jā", "Nē"],
       "answer_correct_id": "opt_yes",
       "answer_correct": "Jā",
-      "answer_rules": ["Sensori nosaka klātbūtni; dati tiek apstrādāti; apkure tiek pielāgota (rīcība)."],
+      "answer_rules": [
+        "Sensori nosaka klātbūtni; dati tiek apstrādāti; apkure tiek pielāgota (rīcība)."
+      ],
       "misconceptions": {
         "needs_internet": {
           "why": "'Internets' nav obligāts — pietiek ar ierīču tīklu, kas uztver un rīkojas.",
@@ -178,7 +184,7 @@
         "Fiziskas sistēmas tiešsaistes virtuālā kopija",
         "Samazina riskus (ielāpi, segmentācija, fiziska aizsardzība)"
       ],
-      "answer_correct_indices": {"0": 0, "1": 1, "2": 2, "3": 3},
+      "answer_correct_indices": { "0": 0, "1": 1, "2": 2, "3": 3 },
       "answer_correct": {
         "5G": "Lielas ietilpības bezvadu savienojums daudzām ierīcēm",
         "Big data / AI": "Analizē lielas sensoru datu plūsmas, lai atrastu likumsakarības",
